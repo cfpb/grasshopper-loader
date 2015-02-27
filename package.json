@@ -1,0 +1,48 @@
+{
+  "name": "shp2es",
+  "version": "1.0.0",
+  "description": "Load Shapefile data to ElasticSearch",
+  "main": "shp2es.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jmarin/shp2es.git"
+  },
+  "author": {
+	  "name": "Juan Marin Otero",
+		"email": "juan.marin.otero@gmail.com"
+	},
+  "license": {
+	  "type": "Apache",
+		"url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+	},
+  "bugs": {
+    "url": "https://github.com/jmarin/shp2es/issues"
+  },
+  "homepage": "https://github.com/jmarin/shp2es",
+	"egines": {
+	  "node": "0.10"
+	},
+	"scripts": {
+	  "test": "grunt test"
+	},
+	"devDependencies": {
+		"grunt": "^0.4.5",
+		"grunt-contrib-clean": "^0.5.0",
+		"grunt-contrib-jshint": "~0.10.0",
+		"grunt-contrib-uglify": "~0.5.0",
+		"grunt-develop": "^0.4.0",
+    "grunt-env": "~0.4.1",
+		"grunt-release": "^0.7.0"
+	},
+	"dependencies": {
+		"commander": "^2.5.1",
+	  "shapefile-stream": "^0.0.2",
+		"through2": "^0.6.3",
+		"elasticsearch": "^3.0.2"
+	},
+	"keyworkds": "ElasticSearch, Shapefile",
+	"preferGlobal": "true",
+	"bin": {
+	  "shp2es": "lib/shp2es.js"
+	}
+}
