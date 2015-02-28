@@ -8,6 +8,7 @@ Data is transformed from these standard formats and loaded into Elasticsearch (t
   - **Technology stack**: Due to a high volume of IO, the loader uses [node.js](http://nodejs.org/) for high throughput.
   - **Status**: Alpha
   - **Notes on change**: As both the Elasticsearch schema and data standards may (and likely will) change, expect to see active, breaking changes in this repo until tagged otherwise. Also, many new transformations will be added as more state-specific data is acquired.
+
 ----
 
 ## Open source licensing info
