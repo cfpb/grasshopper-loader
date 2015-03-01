@@ -3,9 +3,9 @@
 'use strict';
 
 var program = require('commander');
+var checkUsage = require('./lib/checkUsage');
 var validateShp = require('./lib/validateShp');
 var shp = require('./lib/shp');
-var errorText = ''
 
 program
   .version('1.0.0')
@@ -15,20 +15,7 @@ program
   .parse(process.argv);
 
 
-if(!program.shapefile){
-  errorText += 'Must provide a shapefile.\n';
-}
-
-if(!program.host){
-  errorText += 'Must provide an elasticsearch host.\n';
-}
-
-if(!program.port || program.port < -1 || program.port > 65536){
-  errorText += 'Must provide a port number between 0 and 65535.\n';
-}
-
-
-if (errorText) return usage(errorText);
+if(!checkUsage(program)) return;
 
 
 validateShp(program.shapefile,function(err, shapefile){
@@ -39,7 +26,4 @@ validateShp(program.shapefile,function(err, shapefile){
 
 
 
-function usage(error) {
-  console.log(error);
-  console.log('usage: ./shp2es -s <shapefile> -h <ElasticSearch host> -p <ElasticSearch port>');
-}
+
