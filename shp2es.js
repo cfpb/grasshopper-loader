@@ -3,19 +3,20 @@
 'use strict';
 
 var program = require('commander');
+var validateShp = require('./lib/validateShp');
 var shp = require('./lib/shp');
 var errorText = ''
 
 program
   .version('1.0.0')
-	.option('-s, --shapefile <s>', 'Shapefile')
-	.option('-h, --host <h>', 'ElasticSearch host')
-	.option('-p ,--port <p>', 'ElasticSearch port', parseInt)
+  .option('-s, --shapefile <s>', 'Shapefile')
+  .option('-h, --host <h>', 'ElasticSearch host')
+  .option('-p ,--port <p>', 'ElasticSearch port', parseInt)
   .parse(process.argv);
 
 
-if(!program.shapefile || !program.shapefile.match(/\.shp$/i)){
-  errorText += 'Invalid shapefile.\n';
+if(!program.shapefile){
+  errorText += 'Must provide a shapefile.\n';
 }
 
 if(!program.host){
@@ -29,7 +30,13 @@ if(!program.port || program.port < -1 || program.port > 65536){
 
 if (errorText) return usage(errorText);
 
-return shp.read(program.shapefile, program.host, program.port);
+
+validateShp(program.shapefile,function(err, shapefile){
+  if (err) return console.log(err);
+  shp.read(shapefile, program.host, program.port);
+});
+
+
 
 
 function usage(error) {
