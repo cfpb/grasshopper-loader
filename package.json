@@ -1,48 +1,41 @@
 {
-  "name": "shp2es",
-  "version": "1.0.0",
-  "description": "Load Shapefile data to ElasticSearch",
-  "main": "shp2es.js",
+  "name": "grasshopper-loader",
+  "version": "0.0.1",
+  "description": "Load shapefiles into Grasshopper",
+  "main": "grasshopper-loader.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/jmarin/shp2es.git"
+    "url": "https://github.com/cfpb/grasshopper-loader.git"
   },
   "author": {
-	  "name": "Juan Marin Otero",
-		"email": "juan.marin.otero@gmail.com"
-	},
-  "license": {
-	  "type": "Apache",
-		"url": "http://www.apache.org/licenses/LICENSE-2.0.html"
-	},
-  "bugs": {
-    "url": "https://github.com/jmarin/shp2es/issues"
+    "name": "Consumer Financial Protection Bureau",
+    "url": "http://cfpb.github.io/"
   },
-  "homepage": "https://github.com/jmarin/shp2es",
-	"egines": {
-	  "node": "0.10"
-	},
-	"scripts": {
-	  "test": "grunt test"
-	},
-	"devDependencies": {
-		"grunt": "^0.4.5",
-		"grunt-contrib-clean": "^0.5.0",
-		"grunt-contrib-jshint": "~0.10.0",
-		"grunt-contrib-uglify": "~0.5.0",
-		"grunt-develop": "^0.4.0",
-    "grunt-env": "~0.4.1",
-		"grunt-release": "^0.7.0"
-	},
-	"dependencies": {
-		"commander": "^2.5.1",
-	  "shapefile-stream": "^0.0.2",
-		"through2": "^0.6.3",
-		"elasticsearch": "^3.0.2"
-	},
-	"keyworkds": "ElasticSearch, Shapefile",
-	"preferGlobal": "true",
-	"bin": {
-	  "shp2es": "lib/shp2es.js"
-	}
+  "licenses": [
+    {
+      "type": "Public Domain",
+      "url": "http://github.com/cfpb/owning-a-home/blob/master/TERMS.md"
+    }
+  ],
+  "bugs": {
+    "url": "https://github.com/cfpb/grasshopper-loader/issues"
+  },
+  "homepage": "https://github.com/cfpb/grasshopper-loader",
+  "engines": {
+    "node": "0.10"
+  },
+  "scripts": {},
+  "devDependencies": {},
+  "dependencies": {
+    "async": "^0.9.0",
+    "commander": "^2.5.1",
+    "elasticsearch": "^3.0.2",
+    "shapefile-stream": "^0.0.2",
+    "through2": "^0.6.3"
+  },
+  "keywords": "ElasticSearch, Shapefile",
+  "preferGlobal": "true",
+  "bin": {
+    "grasshopper-loader": "./grasshopper-loader.js"
+  }
 }
