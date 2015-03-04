@@ -27,13 +27,23 @@ var ext = path.extname(shapefile);
 var basename = path.basename(shapefile, ext);
 var dirname = path.dirname(shapefile);
 
+//fast dir check... requires ext passing
+if(!ext){
+  dirname = shapefile;
+  basename = path.join(dirname, basename);
+}
+
 var shp = path.join(dirname, basename + '.shp');
 var prj = path.join(dirname, basename + '.prj');
 
 
 if(ext.toLowerCase() === '.zip'){
-  fs.createReadStream(shapefile).pipe(unzip.Extract({path: dirname}))
-    .on('close', processShapefile);
+  var unzippedDir = path.join(dirname, basename);
+  fs.mkdir(unzippedDir,function(err){
+    if(err) throw err;
+    fs.createReadStream(shapefile).pipe(unzip.Extract({path: unzippedDir}))
+      .on('close', processShapefile);
+  });
 }else{
   processShapefile(); 
 }
