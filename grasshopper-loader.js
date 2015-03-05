@@ -10,7 +10,7 @@ var unzip = require('unzip');
 
 var checkUsage = require('./lib/checkUsage');
 var project = require('./lib/project');
-var esLoader = require('./lib/esLoader');
+//var esLoader = require('./lib/esLoader');
 
 program
   .version('1.0.0')
@@ -30,28 +30,29 @@ var dirname = path.dirname(shapefile);
 //fast dir check... requires ext passing
 if(!ext){
   dirname = shapefile;
-  basename = path.join(dirname, basename);
 }
-
-var shp = path.join(dirname, basename + '.shp');
-var prj = path.join(dirname, basename + '.prj');
 
 
 if(ext.toLowerCase() === '.zip'){
-  var unzippedDir = path.join(dirname, basename);
-  fs.mkdir(unzippedDir,function(err){
+  dirname = path.join(dirname, basename);
+
+  fs.mkdir(dirname, function(err){
     if(err) throw err;
-    fs.createReadStream(shapefile).pipe(unzip.Extract({path: unzippedDir}))
+    fs.createReadStream(shapefile).pipe(unzip.Extract({path: dirname}))
       .on('close', processShapefile);
   });
 }else{
   processShapefile(); 
 }
 
+
 function processShapefile(){
+  var shp = path.join(dirname, basename + '.shp');
+  var prj = path.join(dirname, basename + '.prj');
+
   fs.readFile(prj, function(err, data){
     if (err) throw err;
-    project(shp, prj);
+    project(shp, data.toString());
   });
 }
 //  esLoader.read(shapefile, program.host, program.port);
