@@ -22,41 +22,37 @@ program
 
 if(!checkUsage(program)) return;
 
-esLoader.connect(function(err){
+esLoader.connect(program.host, program.port);
 
-  if (err) throw err;
+var shapefile = program.shapefile;
+var ext = path.extname(shapefile);
+var basename = path.basename(shapefile, ext);
+var dirname = path.dirname(shapefile);
 
-  var shapefile = program.shapefile;
-  var ext = path.extname(shapefile);
-  var basename = path.basename(shapefile, ext);
-  var dirname = path.dirname(shapefile);
-
-  //fast dir check... requires ext passing
-  if(!ext){
-    dirname = shapefile;
-  }
+//fast dir check... requires ext passing
+if(!ext){
+  dirname = shapefile;
+}
 
 
-  if(ext.toLowerCase() === '.zip'){
-    dirname = path.join(dirname, basename);
+if(ext.toLowerCase() === '.zip'){
+  dirname = path.join(dirname, basename);
 
-    fs.mkdir(dirname, function(err){
-      if(err) throw err;
-      fs.createReadStream(shapefile).pipe(unzip.Extract({path: dirname}))
-        .on('close', processShapefile);
-    });
-  }else{
-    processShapefile(); 
-  }
-
-
-  function processShapefile(){
-    var shp = path.join(dirname, basename + '.shp');
-
-    ogr(shp).pipe(transformer()).pipe(esLoader.load());
-  }
-
-});
+  fs.mkdir(dirname, function(err){
+    if(err) throw err;
+    fs.createReadStream(shapefile).pipe(unzip.Extract({path: dirname}))
+      .on('close', processShapefile);
+  });
+}else{
+  processShapefile(); 
+}
 
 
+function processShapefile(){
+  var shp = path.join(dirname, basename + '.shp');
+
+  ogr(shp).pipe(transformer()).pipe(esLoader.load()).on('error',function(err){
+    console.log("Error loading data",err); 
+  });
+}
 
