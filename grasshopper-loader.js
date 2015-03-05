@@ -9,8 +9,8 @@ var program = require('commander');
 var unzip = require('unzip');
 
 var checkUsage = require('./lib/checkUsage');
-var project = require('./lib/project');
-//var esLoader = require('./lib/esLoader');
+var esLoader = require('./lib/esLoader');
+var ogr = require('./lib/ogr');
 
 program
   .version('1.0.0')
@@ -22,42 +22,41 @@ program
 
 if(!checkUsage(program)) return;
 
-var shapefile = program.shapefile;
-var ext = path.extname(shapefile);
-var basename = path.basename(shapefile, ext);
-var dirname = path.dirname(shapefile);
+esLoader.connect(function(err){
 
-//fast dir check... requires ext passing
-if(!ext){
-  dirname = shapefile;
-}
+  if (err) throw err;
 
+  var shapefile = program.shapefile;
+  var ext = path.extname(shapefile);
+  var basename = path.basename(shapefile, ext);
+  var dirname = path.dirname(shapefile);
 
-if(ext.toLowerCase() === '.zip'){
-  dirname = path.join(dirname, basename);
-
-  fs.mkdir(dirname, function(err){
-    if(err) throw err;
-    fs.createReadStream(shapefile).pipe(unzip.Extract({path: dirname}))
-      .on('close', processShapefile);
-  });
-}else{
-  processShapefile(); 
-}
+  //fast dir check... requires ext passing
+  if(!ext){
+    dirname = shapefile;
+  }
 
 
-function processShapefile(){
-  var shp = path.join(dirname, basename + '.shp');
-  var prj = path.join(dirname, basename + '.prj');
+  if(ext.toLowerCase() === '.zip'){
+    dirname = path.join(dirname, basename);
 
-  fs.readFile(prj, function(err, data){
-    if (err) throw err;
-    project(shp, data.toString());
-  });
-}
-//  esLoader.read(shapefile, program.host, program.port);
+    fs.mkdir(dirname, function(err){
+      if(err) throw err;
+      fs.createReadStream(shapefile).pipe(unzip.Extract({path: dirname}))
+        .on('close', processShapefile);
+    });
+  }else{
+    processShapefile(); 
+  }
 
 
+  function processShapefile(){
+    var shp = path.join(dirname, basename + '.shp');
+
+    ogr(shp).pipe(transformer()).pipe(esLoader.load());
+  }
+
+});
 
 
 
