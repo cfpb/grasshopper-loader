@@ -2,6 +2,7 @@ var through = require('through2');
 var makeAddress = require('../lib/makeAddress');
 
 function transform(chunk, enc, cb){
+  console.log(chunk,chunk.toString());
   var trimmed = {};
   var props = chunk.properties;
 
