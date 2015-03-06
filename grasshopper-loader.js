@@ -54,8 +54,10 @@ if(ext.toLowerCase() === '.zip'){
 
   fs.mkdir(dirname, function(err){
     if(err) throw err;
-    fs.createReadStream(shapefile).pipe(unzip.Extract({path: dirname}))
-      .on('close', processShapefile);
+    var unzipped = unzip.Extract({path: dirname});
+    unzipped.on('close', processShapefile);
+
+    fs.createReadStream(shapefile).pipe(unzipped)
   });
 }else{
   processShapefile(); 
@@ -64,7 +66,7 @@ if(ext.toLowerCase() === '.zip'){
 
 function processShapefile(){
   var shp = path.join(dirname, basename + '.shp');
-
+  console.log("Streaming %s to elasticsearch.",shp);
   ogr(shp).pipe(splitOGRJSON()).pipe(transformer()).pipe(esLoader.load()).on('error',function(err){
     console.log("Error loading data",err); 
   });
