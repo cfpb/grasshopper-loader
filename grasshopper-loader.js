@@ -68,7 +68,7 @@ function processShapefile(){
   var shp = path.join(dirname, basename + '.shp');
   console.log("Streaming %s to elasticsearch.",shp);
   ogr(shp).pipe(splitOGRJSON()).pipe(transformer()).pipe(esLoader.load()).on('error',function(err){
-    console.log("Error loading data",err); 
+    console.log("Error piping data",err); 
   });
 }
 
