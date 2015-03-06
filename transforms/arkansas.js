@@ -2,7 +2,7 @@ var through = require('through2');
 var makeAddress = require('../lib/makeAddress');
 
 function transform(chunk, enc, cb){
-  console.log(chunk,chunk.toString());
+  chunk = JSON.parse(chunk);
   var trimmed = {};
   var props = chunk.properties;
 
@@ -13,10 +13,10 @@ function transform(chunk, enc, cb){
                                 );
   trimmed.coordinates = chunk.geometry.coordinates
 
-  this.push(trimmed);
+  this.push(JSON.stringify(trimmed));
   cb();
 }
 
 module.exports = function(){
-  return through.obj(transform);
+  return through(transform);
 };
