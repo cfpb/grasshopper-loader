@@ -11,25 +11,39 @@ var unzip = require('unzip');
 var checkUsage = require('./lib/checkUsage');
 var esLoader = require('./lib/esLoader');
 var ogr = require('./lib/ogr');
+var splitOGRJSON = require('./lib/splitOGRJSON');
+var transformer;
+
 
 program
   .version('1.0.0')
   .option('-s, --shapefile <s>', 'Shapefile')
   .option('-h, --host <h>', 'ElasticSearch host')
-  .option('-p ,--port <p>', 'ElasticSearch port', parseInt)
+  .option('-p, --port <p>', 'ElasticSearch port', parseInt)
+  .option('-t, --transformer <t>', 'Data transformer')
   .parse(process.argv);
+
+
+if(program.transformer){
+  transformer = require('./transformers/' + program.transformer);
+}else{
+  transformer = require('./transformers/default');
+}
 
 
 if(!checkUsage(program)) return;
 
+
 esLoader.connect(program.host, program.port);
+
 
 var shapefile = program.shapefile;
 var ext = path.extname(shapefile);
 var basename = path.basename(shapefile, ext);
 var dirname = path.dirname(shapefile);
 
-//fast dir check... requires ext passing
+
+//fast dir check... requires passing ext with shapefile
 if(!ext){
   dirname = shapefile;
 }
@@ -51,7 +65,7 @@ if(ext.toLowerCase() === '.zip'){
 function processShapefile(){
   var shp = path.join(dirname, basename + '.shp');
 
-  ogr(shp).pipe(transformer()).pipe(esLoader.load()).on('error',function(err){
+  ogr(shp).pipe(splitOGRJSON()).pipe(transformer()).pipe(esLoader.load()).on('error',function(err){
     console.log("Error loading data",err); 
   });
 }
