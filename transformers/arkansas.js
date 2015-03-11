@@ -1,6 +1,9 @@
 var through = require('through2');
 var makeAddress = require('../lib/makeAddress');
 
+var prefix = '';
+var suffix = '';
+
 function transform(chunk, enc, cb){
   chunk = JSON.parse(chunk);
   var trimmed = {};
@@ -13,10 +16,13 @@ function transform(chunk, enc, cb){
                                 );
   trimmed.coordinates = chunk.geometry.coordinates
 
-  this.push(JSON.stringify(trimmed));
+  //Elaticsearch bulk wants newline separated values
+  this.push(prefix + JSON.stringify(trimmed) + suffix);
   cb();
 }
 
-module.exports = function(){
+module.exports = function(pre, suf){
+  if(pre) prefix = pre;
+  if(suf) suffix = suf;
   return through(transform);
 };

@@ -68,7 +68,7 @@ if(ext.toLowerCase() === '.zip'){
 function processShapefile(){
   var shp = path.join(dirname, basename + '.shp');
   console.log("Streaming %s to elasticsearch.",shp);
-  ogr(shp).pipe(splitOGRJSON()).pipe(transformer()).pipe(lump.obj(5000)).pipe(esLoader.load()).on('error',function(err){
+  ogr(shp).pipe(splitOGRJSON()).pipe(transformer()).pipe(lump(Math.pow(2,20)).pipe(esLoader.load())).on('error',function(err){
     console.log("Error piping data",err); 
   });
 }
