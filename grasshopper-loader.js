@@ -6,6 +6,7 @@ var fs = require('fs');
 var path = require('path');
 
 var program = require('commander');
+var lump = require('lump-stream');
 var unzip = require('unzip');
 
 var checkUsage = require('./lib/checkUsage');
@@ -67,7 +68,7 @@ if(ext.toLowerCase() === '.zip'){
 function processShapefile(){
   var shp = path.join(dirname, basename + '.shp');
   console.log("Streaming %s to elasticsearch.",shp);
-  ogr(shp).pipe(splitOGRJSON()).pipe(transformer()).pipe(esLoader.load()).on('error',function(err){
+  ogr(shp).pipe(splitOGRJSON()).pipe(transformer()).pipe(lump.obj(5000)).pipe(esLoader.load()).on('error',function(err){
     console.log("Error piping data",err); 
   });
 }
