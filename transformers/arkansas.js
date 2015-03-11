@@ -16,7 +16,6 @@ function transform(chunk, enc, cb){
                                 );
   trimmed.coordinates = chunk.geometry.coordinates
 
-  //Elaticsearch bulk wants newline separated values
   this.push(prefix + JSON.stringify(trimmed) + suffix);
   cb();
 }

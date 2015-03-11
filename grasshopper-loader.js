@@ -13,7 +13,11 @@ var checkUsage = require('./lib/checkUsage');
 var esLoader = require('./lib/esLoader');
 var ogr = require('./lib/ogr');
 var splitOGRJSON = require('./lib/splitOGRJSON');
+var makeBulkSeparator = require('./lib/makeBulkSeparator');
 var transformer;
+
+var index = 'address';
+var type = 'point';
 
 
 program
@@ -35,7 +39,7 @@ if(program.transformer){
 if(!checkUsage(program)) return;
 
 
-esLoader.connect(program.host, program.port);
+esLoader.connect(program.host, program.port, index, type);
 
 
 var shapefile = program.shapefile;
@@ -68,8 +72,13 @@ if(ext.toLowerCase() === '.zip'){
 function processShapefile(){
   var shp = path.join(dirname, basename + '.shp');
   console.log("Streaming %s to elasticsearch.",shp);
-  ogr(shp).pipe(splitOGRJSON()).pipe(transformer()).pipe(lump(Math.pow(2,20)).pipe(esLoader.load())).on('error',function(err){
-    console.log("Error piping data",err); 
-  });
+  ogr(shp)
+    .pipe(splitOGRJSON())
+    .pipe(transformer(makeBulkSeparator(), '\n'))
+    .pipe(lump(Math.pow(2,20)))
+    .pipe(esLoader.load())
+    .on('error',function(err){
+      console.log("Error piping data",err); 
+    });
 }
 
