@@ -14,7 +14,6 @@ var esLoader = require('./lib/esLoader');
 var ogr = require('./lib/ogr');
 var splitOGRJSON = require('./lib/splitOGRJSON');
 var makeBulkSeparator = require('./lib/makeBulkSeparator');
-var transformer;
 
 var index = 'address';
 var type = 'point';
@@ -22,22 +21,16 @@ var type = 'point';
 
 program
   .version('1.0.0')
-  .option('-s, --shapefile <s>', 'Shapefile as a zip, .shp, or directory')
-  .option('-h, --host <h>', 'ElasticSearch host')
-  .option('-p, --port <p>', 'ElasticSearch port', parseInt)
-  .option('-t, --transformer <t>', 'Data transformer')
+  .option('-s, --shapefile <shp>', 'Shapefile as a zip, .shp, or directory')
+//  .option('-r --recursive', 'Recursively locate and operate on shapefiles in a directory')
+  .option('-h, --host <host>', 'ElasticSearch host. Defaults to localhost', 'localhost')
+  .option('-p, --port <port>', 'ElasticSearch port. Defaults to 9200', Number, 9200)
+  .option('-t, --transformer <transformer>', 'Data transformer. Defaults to transformer/default', 'transformer/default')
   .parse(process.argv);
-
-
-if(program.transformer){
-  transformer = require('./transformers/' + program.transformer);
-}else{
-  transformer = require('./transformers/default');
-}
-
 
 if(!checkUsage(program)) return;
 
+var transformer = require(program.transformer);
 
 esLoader.connect(program.host, program.port, index, type);
 
