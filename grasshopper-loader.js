@@ -25,10 +25,12 @@ program
 //  .option('-r --recursive', 'Recursively locate and operate on shapefiles in a directory')
   .option('-h, --host <host>', 'ElasticSearch host. Defaults to localhost', 'localhost')
   .option('-p, --port <port>', 'ElasticSearch port. Defaults to 9200', Number, 9200)
-  .option('-t, --transformer <transformer>', 'Data transformer. Defaults to transformer/default', 'transformer/default')
+  .option('-t, --transformer <transformer>', 'Data transformer. Defaults to ./transformers/default', './transformers/default')
   .parse(process.argv);
 
-if(!checkUsage(program)) return;
+var usage = checkUsage(program);
+console.log(usage.messages.join(''));
+if(usage.err) return;
 
 var transformer = require(program.transformer);
 
