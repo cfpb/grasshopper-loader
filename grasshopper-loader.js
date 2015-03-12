@@ -22,7 +22,7 @@ var type = 'point';
 
 program
   .version('1.0.0')
-  .option('-s, --shapefile <s>', 'Shapefile')
+  .option('-s, --shapefile <s>', 'Shapefile as a zip, .shp, or directory')
   .option('-h, --host <h>', 'ElasticSearch host')
   .option('-p, --port <p>', 'ElasticSearch port', parseInt)
   .option('-t, --transformer <t>', 'Data transformer')
