@@ -38,7 +38,7 @@
     "through2": "^0.6.3",
     "unzip": "^0.1.11"
   },
-  "keywords": "ElasticSearch, Shapefile",
+  "keywords": "ElasticSearch, Streams, Address, Shapefile",
   "preferGlobal": "true",
   "bin": {
     "grasshopper-loader": "./grasshopper-loader.js"
