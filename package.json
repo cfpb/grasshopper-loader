@@ -37,6 +37,7 @@
     "commander": "^2.5.1",
     "elasticsearch": "^3.0.2",
     "lump-stream": "0.x",
+    "readable-stream": "^1.0.33",
     "through2": "^0.6.3",
     "unzip": "^0.1.11"
   },
