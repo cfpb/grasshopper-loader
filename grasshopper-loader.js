@@ -21,8 +21,7 @@ var type = 'point';
 
 program
   .version('1.0.0')
-  .option('-s, --shapefile <shp>', 'Shapefile as a zip, .shp, or directory')
-//  .option('-r --recursive', 'Recursively locate and operate on shapefiles in a directory')
+  .option('-s, --shapefile <shp>', 'Shapefile as a zip, .shp, .gdb, or directory')
   .option('-h, --host <host>', 'ElasticSearch host. Defaults to localhost', 'localhost')
   .option('-p, --port <port>', 'ElasticSearch port. Defaults to 9200', Number, 9200)
   .option('-t, --transformer <transformer>', 'Data transformer. Defaults to ./transformers/default', './transformers/default')

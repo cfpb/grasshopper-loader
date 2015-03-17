@@ -25,9 +25,10 @@
     "node": "0.10"
   },
   "scripts": {
-    "test" : "node test/test.js"
+    "test": "node test/test.js"
   },
   "devDependencies": {
+    "stream-stats": "^0.1.0",
     "tape": "^3.5.0"
   },
   "dependencies": {
