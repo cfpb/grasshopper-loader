@@ -11,7 +11,7 @@ var unzip = require('unzip');
 
 var checkUsage = require('./lib/checkUsage');
 var esLoader = require('./lib/esLoader');
-var ogr = require('./lib/ogr');
+var ogrChild = require('./lib/ogrChild');
 var splitOGRJSON = require('./lib/splitOGRJSON');
 var makeBulkSeparator = require('./lib/makeBulkSeparator');
 
@@ -66,7 +66,9 @@ if(ext.toLowerCase() === '.zip'){
 function processShapefile(){
   var shp = path.join(dirname, basename + '.shp');
   console.log("Streaming %s to elasticsearch.",shp);
-  ogr(shp)
+  var child = ogrChild(shp);
+
+  child.stdout 
     .pipe(splitOGRJSON())
     .pipe(transformer(makeBulkSeparator(), '\n'))
     .pipe(lump(Math.pow(2,20)))

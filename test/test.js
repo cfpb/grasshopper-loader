@@ -6,7 +6,7 @@ var checkUsage = require('../lib/checkUsage');
 var makeBulkSeparator = require('../lib/makeBulkSeparator');
 var makeAddress = require('../lib/makeAddress');
 
-var ogr = require('../lib/ogr');
+var ogrChild = require('../lib/ogrChild');
 var splitOGRJSON = require('../lib/splitOGRJSON');
 
 var esLoader = require('../lib/esLoader');
@@ -38,6 +38,18 @@ test('Check Usage', function(t){
 test('ogr module', function(t){
   t.plan(3);
   
-  var shp = './data/t.shp';
+  var shp = 'test/data/t.shp';
+  var child = ogrChild('qwe'); 
+  var errInChild = 0;
 
+  t.ok(child, 'ogrChild process is created');
+  t.ok(isStream(child.stdout), 'the child process has stdout');
+
+  child.stderr.once('data',function(){
+    errInChild = 1;
+  });
+
+  child.stderr.once('end',function(){
+    t.notOk(errInChild, 'ogr2ogr doesn\'t emit an error');
+  });
 });
