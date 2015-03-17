@@ -28,7 +28,8 @@
     "test": "node test/test.js"
   },
   "devDependencies": {
-    "stream-stats": "^0.1.0",
+    "isstream": "^0.1.2",
+    "stream-stats": "0.x",
     "tape": "^3.5.0"
   },
   "dependencies": {

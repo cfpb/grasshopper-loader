@@ -1,4 +1,6 @@
 var test = require('tape');
+var streamStats = require('stream-stats');
+var isStream = require('isstream');
 
 var checkUsage = require('../lib/checkUsage');
 var makeBulkSeparator = require('../lib/makeBulkSeparator');
@@ -31,4 +33,11 @@ test('Check Usage', function(t){
   var third = checkUsage({port:NaN})
   t.equal(third.messages.length, 2);
   t.equal(third.err, 1);
+});
+
+test('ogr module', function(t){
+  t.plan(3);
+  
+  var shp = './data/t.shp';
+
 });
