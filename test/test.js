@@ -5,11 +5,11 @@ var streamStats = require('stream-stats');
 var isStream = require('isstream');
 
 var checkUsage = require('../lib/checkUsage');
-var makeBulkSeparator = require('../lib/makeBulkSeparator');
-var makeAddress = require('../lib/makeAddress');
-
 var ogrChild = require('../lib/ogrChild');
 var splitOGRJSON = require('../lib/splitOGRJSON');
+var makeBulkSeparator = require('../lib/makeBulkSeparator');
+var formatAddress = require('../lib/formatAddress');
+
 
 var esLoader = require('../lib/esLoader');
 
@@ -37,7 +37,8 @@ test('Check Usage', function(t){
   t.equal(third.err, 1);
 });
 
-test('ogr module', function(t){
+
+test('ogriChild module', function(t){
   t.plan(3);
   
   var shp = 'test/data/t.shp';
@@ -56,6 +57,7 @@ test('ogr module', function(t){
   });
 });
 
+
 test('splitOGRJSON module', function(t){
   t.plan(1); 
 
@@ -70,7 +72,6 @@ test('splitOGRJSON module', function(t){
   stats.on('end', function(){
     var result = stats.getResult(); 
     var validJSON = 1;
-    console.log(result);
     result.chunks.forEach(function(v){
       try{
         JSON.parse(v.chunk.toString())   
@@ -83,3 +84,21 @@ test('splitOGRJSON module', function(t){
 });
 
 
+test('makeBulkSeparator module', function(t){
+  t.plan(3);
+  var sep = makeBulkSeparator('ind','typ'); 
+  var sepObj = JSON.parse(sep.slice(0,sep.length-1));
+  var expectedSep = {index:{_index:'ind',_type:'typ'}}
+  t.deepEqual(sepObj, expectedSep, 'Bulk separator on standard input');
+
+  var mtSep = makeBulkSeparator();
+  var mtObj = JSON.parse(mtSep.slice(0,mtSep.length-1));
+  var expectedMT = {index:{}};
+  t.deepEqual(mtObj, expectedMT, 'Bulk separator on empty input');
+  
+  try{
+    makeBulkSeparator(null, 'failing'); 
+  }catch(e){
+    t.pass('Bulk separator with a type and no index fails');
+  }
+});
