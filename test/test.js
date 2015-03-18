@@ -153,7 +153,7 @@ test('transformerTemplate module', function(t){
   }
 });
 
-/*test('Transformers', function(t){
+test('Transformers', function(t){
   
   fs.readdir('transformers/',function(err,transformers){
     t.plan(transformers.length);
@@ -166,7 +166,7 @@ test('transformerTemplate module', function(t){
       var transformer = require(path.join('transformers', transFile));
       var stats = streamStats(transFile, {store:1});
 
-      fs.createReadStream()
+      fs.createReadStream(sample)
         .pipe(splitOGRJSON())
         .pipe(transformer(bulkMetadata, '\n'))
         .pipe(stats)
@@ -175,6 +175,7 @@ test('transformerTemplate module', function(t){
       stats.once('end', function(){
         var result = stats.getResult(); 
         var output = result.chunks[0].chunk.toString().split('\n')  
+        console.log(output);
       });
     });
 
@@ -184,4 +185,4 @@ test('transformerTemplate module', function(t){
   
   
 
-});*/
+});
