@@ -125,7 +125,21 @@ test('esLoader module', function(t){
 });
 
 
-test('Transformers', function(t){
+test('transformerTemplate module', function(t){
+  t.plan(3);
+  var trans = transformerTemplate('123 fake st.','Springfield','Oregon',19992);
+
+  t.equal(typeof trans, 'function', 'template returns a function');
+  t.ok(isStream.isDuplex(trans()), 'The produced transformer generates a transform stream'); 
+
+  try{
+    transformerTemplate();
+  }catch(e){
+    t.pass('Calling the template without all arguments throws an error');
+  }
+});
+
+/*test('Transformers', function(t){
   
   fs.readdir('transformers/',function(err,transformers){
     t.plan(1);
@@ -139,6 +153,6 @@ test('Transformers', function(t){
     .pipe(splitOGRJSON())
     .pipe(
     .pipe(stats)
-    .sink();*/ 
+    .sink();
 
-});
+});*/
