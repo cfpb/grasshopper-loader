@@ -1,3 +1,5 @@
+var fs = require('fs');
+
 var test = require('tape');
 var streamStats = require('stream-stats');
 var isStream = require('isstream');
@@ -39,7 +41,7 @@ test('ogr module', function(t){
   t.plan(3);
   
   var shp = 'test/data/t.shp';
-  var child = ogrChild('qwe'); 
+  var child = ogrChild(shp); 
   var errInChild = 0;
 
   t.ok(child, 'ogrChild process is created');
@@ -53,3 +55,31 @@ test('ogr module', function(t){
     t.notOk(errInChild, 'ogr2ogr doesn\'t emit an error');
   });
 });
+
+test('splitOGRJSON module', function(t){
+  t.plan(1); 
+
+  var json = 'test/data/t.json';
+  var stats = streamStats('splitOGR',{store:1});
+  
+  fs.createReadStream(json)
+    .pipe(splitOGRJSON())
+    .pipe(stats)
+    .sink();
+
+  stats.on('end', function(){
+    var result = stats.getResult(); 
+    var validJSON = 1;
+    console.log(result);
+    result.chunks.forEach(function(v){
+      try{
+        JSON.parse(v.chunk.toString())   
+      }catch(e){
+        validJSON = 0;
+      }
+    });
+    t.ok(validJSON, 'splitOGRJSON yields valid JSON chunks');
+  })
+});
+
+
