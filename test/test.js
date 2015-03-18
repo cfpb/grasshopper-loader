@@ -128,7 +128,7 @@ test('esLoader module', function(t){
 
 test('transformerTemplate module', function(t){
   t.plan(5);
-  var trans = transformerTemplate('123 fake st.','Springfield','Oregon',19992);
+  var trans = transformerTemplate('addr','cty','st', 'zip');
 
   t.equal(typeof trans, 'function', 'template returns a function');
   t.ok(isStream.isDuplex(trans()), 'The produced transformer generates a transform stream'); 
@@ -141,10 +141,10 @@ test('transformerTemplate module', function(t){
   stats.on('end',function(){
     var result = stats.getResult();
     var output = result.chunks[0].chunk.toString();
-    t.ok(/^start/.match(output), 'prefix applied properly'); 
-    t.ok(/finish$/.match(output), 'suffix applied properly');
+    t.ok(/^start/.test(output), 'prefix applied properly'); 
+    t.ok(/finish$/.test(output), 'suffix applied properly');
   });
-  preSufTest.end('{}')
+  preSufTest.end('{"properties":{"addr":"123 a st","cty":"sunny","st":"ca","zip":54321},"geometry":{"coordinates":[]}}')
 
   try{
     transformerTemplate();
