@@ -1,4 +1,5 @@
 var fs = require('fs');
+var path = require('path');
 
 var test = require('tape');
 var streamStats = require('stream-stats');
@@ -126,11 +127,24 @@ test('esLoader module', function(t){
 
 
 test('transformerTemplate module', function(t){
-  t.plan(3);
+  t.plan(5);
   var trans = transformerTemplate('123 fake st.','Springfield','Oregon',19992);
 
   t.equal(typeof trans, 'function', 'template returns a function');
   t.ok(isStream.isDuplex(trans()), 'The produced transformer generates a transform stream'); 
+
+  var stats = streamStats('transTemplate',{store:1});
+
+  var preSufTest = trans('start','finish');
+
+  preSufTest.pipe(stats).sink();
+  stats.on('end',function(){
+    var result = stats.getResult();
+    var output = result.chunks[0].chunk.toString();
+    t.ok(/^start/.match(output), 'prefix applied properly'); 
+    t.ok(/finish$/.match(output), 'suffix applied properly');
+  });
+  preSufTest.end('{}')
 
   try{
     transformerTemplate();
@@ -142,17 +156,32 @@ test('transformerTemplate module', function(t){
 /*test('Transformers', function(t){
   
   fs.readdir('transformers/',function(err,transformers){
-    t.plan(1);
-   console.log(transformers); 
+    t.plan(transformers.length);
+
+    var sample = 'test/data/sample.json';
+    var bulkMatch = {index:{_index:'address',_type:'point'}}
+    var bulkMetadata =  makeBulkSeparator('address', 'point');
+
+    transformers.forEach(function(transFile){
+      var transformer = require(path.join('transformers', transFile));
+      var stats = streamStats(transFile, {store:1});
+
+      fs.createReadStream()
+        .pipe(splitOGRJSON())
+        .pipe(transformer(bulkMetadata, '\n'))
+        .pipe(stats)
+        .sink();
+
+      stats.once('end', function(){
+        var result = stats.getResult(); 
+        var output = result.chunks[0].chunk.toString().split('\n')  
+      });
+    });
+
+
   }); 
-  /*var transform = require('transformers/default');
-  var json = 'test/data/t.json';
-  var stats = streamStats('ogrToTransform');
+
   
-  fs.createReadStream(json)
-    .pipe(splitOGRJSON())
-    .pipe(
-    .pipe(stats)
-    .sink();
+  
 
 });*/
