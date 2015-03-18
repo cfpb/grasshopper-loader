@@ -10,6 +10,7 @@ var splitOGRJSON = require('../lib/splitOGRJSON');
 var makeBulkSeparator = require('../lib/makeBulkSeparator');
 var formatAddress = require('../lib/formatAddress');
 var esLoader = require('../lib/esLoader');
+var transformerTemplate = require('../lib/transformerTemplate');
 
 
 test('Check Usage', function(t){
@@ -124,7 +125,20 @@ test('esLoader module', function(t){
 });
 
 
-test('template transformer', function(t){
-  t.plan(4);
+test('Transformers', function(t){
+  
+  fs.readdir('transformers/',function(err,transformers){
+    t.plan(1);
+   console.log(transformers); 
+  }); 
+  /*var transform = require('transformers/default');
+  var json = 'test/data/t.json';
+  var stats = streamStats('ogrToTransform');
+  
+  fs.createReadStream(json)
+    .pipe(splitOGRJSON())
+    .pipe(
+    .pipe(stats)
+    .sink();*/ 
 
 });
