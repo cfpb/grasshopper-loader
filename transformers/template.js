@@ -6,6 +6,7 @@ module.exports = function(addr, city, state, zip){
   var prefix = '';
   var suffix = '';
 
+  //Chunk is a GeoJSON feature
   function transform(chunk, enc, cb){
     chunk = JSON.parse(chunk);
     var payload = {};

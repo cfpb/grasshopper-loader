@@ -9,8 +9,6 @@ var ogrChild = require('../lib/ogrChild');
 var splitOGRJSON = require('../lib/splitOGRJSON');
 var makeBulkSeparator = require('../lib/makeBulkSeparator');
 var formatAddress = require('../lib/formatAddress');
-
-
 var esLoader = require('../lib/esLoader');
 
 
@@ -101,4 +99,32 @@ test('makeBulkSeparator module', function(t){
   }catch(e){
     t.pass('Bulk separator with a type and no index fails');
   }
+});
+
+
+test('formatAddress module', function(t){
+  t.plan(2);
+
+  var add1 = '123 fake st. San Francisco, CA, 12345';
+  var add2 = '221B Baker St. Arg, AZ, 67876';
+
+  t.equal(formatAddress('123 fake st.', 'San Francisco', 'CA', 12345), add1, 'Standard format')
+  t.equal(formatAddress('  221B Baker St.', 'Arg  ', 'AZ', '67876'), add2, 'Trim strings');
+});
+
+
+test('esLoader module', function(t){
+  t.plan(2);
+  try{
+    esLoader.connect();
+  }catch(e){
+    t.pass('Connect fails without host/port')
+  }
+  t.ok(isStream.isWritable(esLoader.load()),'esLoader.load returns a write stream');
+});
+
+
+test('template transformer', function(t){
+  t.plan(4);
+
 });
