@@ -1,5 +1,5 @@
 var through = require('through2');
-var makeAddress = require('../lib/makeAddress');
+var makeAddress = require('../lib/formatAddress');
 
 var prefix = '';
 var suffix = '';
