@@ -4,6 +4,7 @@ var path = require('path');
 var test = require('tape');
 var streamStats = require('stream-stats');
 var isStream = require('isstream');
+var ignore = require('ignore');
 
 var checkUsage = require('../lib/checkUsage');
 var ogrChild = require('../lib/ogrChild');
@@ -140,7 +141,7 @@ test('transformerTemplate module', function(t){
   preSufTest.pipe(stats).sink();
   stats.on('end',function(){
     var result = stats.getResult();
-    var output = result.chunks[0].chunk.toString();
+    var output = result.store.toString();
     t.ok(/^start/.test(output), 'prefix applied properly'); 
     t.ok(/finish$/.test(output), 'suffix applied properly');
   });
@@ -156,14 +157,18 @@ test('transformerTemplate module', function(t){
 test('Transformers', function(t){
   
   fs.readdir('transformers/',function(err,transformers){
-    t.plan(transformers.length);
 
     var sample = 'test/data/sample.json';
     var bulkMatch = {index:{_index:'address',_type:'point'}}
-    var bulkMetadata =  makeBulkSeparator('address', 'point');
+    var dataMatch = {"address":"123 a st sunny, ca, 54321", "coordinates":[-129.1,38.2]};
 
-    transformers.forEach(function(transFile){
-      var transformer = require(path.join('transformers', transFile));
+    var bulkMetadata =  makeBulkSeparator('address', 'point');
+    var filtered = ignore().addIgnoreFile('.gitignore').filter(transformers);
+
+    t.plan(filtered.length*2);
+
+    filtered.forEach(function(transFile){
+      var transformer = require(path.join('../transformers', transFile));
       var stats = streamStats(transFile, {store:1});
 
       fs.createReadStream(sample)
@@ -174,8 +179,14 @@ test('Transformers', function(t){
 
       stats.once('end', function(){
         var result = stats.getResult(); 
-        var output = result.chunks[0].chunk.toString().split('\n')  
-        console.log(output);
+        var output = result.store.toString().split('\n')  
+
+        var bulkMeta = JSON.parse(output[0]);
+        var data = JSON.parse(output[1]);
+
+        t.deepEqual(bulkMatch, bulkMeta, "Bulk metadata created properly");
+        t.deepEqual(dataMatch, data, "Data to insert transformed correctly for " + transFile);
+
       });
     });
 
