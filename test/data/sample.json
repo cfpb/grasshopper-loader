@@ -2,6 +2,10 @@
 "type": "FeatureCollection",
 "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },                                                                                
 "features": [
-  { "type": "Feature", "properties":{"ADR_LABEL":"123 a st","ADR_CITY":"sunny","ADR_STATE":"ca","ADR_ZIP5":54321},"geometry":{"type":"Point","coordinates":[-129.1,38.2]} }
+  { "type": "Feature", "properties":{
+    "ADR_LABEL":"123 a st","ADR_CITY":"sunny","ADR_STATE":"ca","ADR_ZIP5":54321,
+    "AddressLabel": "123 a st","CityTownName":"sunny","State":"ca","ZipCode":54321
+  },
+  "geometry":{"type":"Point","coordinates":[-129.1,38.2]} }
 ]
 }
