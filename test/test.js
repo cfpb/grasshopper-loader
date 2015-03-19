@@ -158,7 +158,7 @@ test('Transformers', function(t){
   
   fs.readdir('transformers/',function(err,transformers){
 
-    var sample = 'test/data/sample.json';
+    var fieldtest = 'test/data/fieldtest.json';
     var bulkMatch = {index:{_index:'address',_type:'point'}}
     var dataMatch = {"address":"123 a st sunny, ca, 54321", "coordinates":[-129.1,38.2]};
 
@@ -171,7 +171,7 @@ test('Transformers', function(t){
       var transformer = require(path.join('../transformers', transFile));
       var stats = streamStats(transFile, {store:1});
 
-      fs.createReadStream(sample)
+      fs.createReadStream(fieldtest)
         .pipe(splitOGRJSON())
         .pipe(transformer(bulkMetadata, '\n'))
         .pipe(stats)
