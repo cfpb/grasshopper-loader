@@ -31,7 +31,7 @@ var usage = checkUsage(program);
 console.log(usage.messages.join(''));
 if(usage.err) return;
 
-var transformer = require(program.transformer);
+var transformer = require(path.resolve(program.transformer));
 
 esLoader.connect(program.host, program.port, index, type);
 
