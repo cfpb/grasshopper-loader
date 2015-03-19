@@ -21,7 +21,7 @@ var type = 'point';
 
 program
   .version('1.0.0')
-  .option('-d, --data <data>', 'Shapefile as a zip, .shp, .gdb, or directory')
+  .option('-d, --data <data>', 'Point data as a .zip, .shp, .gdb, or directory')
   .option('-h, --host <host>', 'ElasticSearch host. Defaults to localhost', 'localhost')
   .option('-p, --port <port>', 'ElasticSearch port. Defaults to 9200', Number, 9200)
   .option('-t, --transformer <transformer>', 'Data transformer. Defaults to ./transformers/default', './transformers/default')
@@ -54,19 +54,19 @@ if(ext.toLowerCase() === '.zip'){
   fs.mkdir(dirname, function(err){
     if(err) throw err;
     var unzipped = unzip.Extract({path: dirname});
-    unzipped.on('close', processShapefile);
+    unzipped.on('close', processData);
 
     fs.createReadStream(geodata).pipe(unzipped)
   });
 }else{
-  processShapefile(); 
+  processData(); 
 }
 
 
-function processShapefile(){
-  var shp = path.join(dirname, basename + '.shp');
-  console.log("Streaming %s to elasticsearch.",shp);
-  var child = ogrChild(shp);
+function processData(){
+  var datafile = path.join(dirname, basename + ext);
+  console.log("Streaming %s to elasticsearch.",datafile);
+  var child = ogrChild(datafile);
 
   child.stdout 
     .pipe(splitOGRJSON())
