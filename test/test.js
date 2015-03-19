@@ -19,7 +19,7 @@ test('Check Usage', function(t){
   t.plan(6);
 
   var program = {
-    shapefile: 'someshape',
+    data: 'someshape',
     host: 'localhost',
     port: 9200,
     transformer: './transformers/default'

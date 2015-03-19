@@ -21,7 +21,7 @@ var type = 'point';
 
 program
   .version('1.0.0')
-  .option('-s, --shapefile <shp>', 'Shapefile as a zip, .shp, .gdb, or directory')
+  .option('-d, --data <data>', 'Shapefile as a zip, .shp, .gdb, or directory')
   .option('-h, --host <host>', 'ElasticSearch host. Defaults to localhost', 'localhost')
   .option('-p, --port <port>', 'ElasticSearch port. Defaults to 9200', Number, 9200)
   .option('-t, --transformer <transformer>', 'Data transformer. Defaults to ./transformers/default', './transformers/default')
@@ -36,15 +36,15 @@ var transformer = require(program.transformer);
 esLoader.connect(program.host, program.port, index, type);
 
 
-var shapefile = program.shapefile;
-var ext = path.extname(shapefile);
-var basename = path.basename(shapefile, ext);
-var dirname = path.dirname(shapefile);
+var geodata = program.data;
+var ext = path.extname(geodata);
+var basename = path.basename(geodata, ext);
+var dirname = path.dirname(geodata);
 
 
-//fast dir check... requires passing ext with shapefile
+//fast dir check... requires passing ext with data
 if(!ext){
-  dirname = shapefile;
+  dirname = geodata;
 }
 
 
@@ -56,7 +56,7 @@ if(ext.toLowerCase() === '.zip'){
     var unzipped = unzip.Extract({path: dirname});
     unzipped.on('close', processShapefile);
 
-    fs.createReadStream(shapefile).pipe(unzipped)
+    fs.createReadStream(geodata).pipe(unzipped)
   });
 }else{
   processShapefile(); 
