@@ -6,6 +6,7 @@ Data is transformed from these standard formats and loaded into Elasticsearch (t
 
 ## Usage
   - [Install node](https://nodejs.org/)
+  - Run **npm install** from the project root
   - The loader is a command-line application, run by invoking **grasshopper-loader.js** with the following options:
     - **-d, --data** *Required* The data source to load. This can be a gdb, shp, GeoJSON, zip, or a directory of any of these.
     - **-t, --transformer** *Default: transformers/default.js* The transformer to use. This converts state-specific data formats to our [Point Data Schema](https://github.com/cfpb/grasshopper/blob/master/docs/point_data_spec.md)
