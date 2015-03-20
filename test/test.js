@@ -108,8 +108,8 @@ test('makeBulkSeparator module', function(t){
 test('formatAddress module', function(t){
   t.plan(2);
 
-  var add1 = '123 fake st. San Francisco, CA, 12345';
-  var add2 = '221B Baker St. Arg, AZ, 67876';
+  var add1 = '123 fake st. San Francisco CA 12345';
+  var add2 = '221B Baker St. Arg AZ 67876';
 
   t.equal(formatAddress('123 fake st.', 'San Francisco', 'CA', 12345), add1, 'Standard format')
   t.equal(formatAddress('  221B Baker St.', 'Arg  ', 'AZ', '67876'), add2, 'Trim strings');
@@ -160,12 +160,23 @@ test('Transformers', function(t){
 
     var fieldtest = 'test/data/fieldtest.json';
     var bulkMatch = {index:{_index:'address',_type:'point'}}
-    var dataMatch = {"address":"123 a st sunny, ca, 54321", "coordinates":[-129.1,38.2]};
+    var dataMatch = {
+      "type": "Feature",
+      "properties": {
+        "address": "123 a st sunny ca 54321",
+        "alt_address": "",
+        "load_date": 1234567890123
+       },
+       "geometry": {
+         "type": "Point",
+         "coordinates": [-129.1,38.2]
+      }
+    };
 
     var bulkMetadata =  makeBulkSeparator('address', 'point');
     var filtered = ignore().addIgnoreFile('.gitignore').filter(transformers);
 
-    t.plan(filtered.length*2);
+    t.plan(filtered.length*3);
 
     filtered.forEach(function(transFile){
       var transformer = require(path.join('../transformers', transFile));
@@ -185,7 +196,8 @@ test('Transformers', function(t){
         var data = JSON.parse(output[1]);
 
         t.deepEqual(bulkMatch, bulkMeta, "Bulk metadata created properly");
-        t.deepEqual(dataMatch, data, "Data to insert transformed correctly for " + transFile);
+        t.equal(dataMatch.properties.address, data.properties.address, "Address formed correctly for " + transFile);
+        t.deepEqual(dataMatch.geometry, data.geometry, "Data to insert transformed correctly for " + transFile);
 
       });
     });
