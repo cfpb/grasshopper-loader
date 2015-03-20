@@ -1,0 +1,43 @@
+{
+  "type": "Feature",
+  "properties": {
+    "ID": 9,
+    "ADR_NUM": 22528,
+    "ADR_NUM_SU": null,
+    "ADR_BLDG": null,
+    "ADR_UNIT_T": null,
+    "ADR_UNIT_I": null,
+    "PRE_DIR": null,
+    "PSTR_NAME": "Stilwell",
+    "PSTR_TYPE": null,
+    "PSUF_DIR": null,
+    "PSTR_MOD": null,
+    "PSTR_FULNA": "Stilwell",
+    "ADR_PLACE": null,
+    "ADR_MUNI": null,
+    "ADR_CITY": "Evansville",
+    "ADR_ZIP5": "72729",
+    "ADR_ZIP4": "9726",
+    "ADR_ZIP9": "72729-9726",
+    "CNTY_NAME": "Adair",
+    "ADR_STATE": "OK",
+    "ADR_LABEL": "22528 Stilwell",
+    "ADR_BOX_TY": null,
+    "ADR_BOX_ID": null,
+    "ADR_BOXGR_": null,
+    "ADR_BOXGR1": null,
+    "ADR_BOX_LB": null,
+    "LON_X": -94.49923601,
+    "LAT_Y": 35.79274272,
+    "FEA_TYP": null,
+    "DATE_ED": "20140127",
+    "ADD_AUTH": "143"
+  },
+  "geometry": {
+    "type": "Point",
+    "coordinates": [
+      364519.82100000046,
+      3961997.7995999996
+    ]
+  }
+}

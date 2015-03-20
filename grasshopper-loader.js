@@ -11,10 +11,9 @@ var unzip = require('unzip');
 
 var checkUsage = require('./lib/checkUsage');
 var esLoader = require('./lib/esLoader');
-var ogr = require('./lib/ogr');
+var ogrChild = require('./lib/ogrChild');
 var splitOGRJSON = require('./lib/splitOGRJSON');
 var makeBulkSeparator = require('./lib/makeBulkSeparator');
-var transformer;
 
 var index = 'address';
 var type = 'point';
@@ -22,35 +21,30 @@ var type = 'point';
 
 program
   .version('1.0.0')
-  .option('-s, --shapefile <s>', 'Shapefile')
-  .option('-h, --host <h>', 'ElasticSearch host')
-  .option('-p, --port <p>', 'ElasticSearch port', parseInt)
-  .option('-t, --transformer <t>', 'Data transformer')
+  .option('-d, --data <data>', 'Point data as a .zip, .shp, .gdb, or directory')
+  .option('-h, --host <host>', 'ElasticSearch host. Defaults to localhost', 'localhost')
+  .option('-p, --port <port>', 'ElasticSearch port. Defaults to 9200', Number, 9200)
+  .option('-t, --transformer <transformer>', 'Data transformer. Defaults to ./transformers/default', './transformers/default')
   .parse(process.argv);
 
+var usage = checkUsage(program);
+console.log(usage.messages.join(''));
+if(usage.err) return;
 
-if(program.transformer){
-  transformer = require('./transformers/' + program.transformer);
-}else{
-  transformer = require('./transformers/default');
-}
-
-
-if(!checkUsage(program)) return;
-
+var transformer = require(path.resolve(program.transformer));
 
 esLoader.connect(program.host, program.port, index, type);
 
 
-var shapefile = program.shapefile;
-var ext = path.extname(shapefile);
-var basename = path.basename(shapefile, ext);
-var dirname = path.dirname(shapefile);
+var geodata = program.data;
+var ext = path.extname(geodata);
+var basename = path.basename(geodata, ext);
+var dirname = path.dirname(geodata);
 
 
-//fast dir check... requires passing ext with shapefile
+//fast dir check... requires passing ext with data
 if(!ext){
-  dirname = shapefile;
+  dirname = geodata;
 }
 
 
@@ -60,19 +54,21 @@ if(ext.toLowerCase() === '.zip'){
   fs.mkdir(dirname, function(err){
     if(err) throw err;
     var unzipped = unzip.Extract({path: dirname});
-    unzipped.on('close', processShapefile);
+    unzipped.on('close', processData);
 
-    fs.createReadStream(shapefile).pipe(unzipped)
+    fs.createReadStream(geodata).pipe(unzipped)
   });
 }else{
-  processShapefile(); 
+  processData(); 
 }
 
 
-function processShapefile(){
-  var shp = path.join(dirname, basename + '.shp');
-  console.log("Streaming %s to elasticsearch.",shp);
-  ogr(shp)
+function processData(){
+  var datafile = path.join(dirname, basename + ext);
+  console.log("Streaming %s to elasticsearch.",datafile);
+  var child = ogrChild(datafile);
+
+  child.stdout 
     .pipe(splitOGRJSON())
     .pipe(transformer(makeBulkSeparator(), '\n'))
     .pipe(lump(Math.pow(2,20)))

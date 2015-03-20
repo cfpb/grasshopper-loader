@@ -1,0 +1,42 @@
+{
+  "type": "Feature",
+  "properties": {
+    "ADDID": "001-60",
+    "ADDNUMPR": "",
+    "ADDNUM": 1130,
+    "ADDNUMSU": "",
+    "ADDNUMCPLT": "1130",
+    "NAMEPREMOD": "",
+    "NAMEPREDIR": "",
+    "NAMEPRETYP": "",
+    "NAME": "BEDFORD",
+    "STTYP": "STREET",
+    "STTYPUSPS": "ST",
+    "NAMEPSTDIR": "",
+    "NAMEPSTMOD": "",
+    "NAMECPLT": "BEDFORD ST",
+    "SUBADDTYP": "",
+    "SUBADDID": "",
+    "SUBADDCPLT": "",
+    "ADDRESS": "1130 BEDFORD ST",
+    "LANDMARK": "",
+    "LNDMRKCPLT": null,
+    "CITY": "CUMBERLAND",
+    "COUNTY": "ALLEGANY",
+    "STATE": "MD",
+    "ZIPCODE": "21502",
+    "LONG_DD": -78.752005696131,
+    "LAT_DD": 39.66892804389639,
+    "USNGC": "17SPD9282193428",
+    "ADDTYPE": "",
+    "ADDSOURCE": "ALLEGANY COUNTY",
+    "DATE": "2015/01/27 00:00:00"
+  },
+  "geometry": {
+    "type": "Point",
+    "coordinates": [
+      -8766633.173042282,
+      4817947.796753719
+    ]
+  }
+}
