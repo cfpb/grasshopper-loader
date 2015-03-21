@@ -64,6 +64,7 @@ if(ext.toLowerCase() === '.zip'){
 
 
 function processData(err, file, cb){
+  if(err) throw err;
   var datafile = path.join(dirname, basename + ext);
   console.log("Streaming %s to elasticsearch.",datafile);
   var child = ogrChild(datafile);
@@ -79,6 +80,5 @@ function processData(err, file, cb){
     .on('end', function(){
       if(cb) cb();
     });
-  ;
 }
 
