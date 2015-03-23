@@ -58,7 +58,6 @@ function processData(err, file, cb){
     });
 
     loader.on('finish', function(){
-      console.log("ENDED");
       if(cb) cb();
     });
 }
