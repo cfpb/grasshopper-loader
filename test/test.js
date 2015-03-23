@@ -39,7 +39,7 @@ test('Check Usage', function(t){
 });
 
 
-test('ogriChild module', function(t){
+test('ogrChild module', function(t){
   t.plan(3);
   
   var shp = 'test/data/t.shp';

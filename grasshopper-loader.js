@@ -7,11 +7,10 @@ var path = require('path');
 
 var program = require('commander');
 var lump = require('lump-stream');
-var unzip = require('unzip');
 
 var checkUsage = require('./lib/checkUsage');
 var esLoader = require('./lib/esLoader');
-var getGeoData = require('./lib/geoGeodata');
+var getGeoFiles = require('./lib/getGeoFiles');
 var ogrChild = require('./lib/ogrChild');
 var splitOGRJSON = require('./lib/splitOGRJSON');
 var makeBulkSeparator = require('./lib/makeBulkSeparator');
@@ -36,24 +35,30 @@ var transformer = require(path.resolve(program.transformer));
 
 esLoader.connect(program.host, program.port, index, type);
 
-getGeoData.init(processData);
-getGeoData.discover(program.data);
+getGeoFiles.init(processData);
+getGeoFiles.discover(program.data);
 
 function processData(err, file, cb){
-  if(err) throw err;
+  if(err){
+    if(cb) return cb(err);
+    throw err;
+  }
   console.log("Streaming %s to elasticsearch.", file);
 
   var child = ogrChild(file);
+  var loader = esLoader.load();
 
   child.stdout 
     .pipe(splitOGRJSON())
     .pipe(transformer(makeBulkSeparator(), '\n'))
     .pipe(lump(Math.pow(2,20)))
-    .pipe(esLoader.load())
+    .pipe(loader)
     .on('error',function(err){
       console.log("Error piping data",err); 
-    })
-    .on('end', function(){
+    });
+
+    loader.on('finish', function(){
+      console.log("ENDED");
       if(cb) cb();
     });
 }
