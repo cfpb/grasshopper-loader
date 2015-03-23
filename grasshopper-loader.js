@@ -7,10 +7,10 @@ var path = require('path');
 
 var program = require('commander');
 var lump = require('lump-stream');
-var unzip = require('unzip');
 
 var checkUsage = require('./lib/checkUsage');
 var esLoader = require('./lib/esLoader');
+var getGeoFiles = require('./lib/getGeoFiles');
 var ogrChild = require('./lib/ogrChild');
 var splitOGRJSON = require('./lib/splitOGRJSON');
 var makeBulkSeparator = require('./lib/makeBulkSeparator');
@@ -35,46 +35,30 @@ var transformer = require(path.resolve(program.transformer));
 
 esLoader.connect(program.host, program.port, index, type);
 
+getGeoFiles.init(processData);
+getGeoFiles.discover(program.data);
 
-var geodata = program.data;
-var ext = path.extname(geodata);
-var basename = path.basename(geodata, ext);
-var dirname = path.dirname(geodata);
+function processData(err, file, cb){
+  if(err){
+    if(cb) return cb(err);
+    throw err;
+  }
+  console.log("Streaming %s to elasticsearch.", file);
 
-
-//fast dir check... requires passing ext with data
-if(!ext){
-  dirname = geodata;
-}
-
-
-if(ext.toLowerCase() === '.zip'){
-  dirname = path.join(dirname, basename);
-
-  fs.mkdir(dirname, function(err){
-    if(err) throw err;
-    var unzipped = unzip.Extract({path: dirname});
-    unzipped.on('close', processData);
-
-    fs.createReadStream(geodata).pipe(unzipped)
-  });
-}else{
-  processData(); 
-}
-
-
-function processData(){
-  var datafile = path.join(dirname, basename + ext);
-  console.log("Streaming %s to elasticsearch.",datafile);
-  var child = ogrChild(datafile);
+  var child = ogrChild(file);
+  var loader = esLoader.load();
 
   child.stdout 
     .pipe(splitOGRJSON())
     .pipe(transformer(makeBulkSeparator(), '\n'))
     .pipe(lump(Math.pow(2,20)))
-    .pipe(esLoader.load())
+    .pipe(loader)
     .on('error',function(err){
       console.log("Error piping data",err); 
+    });
+
+    loader.on('finish', function(){
+      if(cb) cb();
     });
 }
 
