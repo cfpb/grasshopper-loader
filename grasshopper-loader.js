@@ -14,6 +14,7 @@ var getGeoFiles = require('./lib/getGeoFiles');
 var ogrChild = require('./lib/ogrChild');
 var splitOGRJSON = require('./lib/splitOGRJSON');
 var makeBulkSeparator = require('./lib/makeBulkSeparator');
+var verify = require('./lib/verify');
 
 var index = 'address';
 var type = 'point';
@@ -58,7 +59,15 @@ function processData(err, file, cb){
     });
 
     loader.on('finish', function(){
-      if(cb) cb();
+      var count = this.count;
+      verify(file, count, function(errObj){
+        if(errObj){
+          if(cb) return cb(errObj.error);
+          throw errObj.err;
+        }
+        console.log("All %d records loaded.", count);
+        if(cb) cb();
+      });
     });
 }
 
