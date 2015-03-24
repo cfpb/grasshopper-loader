@@ -12,6 +12,7 @@ var splitOGRJSON = require('../lib/splitOGRJSON');
 var makeBulkSeparator = require('../lib/makeBulkSeparator');
 var formatAddress = require('../lib/formatAddress');
 var esLoader = require('../lib/esLoader');
+var verify = require('../lib/verify');
 var transformerTemplate = require('../lib/transformerTemplate');
 
 
@@ -124,6 +125,25 @@ test('esLoader module', function(t){
     t.pass('Connect fails without host/port')
   }
   t.ok(isStream.isWritable(esLoader.load()),'esLoader.load returns a write stream');
+});
+
+test('verify module', function(t){
+  t.plan(5);
+  
+  verify('test/data/t.json', 20, function(err){
+    t.notOk(err, 'No error when featureCount equals passed value.'); 
+  }); 
+
+  verify('test/data/t.json', 10, function(err){
+    t.ok(err.error, 'Produces an error when compared against the wrong number.'); 
+    t.equal(err.actual, 20, 'Actual value propagated.');
+    t.equal(err.expected, 10, 'Expected value propagated.');
+  });
+  
+  verify('test/data/t.jsn', 10, function(err){
+    t.ok(err.error, 'Produces an error when the file doesn\'t exist'); 
+  }); 
+  
 });
 
 
