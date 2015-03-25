@@ -37,8 +37,7 @@ if(usage.err) return;
 
 esLoader.connect(program.host, program.port, index, type);
 
-getGeoFiles.init(processData);
-getGeoFiles.discover(program.data);
+getGeoFiles(program.data, processData);
 
 function processData(err, file, cb){
   if(err){
@@ -46,7 +45,7 @@ function processData(err, file, cb){
     throw err;
   }
   console.log("Streaming %s to elasticsearch.", file);
-  
+
   
   var transFile = resolveTransformer(program.transformer, file);
   try{
