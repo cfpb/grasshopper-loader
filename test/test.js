@@ -148,10 +148,11 @@ test('verify module', function(t){
 });
 
 test('resolveTransformer module', function(t){
-  t.plan(2);
+  t.plan(3);
   var arkTrans = path.resolve('./transformers/arkansas.js');
   t.equal(arkTrans, resolveTransformer(null, 'arkansas.gdb'), 'Resolves transformer using filename');
   t.equal(arkTrans, resolveTransformer('./transformers/arkansas.js'), 'Resolves transformer using passed transformer');
+  t.equal(arkTrans, resolveTransformer('./transformers/arkansas.js', 'sometext'), 'Resolver prefers passed transformer');
 });
 
 
