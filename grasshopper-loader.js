@@ -11,6 +11,7 @@ var lump = require('lump-stream');
 var checkUsage = require('./lib/checkUsage');
 var esLoader = require('./lib/esLoader');
 var getGeoFiles = require('./lib/getGeoFiles');
+var resolveTransformer = require('./lib/resolveTransformer');
 var ogrChild = require('./lib/ogrChild');
 var splitOGRJSON = require('./lib/splitOGRJSON');
 var makeBulkSeparator = require('./lib/makeBulkSeparator');
@@ -18,6 +19,7 @@ var verify = require('./lib/verify');
 
 var index = 'address';
 var type = 'point';
+var transformer;
 
 
 program
@@ -25,14 +27,13 @@ program
   .option('-d, --data <data>', 'Point data as a .zip, .shp, .gdb, or directory')
   .option('-h, --host <host>', 'ElasticSearch host. Defaults to localhost', 'localhost')
   .option('-p, --port <port>', 'ElasticSearch port. Defaults to 9200', Number, 9200)
-  .option('-t, --transformer <transformer>', 'Data transformer. Defaults to ./transformers/default', './transformers/default')
+  .option('-t, --transformer <transformer>', 'Data transformer. Defaults to ./transformers/[[file basename]].js')
   .parse(process.argv);
 
 var usage = checkUsage(program);
 console.log(usage.messages.join(''));
 if(usage.err) return;
 
-var transformer = require(path.resolve(program.transformer));
 
 esLoader.connect(program.host, program.port, index, type);
 
@@ -45,6 +46,16 @@ function processData(err, file, cb){
     throw err;
   }
   console.log("Streaming %s to elasticsearch.", file);
+  
+  
+  var transFile = resolveTransformer(program.transformer, file);
+  try{
+    transformer = require(transFile);
+  }catch(err){
+    console.log('\nCouldn\'t find transformer: %s.\nProvide one with the -t option.', transFile);
+    throw err;
+  }
+  
 
   var child = ogrChild(file);
   var loader = esLoader.load();
