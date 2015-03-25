@@ -13,6 +13,7 @@ var makeBulkSeparator = require('../lib/makeBulkSeparator');
 var formatAddress = require('../lib/formatAddress');
 var esLoader = require('../lib/esLoader');
 var verify = require('../lib/verify');
+var resolveTransformer = require('../lib/resolveTransformer');
 var transformerTemplate = require('../lib/transformerTemplate');
 
 
@@ -144,6 +145,13 @@ test('verify module', function(t){
     t.ok(err.error, 'Produces an error when the file doesn\'t exist'); 
   }); 
   
+});
+
+test('resolveTransformer module', function(t){
+  t.plan(2);
+  var arkTrans = path.resolve('./transformers/arkansas.js');
+  t.equal(arkTrans, resolveTransformer(null, 'arkansas.gdb'), 'Resolves transformer using filename');
+  t.equal(arkTrans, resolveTransformer('./transformers/arkansas.js'), 'Resolves transformer using passed transformer');
 });
 
 
