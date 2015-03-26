@@ -23,9 +23,9 @@ var transformer;
 program
   .version('1.0.0')
   .option('-d, --data <data>', 'Point data as a .zip, .shp, .gdb, or directory')
+  .option('-t, --transformer <transformer>', 'Data transformer. Defaults to ./transformers/[[file basename]].js')
   .option('-h, --host <host>', 'ElasticSearch host. Defaults to localhost', 'localhost')
   .option('-p, --port <port>', 'ElasticSearch port. Defaults to 9200', Number, 9200)
-  .option('-t, --transformer <transformer>', 'Data transformer. Defaults to ./transformers/[[file basename]].js')
   .option('--index <index>', 'Elasticsearch index. Defaults to address', 'address')
   .option('--type <type>', 'Elasticsearch type within the provided or default index. Defaults to point', 'point')
   .parse(process.argv);

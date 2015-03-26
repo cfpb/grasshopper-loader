@@ -6,18 +6,25 @@ Data is transformed from these standard formats and loaded into Elasticsearch (t
 
 ## Usage
   - [Install node](https://nodejs.org/)
-  - Run **npm install** from the project root
+  - [Install GDAL](http://trac.osgeo.org/gdal/wiki/DownloadingGdalBinaries)
+    - On OSX, instead of using a binary or building from source, you can [download homebrew](http://brew.sh/) and `brew install gdal`.
+  - Run `npm install` from the project root
   - The loader is a command-line application, run by invoking **grasshopper-loader.js** with the following options:
-    - **-d, --data** *Required* The data source to load. This can be a gdb, shp, GeoJSON, zip, or a directory of any of these.
-    - **-t, --transformer** *Default: transformers/default.js* The transformer to use. This converts state-specific data formats to our [Point Data Schema](https://github.com/cfpb/grasshopper/blob/master/docs/point_data_spec.md)
+    - **-d, --data** *Required* The data source to load. This can be a gdb, shp, GeoJSON, zip, or a directory of any of these which gets loaded recursively.
+    - **-t, --transformer** *Default: transformers/[[data file basename]].js* The transformer to use. This converts state-specific data formats to our [Point Data Schema](https://github.com/cfpb/grasshopper/blob/master/docs/point_data_spec.md)
     - **-h, --host** *Default: localhost* The elasticsearch host
-    - **-p --port** *Default: 9200* The elasticsearch port
-  - Test the loader by starting elasticsearch on localhost:9200, and, from the root of the project, run **./grasshopper-loader.js -d test/data/ny.json -t transformers/new_york.js** 
+    - **-p, --port** *Default: 9200* The elasticsearch port
+    - **--index** *Default: address* The elasticsearch index
+    - **--type** *Default: point* The elasticsearch type
+  - Test the loader by starting elasticsearch on localhost:9200 and running `npm test`
+    - This will run the tests in test/test.js
+  from the root of the project, run `./grasshopper-loader.js -d test/data/new_york.json` 
     - This will load 100 addresses from New York into the address index and the point type
-    - Check this with **curl -XGET "localhost:9200/address/point/_count?q=properties.address:NY"**
+    - Check this with `curl -XGET "localhost:9200/address/point/_count?q=properties.address:NY"`
 
 ## Info
   - **Technology stack**: Due to a high volume of IO, the loader uses [node.js](http://nodejs.org/) for high throughput.
+  - **Dependencies**: node.js, GDAL
   - **Status**: Alpha
   - **Notes on change**: As both the Elasticsearch schema and data standards may (and likely will) change, expect to see active, breaking changes in this repo until tagged otherwise. Also, many new transformations will be added as more state-specific data is acquired.
 
