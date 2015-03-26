@@ -283,7 +283,7 @@ test('Entire loader', function(t){
   var count = 0;
   var loader = spawn('node', ['./grasshopper-loader', '-d', './test/data/arkansas.json', '--index', 'ind', '--type', 'typ'])
   loader.on('exit', function(code){
-    t.equal(code, 0, 'Ran without errors, exit code 0')
+    t.equal(code, 0, 'Ran without errors, exit code 0, on elasticsearch at localhost:9200')
     if(++count === 3) wipe();
   });
 
