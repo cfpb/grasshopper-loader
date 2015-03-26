@@ -1,5 +1,6 @@
 var fs = require('fs');
 var path = require('path');
+var spawn = require('child_process').spawn;
 
 var test = require('tape');
 var streamStats = require('stream-stats');
@@ -277,5 +278,13 @@ test('Transformers', function(t){
 
 });
 
-//test('Entire loader', function(t){
-//});
+test('Entire loader', function(t){
+  t.plan(1);
+  var client = esLoader.connect('localhost',9200); 
+  var loader = spawn('node', ['./grasshopper-loader', '-d', './test/data/arkansas.json'])
+  loader.on('exit',function(code, signal){
+    console.log(code, signal);
+    t.pass('Ran without errors.')
+  });
+
+});

@@ -69,6 +69,7 @@ function processData(err, file, cb){
     });
 
     loader.on('finish', function(){
+      client.close();
       var count = this.count;
       verify(file, count, function(errObj){
         if(errObj){
