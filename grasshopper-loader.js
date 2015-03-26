@@ -37,7 +37,9 @@ if(usage.err) return;
 
 var client = esLoader.connect(program.host, program.port);
 
+
 getGeoFiles(program.data, processData);
+
 
 function processData(err, file, cb){
   if(err){
@@ -52,9 +54,9 @@ function processData(err, file, cb){
     transformer = require(transFile);
   }catch(err){
     console.log('\nCouldn\'t find transformer: %s.\nProvide one with the -t option.', transFile);
+    if(cb)return cb(err);
     throw err;
   }
-  
 
   var child = ogrChild(file);
   var loader = esLoader.load(client, program.index, program.type);
