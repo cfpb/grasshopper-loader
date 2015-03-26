@@ -71,6 +71,7 @@ function processData(err, file, cb){
     loader.on('finish', function(){
       client.close();
       var count = this.count;
+
       verify(file, count, function(errObj){
         if(errObj){
           if(cb) return cb(errObj.error);
@@ -79,6 +80,7 @@ function processData(err, file, cb){
         console.log("All %d records loaded.", count);
         if(cb) cb();
       });
+
     });
 }
 

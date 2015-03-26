@@ -279,12 +279,27 @@ test('Transformers', function(t){
 });
 
 test('Entire loader', function(t){
-  t.plan(1);
-  var client = esLoader.connect('localhost',9200); 
-  var loader = spawn('node', ['./grasshopper-loader', '-d', './test/data/arkansas.json'])
-  loader.on('exit',function(code, signal){
-    console.log(code, signal);
-    t.pass('Ran without errors.')
+  t.plan(3);
+  var count = 0;
+  var loader = spawn('node', ['./grasshopper-loader', '-d', './test/data/arkansas.json', '--index', 'ind', '--type', 'typ'])
+  loader.on('exit', function(code){
+    t.equal(code, 0, 'Ran without errors, exit code 0')
+    if(++count === 3) wipe();
   });
 
+  var l2 = spawn('node', ['./grasshopper-loader', '-d', './test/data/ark.json']);
+  l2.on('exit', function(code){
+    t.notEqual(code, 0, 'Bails when given an invalid file');
+    if(++count === 3) wipe();
+  });
+  
+  var l3 = spawn('node', ['./grasshopper-loader', '-d', './test/data/t.prj', '-t', 'transformers/arkansas.js']);
+  l3.on('exit', function(code){
+    t.notEqual(code, 0, 'Bails on bad file type');
+    if(++count === 3) wipe();
+  });
+
+  function wipe(){ 
+    spawn('curl', ['-XDELETE','localhost:9200/ind/typ']);
+  }
 });
