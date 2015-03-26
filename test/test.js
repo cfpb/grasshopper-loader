@@ -160,12 +160,13 @@ test('formatAddress module', function(t){
 
 
 test('esLoader module', function(t){
-  t.plan(2);
+  t.plan(3);
   try{
     esLoader.connect();
   }catch(e){
     t.pass('Connect fails without host/port')
   }
+  t.ok(esLoader.connect('localhost', 9200, []), 'Proper connect returns an elasticsearch client');
   t.ok(isStream.isWritable(esLoader.load()),'esLoader.load returns a write stream');
 });
 
@@ -272,10 +273,9 @@ test('Transformers', function(t){
       });
     });
 
-
   }); 
 
-  
-  
-
 });
+
+//test('Entire loader', function(t){
+//});

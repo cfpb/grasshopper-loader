@@ -35,7 +35,7 @@ console.log(usage.messages.join(''));
 if(usage.err) return;
 
 
-esLoader.connect(program.host, program.port, index, type);
+var client = esLoader.connect(program.host, program.port);
 
 getGeoFiles(program.data, processData);
 
@@ -57,7 +57,7 @@ function processData(err, file, cb){
   
 
   var child = ogrChild(file);
-  var loader = esLoader.load();
+  var loader = esLoader.load(client, index, type);
 
   child.stdout 
     .pipe(splitOGRJSON())
