@@ -17,8 +17,6 @@ var splitOGRJSON = require('./lib/splitOGRJSON');
 var makeBulkSeparator = require('./lib/makeBulkSeparator');
 var verify = require('./lib/verify');
 
-var index = 'address';
-var type = 'point';
 var transformer;
 
 
@@ -28,6 +26,8 @@ program
   .option('-h, --host <host>', 'ElasticSearch host. Defaults to localhost', 'localhost')
   .option('-p, --port <port>', 'ElasticSearch port. Defaults to 9200', Number, 9200)
   .option('-t, --transformer <transformer>', 'Data transformer. Defaults to ./transformers/[[file basename]].js')
+  .option('--index <index>', 'Elasticsearch index. Defaults to address', 'address')
+  .option('--type <type>', 'Elasticsearch type within the provided or default index. Defaults to point', 'point')
   .parse(process.argv);
 
 var usage = checkUsage(program);
@@ -57,7 +57,7 @@ function processData(err, file, cb){
   
 
   var child = ogrChild(file);
-  var loader = esLoader.load(client, index, type);
+  var loader = esLoader.load(client, program.index, program.type);
 
   child.stdout 
     .pipe(splitOGRJSON())
