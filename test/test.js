@@ -7,6 +7,7 @@ var isStream = require('isstream');
 var ignore = require('ignore');
 
 var checkUsage = require('../lib/checkUsage');
+var getGeoFiles = require('../lib/getGeoFiles');
 var ogrChild = require('../lib/ogrChild');
 var splitOGRJSON = require('../lib/splitOGRJSON');
 var makeBulkSeparator = require('../lib/makeBulkSeparator');
@@ -38,6 +39,32 @@ test('Check Usage', function(t){
   var third = checkUsage({port:NaN})
   t.equal(third.messages.length, 2);
   t.equal(third.err, 1);
+});
+
+test('getGeoFiles module', function(t){
+  t.plan(6); 
+  
+  ['shp', 'gdb', 'json'].forEach(function(v){
+    var input = 'test/data/t.'+ v;
+    getGeoFiles(input, function(err, file, cb) {
+      t.equal(input, file, v + ' passed through to processData'); 
+    });
+  });
+
+  getGeoFiles('test/data/t.zip', function(err, file, cb) {
+      t.ok(cb, 'cb passed to remove intermediate directory'); 
+      try{
+        fs.readdirSync(path.dirname(file))
+        t.pass('Intermediate directory for zip created');
+      }catch(e){
+        t.fail('Didn\'t make an appropriate intermediate directory');
+      }
+      cb(null, function(){
+        t.pass('Intermediate dir removed.');
+      });
+
+    });
+
 });
 
 

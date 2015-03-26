@@ -73,7 +73,6 @@ function processData(err, file, cb){
       verify(file, count, function(errObj){
         if(errObj){
           if(cb) return cb(errObj.error);
-          //throw errObj.error;
         }
         console.log("All %d records loaded.", count);
         if(cb) cb();
