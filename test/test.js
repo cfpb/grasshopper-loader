@@ -42,7 +42,7 @@ test('Check Usage', function(t){
 });
 
 test('getGeoFiles module', function(t){
-  t.plan(6); 
+  t.plan(11); 
   
   ['shp', 'gdb', 'json'].forEach(function(v){
     var input = 'test/data/t.'+ v;
@@ -52,18 +52,32 @@ test('getGeoFiles module', function(t){
   });
 
   getGeoFiles('test/data/t.zip', function(err, file, cb) {
-      t.ok(cb, 'cb passed to remove intermediate directory'); 
-      try{
-        fs.readdirSync(path.dirname(file))
+    t.ok(cb, 'cb passed to remove intermediate directory'); 
+    try{
+      fs.readdirSync(path.dirname(file))
         t.pass('Intermediate directory for zip created');
-      }catch(e){
-        t.fail('Didn\'t make an appropriate intermediate directory');
-      }
-      cb(null, function(){
-        t.pass('Intermediate dir removed.');
-      });
-
+    }catch(e){
+      t.fail('Didn\'t make an appropriate intermediate directory');
+    }
+    cb(null, function(){
+      t.pass('Intermediate dir removed after processing');
     });
+  });
+
+  getGeoFiles('test/data/threefiles', function(err, file, cb){
+    t.ok(file, file + ' read from directory');
+  }); 
+
+  getGeoFiles('some.txt', function(err, file, cb){
+    t.ok(err, 'Error produced on bad file type.');
+  });
+
+  try{
+    getGeoFiles('fakepath', function(err, file, cb){
+    });
+  }catch(e){
+    t.pass('Throws error on bad path.');
+  }
 
 });
 
