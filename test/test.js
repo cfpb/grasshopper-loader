@@ -16,6 +16,7 @@ var formatAddress = require('../lib/formatAddress');
 var esLoader = require('../lib/esLoader');
 var verify = require('../lib/verify');
 var resolveTransformer = require('../lib/resolveTransformer');
+var requireTransformer = require('../lib/requireTransformer');
 var transformerTemplate = require('../lib/transformerTemplate');
 
 
@@ -196,6 +197,21 @@ test('resolveTransformer module', function(t){
   t.equal(arkTrans, resolveTransformer(null, 'arkansas.gdb'), 'Resolves transformer using filename');
   t.equal(arkTrans, resolveTransformer('./transformers/arkansas.js'), 'Resolves transformer using passed transformer');
   t.equal(arkTrans, resolveTransformer('./transformers/arkansas.js', 'sometext'), 'Resolver prefers passed transformer');
+});
+
+test('requireTransformer module', function(t){
+  t.plan(3); 
+
+  var arkFile = path.resolve('./transformers/arkansas.js')
+  var arkTrans = require(arkFile);
+  
+  t.equal(arkTrans, requireTransformer(arkFile, 'test/data/arkansas.json'), 'Requires transformer using filename');
+  t.equal(arkTrans, requireTransformer(arkFile,'test/data/arkansas/t.shp'), 'Requires transformer after walking to directory name');
+  try{
+    requireTransformer('dkomqwdnqd/dnqwdqiow','fwerwef'); 
+  }catch(e){
+    t.pass('Throws on bad require');
+  }
 });
 
 
