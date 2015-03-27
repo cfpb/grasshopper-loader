@@ -12,6 +12,7 @@ var checkUsage = require('./lib/checkUsage');
 var esLoader = require('./lib/esLoader');
 var getGeoFiles = require('./lib/getGeoFiles');
 var resolveTransformer = require('./lib/resolveTransformer');
+var requireTransformer = require('./lib/requireTransformer');
 var ogrChild = require('./lib/ogrChild');
 var splitOGRJSON = require('./lib/splitOGRJSON');
 var makeBulkSeparator = require('./lib/makeBulkSeparator');
@@ -46,17 +47,20 @@ function processData(err, file, cb){
     if(cb) return cb(err);
     throw err;
   }
+
   console.log("Streaming %s to elasticsearch.", file);
 
-  
+
   var transFile = resolveTransformer(program.transformer, file);
+
   try{
-    transformer = require(transFile);
+    transformer = requireTransformer(transFile, file);
   }catch(err){
     console.log('\nCouldn\'t find transformer: %s.\nProvide one with the -t option.', transFile);
     if(cb)return cb(err);
     throw err;
   }
+
 
   var child = ogrChild(file);
   var loader = esLoader.load(client, program.index, program.type);
