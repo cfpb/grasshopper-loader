@@ -1,0 +1,35 @@
+{
+  "type": "Feature",
+  "properties": {
+    "ADDRESS_NU": "20",
+    "BUILDING_I": " ",
+    "UNIT_IDENT": " ",
+    "LANDMARK_N": " ",
+    "PLACE_NAME": " ",
+    "COUNTY": "CHEROKEE",
+    "STATE_NAME": "NC",
+    "ZIP_CODE": 28906,
+    "ZIP_PLUS_4": 0,
+    "ADDRESS_LA": "35.093251637",
+    "ADDRESS_LO": "-84.209602345",
+    "PROCESS": 1,
+    "TRACT": "990600",
+    "BLOCK": "1084",
+    "STATE_FIPS": 37,
+    "STR_PR_DIR": " ",
+    "STR_PR_TYP": " ",
+    "STR_NAME": "PASSWOOD",
+    "STR_PO_TYP": "WAY",
+    "STR_PO_DIR": " ",
+    "USNG_COORD": "16S GD 54373 86948",
+    "COUNT_FIPS": "039",
+    "COMP_STR": "20 PASSWOOD WAY"
+  },
+  "geometry": {
+    "type": "Point",
+    "coordinates": [
+      442397.497516945,
+      529746.783547014
+    ]
+  }
+}
