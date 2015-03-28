@@ -151,13 +151,20 @@ test('makeBulkSeparator module', function(t){
 
 
 test('formatAddress module', function(t){
-  t.plan(2);
+  t.plan(4);
 
   var add1 = '123 fake st. San Francisco CA 12345';
   var add2 = '221B Baker St. Arg AZ 67876';
+  var add3 = '123 Unique Way';
 
   t.equal(formatAddress('123 fake st.', 'San Francisco', 'CA', 12345), add1, 'Standard format')
   t.equal(formatAddress('  221B Baker St.', 'Arg  ', 'AZ', '67876'), add2, 'Trim strings');
+  t.equal(formatAddress('123 Unique Way', '', null), add3, 'Gracefully handles lack of city, state, zip');
+  try{
+    formatAddress('', 'Yreka', 'CA')
+  }catch(e){
+    t.pass('Throws on no street number/name');
+  }
 });
 
 
@@ -260,6 +267,15 @@ test('Transformers', function(t){
          "coordinates": [-129.1,38.2]
       }
     };
+    var validAddresses = ["123 a st sunny ca 54321",
+                          "123 a st",
+                          "123 a st sunny",
+                          "123 a st ca",
+                          "123 a st 54321",
+                          "123 a st sunny ca",
+                          "123 a st sunny 54321",
+                          "123 a st ca 54321"
+                          ]
 
     var bulkMetadata =  makeBulkSeparator('address', 'point');
     var filtered = ignore().addIgnoreFile('.gitignore').filter(transformers);
@@ -284,7 +300,7 @@ test('Transformers', function(t){
         var data = JSON.parse(output[1]);
 
         t.deepEqual(bulkMatch, bulkMeta, "Bulk metadata created properly");
-        t.equal(dataMatch.properties.address, data.properties.address, "Address formed correctly for " + transFile);
+        t.ok(validAddresses.indexOf(data.properties.address) !== -1, "Address formed correctly for " + transFile);
         t.deepEqual(dataMatch.geometry, data.geometry, "Data to insert transformed correctly for " + transFile);
 
       });
