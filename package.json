@@ -40,6 +40,7 @@
     "lump-stream": "0.x",
     "node-dir": "^0.1.6",
     "readable-stream": "^1.0.33",
+    "rimraf": "^2.3.2",
     "through2": "^0.6.3",
     "unzip": "^0.1.11"
   },
