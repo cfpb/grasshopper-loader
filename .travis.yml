@@ -5,4 +5,9 @@ branches:
   only:
     - master
     - verify
+before_install:
+  - sudo add-apt-repository ppa:ubuntugis/ubuntugis-unstable -y
+  - sudo apt-get update -q
+  - sudo apt-get install -y libgdal-dev gdal-bin
+
  
