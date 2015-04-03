@@ -10,6 +10,7 @@ var lump = require('lump-stream');
 
 var checkUsage = require('./lib/checkUsage');
 var esLoader = require('./lib/esLoader');
+var getS3Files = require('./lib/getS3Files');
 var getGeoFiles = require('./lib/getGeoFiles');
 var resolveTransformer = require('./lib/resolveTransformer');
 var requireTransformer = require('./lib/requireTransformer');
@@ -28,6 +29,7 @@ program
   .option('-t, --transformer <transformer>', 'Data transformer. Defaults to ./transformers/[[file basename]].js')
   .option('-h, --host <host>', 'ElasticSearch host. Defaults to localhost', 'localhost')
   .option('-p, --port <port>', 'ElasticSearch port. Defaults to 9200', Number, 9200)
+  .option('--aws-profile <profile>', 'The aws credentials profile in ~/.aws/credentials, if not default')
   .option('--index <index>', 'Elasticsearch index. Defaults to address', 'address')
   .option('--type <type>', 'Elasticsearch type within the provided or default index. Defaults to point', 'point')
   .parse(process.argv);
@@ -40,7 +42,8 @@ if(usage.err) return;
 var client = esLoader.connect(program.host, program.port);
 
 
-getGeoFiles(program.data, processData);
+if(program.bucket) getS3Files(program, processData)
+else getGeoFiles(program.data, processData)
 
 
 function processData(err, file, cb){
