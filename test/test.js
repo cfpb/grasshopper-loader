@@ -7,6 +7,7 @@ var test = require('tape');
 var streamStats = require('stream-stats');
 var isStream = require('isstream');
 var ignore = require('ignore');
+var concat = require('concat-stream');
 
 var checkUsage = require('../lib/checkUsage');
 var getGeoFiles = require('../lib/getGeoFiles');
@@ -45,7 +46,7 @@ test('Check Usage', function(t){
 });
 
 test('getGeoFiles module', function(t){
-  t.plan(11); 
+  t.plan(9); 
   
   ['shp', 'gdb', 'json'].forEach(function(v){
     var input = 'test/data/t.'+ v;
@@ -55,16 +56,7 @@ test('getGeoFiles module', function(t){
   });
 
   getGeoFiles('test/data/t.zip', function(err, file, cb) {
-    t.ok(cb, 'cb passed to remove intermediate directory'); 
-    try{
-      fs.readdirSync(path.dirname(file))
-        t.pass('Intermediate directory for zip created');
-    }catch(e){
-      t.fail('Didn\'t make an appropriate intermediate directory');
-    }
-    cb(null, function(){
-      t.pass('Intermediate dir removed after processing');
-    });
+    t.equal('/vsizip/test/data/t.zip', file, 'Zip uses special ogr path to unzip');
   });
 
   getGeoFiles('test/data/threefiles', function(err, file, cb){
@@ -86,20 +78,36 @@ test('getGeoFiles module', function(t){
 
 
 test('ogrChild module', function(t){
-  t.plan(3);
+  t.plan(4);
   
   var shp = 'test/data/t.shp';
-  var child = ogrChild(shp); 
+  var zip = '/vsizip/test/data/t.zip';
+  var shpChild = ogrChild(shp); 
+  var zipChild = ogrChild(zip);
+  var shpData;
+  var zipData;
   var errInChild = 0;
+    
+  shpChild.stdout.pipe(concat(function(data){
+      shpData = data.toString();
+      if(zipData) t.equal(zipData, shpData, 'ogrChild handles zipped data properly.');
+    })
+  );
 
-  t.ok(child, 'ogrChild process is created');
-  t.ok(isStream(child.stdout), 'the child process has stdout');
+  zipChild.stdout.pipe(concat(function(data){
+      zipData = data.toString();
+      if(shpData) t.equal(zipData, shpData, 'ogrChild handles zipped data properly.');
+    })
+  );
 
-  child.stderr.once('data',function(){
+  t.ok(shpChild, 'ogrChild process is created');
+  t.ok(isStream(shpChild.stdout), 'the child process has stdout');
+
+  shpChild.stderr.once('data',function(){
     errInChild = 1;
   });
 
-  child.stderr.once('end',function(){
+  shpChild.stderr.once('end',function(){
     t.notOk(errInChild, 'ogr2ogr doesn\'t emit an error');
   });
 });

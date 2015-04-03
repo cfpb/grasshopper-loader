@@ -28,6 +28,7 @@
     "test": "node test/test.js"
   },
   "devDependencies": {
+    "concat-stream": "^1.4.7",
     "ignore": "^2.2.15",
     "isstream": "^0.1.2",
     "stream-stats": "0.x",
