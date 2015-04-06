@@ -1,3 +1,4 @@
+'use strict';
 var verify = require('../../lib/verify');
 
 function log(err){

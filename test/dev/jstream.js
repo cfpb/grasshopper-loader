@@ -1,3 +1,4 @@
+'use strict';
 var jsonstream = require("JSONstream");
 var through = require("through2");
 var fs= require('fs');
