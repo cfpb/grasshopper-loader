@@ -6,6 +6,7 @@ var fs = require('fs');
 var path = require('path');
 
 var program = require('commander');
+var isUrl = require('isUrl');
 var lump = require('lump-stream');
 
 var checkUsage = require('./lib/checkUsage');
@@ -18,8 +19,6 @@ var ogrChild = require('./lib/ogrChild');
 var splitOGRJSON = require('./lib/splitOGRJSON');
 var makeBulkSeparator = require('./lib/makeBulkSeparator');
 var verify = require('./lib/verify');
-
-var transformer;
 
 
 program
@@ -42,19 +41,34 @@ if(usage.err) return;
 var client = esLoader.connect(program.host, program.port);
 
 
-if(program.bucket) getS3Files(program, processData)
-else getGeoFiles(program.data, processData)
+if(program.bucket) getS3Files(program, processStream)
+else if (isUrl(program.data)) getGeoFiles(program.data, processStream)
+else getGeoFiles(program.data, processLocal)
 
 
-function processData(err, file, cb){
+
+
+
+function processLocal(err, file, cb){
   if(err){
     if(cb) return cb(err);
     throw err;
   }
 
+  var transformer = getTransformer(file, cb);
+
   console.log("Streaming %s to elasticsearch.", file);
 
+  
+  
+}
 
+function processStream(err, file, stream, cb){
+
+}
+
+
+function getTransformer(file, cb){
   var transFile = resolveTransformer(program.transformer, file);
 
   try{
@@ -64,8 +78,9 @@ function processData(err, file, cb){
     if(cb)return cb(err);
     throw err;
   }
+}
 
-
+function pipeline(file, transformer){
   var child = ogrChild(file);
   var loader = esLoader.load(client, program.index, program.type);
 
@@ -74,9 +89,6 @@ function processData(err, file, cb){
     .pipe(transformer(makeBulkSeparator(), '\n'))
     .pipe(lump(Math.pow(2,20)))
     .pipe(loader)
-    .on('error',function(err){
-      console.log("Error piping data",err); 
-    });
 
     loader.on('finish', function(){
       client.close();
