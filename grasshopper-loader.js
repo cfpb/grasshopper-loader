@@ -6,7 +6,6 @@ var fs = require('fs');
 var path = require('path');
 
 var program = require('commander');
-var isUrl = require('isUrl');
 var lump = require('lump-stream');
 
 var checkUsage = require('./lib/checkUsage');
@@ -41,30 +40,25 @@ if(usage.err) return;
 var client = esLoader.connect(program.host, program.port);
 
 
-if(program.bucket) getS3Files(program, processStream)
-else if (isUrl(program.data)) getGeoFiles(program.data, processStream)
-else getGeoFiles(program.data, processLocal)
+if(program.bucket) getS3Files(program, processData)
+else getGeoFiles(program.data, processData)
 
 
+function processData(err, file, stream, cb){
 
+  if(typeof stream === 'function'){
+    cb = stream;
+    stream = null;
+  }
 
-
-function processLocal(err, file, cb){
   if(err){
     if(cb) return cb(err);
     throw err;
   }
-
-  var transformer = getTransformer(file, cb);
-
+   
   console.log("Streaming %s to elasticsearch.", file);
 
-  
-  
-}
-
-function processStream(err, file, stream, cb){
-
+  return pipeline(getTransformer(file, cb), file, stream, cb);
 }
 
 
@@ -72,7 +66,7 @@ function getTransformer(file, cb){
   var transFile = resolveTransformer(program.transformer, file);
 
   try{
-    transformer = requireTransformer(transFile, file);
+    return requireTransformer(transFile, file);
   }catch(err){
     console.log('\nCouldn\'t find transformer: %s.\nProvide one with the -t option.', transFile);
     if(cb)return cb(err);
@@ -80,8 +74,9 @@ function getTransformer(file, cb){
   }
 }
 
-function pipeline(file, transformer){
-  var child = ogrChild(file);
+
+function pipeline(transformer, file, stream, cb){
+  var child = ogrChild(file, stream);
   var loader = esLoader.load(client, program.index, program.type);
 
   child.stdout 
