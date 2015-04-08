@@ -46,17 +46,13 @@ test('Check Usage', function(t){
 });
 
 test('getGeoFiles module', function(t){
-  t.plan(9); 
+  t.plan(8); 
   
   ['shp', 'gdb', 'json'].forEach(function(v){
     var input = 'test/data/t.'+ v;
     getGeoFiles(input, function(err, file, cb) {
       t.equal(input, file, v + ' passed through to processData'); 
     });
-  });
-
-  getGeoFiles('test/data/t.zip', function(err, file, cb) {
-    t.equal('/vsizip/test/data/t.zip', file, 'Zip uses special ogr path to unzip');
   });
 
   getGeoFiles('test/data/threefiles', function(err, file, cb){
