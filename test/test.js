@@ -208,11 +208,12 @@ test('verify module', function(t){
 });
 
 test('resolveTransformer module', function(t){
-  t.plan(3);
+  t.plan(4);
   var arkTrans = path.resolve('./transformers/arkansas.js');
   t.equal(arkTrans, resolveTransformer(null, 'arkansas.gdb'), 'Resolves transformer using filename');
   t.equal(arkTrans, resolveTransformer('./transformers/arkansas.js'), 'Resolves transformer using passed transformer');
   t.equal(arkTrans, resolveTransformer('./transformers/arkansas.js', 'sometext'), 'Resolver prefers passed transformer');
+  t.equal(arkTrans, resolveTransformer('arkansas'), 'Resolves with state name only.');
 });
 
 test('requireTransformer module', function(t){
@@ -342,7 +343,7 @@ test('Entire loader', function(t){
     t.equal(code, 0, 'Loads GeoJson from an S3 bucket.');
   });
   
-  var l5 = spawn('node', ['./grasshopper-loader', '-b', 'wyatt-test', '-d', 't.zip', '-t', 'transformers/arkansas.js']);
+  var l5 = spawn('node', ['./grasshopper-loader', '-b', 'wyatt-test', '-d', 't.zip', '-t', 'arkansas']);
   l5.on('exit', function(code){
     t.equal(code, 0, 'Loads a zipped shape from an S3 bucket.');
   });
