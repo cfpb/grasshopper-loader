@@ -23,26 +23,76 @@ var transformerTemplate = require('../lib/transformerTemplate');
 
 
 test('Check Usage', function(t){
-  t.plan(6);
+  t.plan(14);
 
-  var program = {
+  var p1 = {
     data: 'someshape',
     host: 'localhost',
-    port: 9200,
-    transformer: './transformers/default'
+    port: 9200
+  }
+  var p2 = {
+    port:9201
   }
 
-  var first = checkUsage(program)
-  t.equal(first.messages.length, 3);
-  t.equal(first.err, 0);
-  
-  var second = checkUsage({port:9201});
-  t.equal(second.messages.length, 1);
-  t.equal(second.err, 1);
+  var p3 = {
+    port:NaN
+  }
 
-  var third = checkUsage({port:NaN})
-  t.equal(third.messages.length, 2);
-  t.equal(third.err, 1);
+  var p4 = {
+    bucket: 'abuck',
+    data: 'data',
+    profile: 'www',
+    host: 'localhost',
+    port: 9200
+  }
+
+  var p5 = {
+    bucket: 'anotherbuck',
+    host: 'localhost',
+    port: 9200
+  }
+
+  var p6 = {
+    data: 'da',
+    profile: 'unneeded',
+    host: 'localhost',
+    port: 9200
+  }
+
+  var p7 = {
+    bucket: 'buck3',
+    transformer:'arkansas',
+    host: 'localhost',
+    port: 9200
+  }
+
+  var first = checkUsage(p1)
+  t.equal(first.messages.length, 3, 'data, host, port messages');
+  t.equal(first.err, 0, 'data, host, port err');
+  
+  var second = checkUsage(p2);
+  t.equal(second.messages.length, 1,'Non-default port, no data messages');
+  t.equal(second.err, 1, 'Non-default port, no data err');
+
+  var third = checkUsage(p3)
+  t.equal(third.messages.length, 2, 'No data, bad port messages');
+  t.equal(third.err, 1,'No data, bad port err');
+
+  var fourth = checkUsage(p4); 
+  t.equal(fourth.messages.length, 3, 'Bucket, data, profile messages');
+  t.equal(fourth.err, 0, 'Bucket, data, profile err');
+
+  var fifth = checkUsage(p5);
+  t.equal(fifth.messages.length, 5, 'Bucket only messages'); 
+  t.equal(fifth.err, 0, 'Bucket only err');
+
+  var sixth = checkUsage(p6);
+  t.equal(sixth.messages.length, 4, 'Data, unnecessary profile messages');
+  t.equal(sixth.err, 0,'Data, unnecessary profile err');
+
+  var seventh = checkUsage(p7);
+  t.equal(seventh.messages.length, 5, 'Bucket and transformer messages');
+  t.equal(seventh.err, 0, 'Bucket and transformer err');
 });
 
 test('getGeoFiles module', function(t){
