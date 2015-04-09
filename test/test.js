@@ -320,27 +320,39 @@ test('Transformers', function(t){
 });
 
 test('Entire loader', function(t){
-  t.plan(3);
-  var count = 0;
+  t.plan(5);
   var loader = spawn('node', ['./grasshopper-loader', '-d', './test/data/arkansas.json', '--index', 'ind', '--type', 'typ'])
+
   loader.on('exit', function(code){
     t.equal(code, 0, 'Ran without errors, exit code 0, on elasticsearch at localhost:9200')
-    if(++count === 3) wipe();
   });
 
   var l2 = spawn('node', ['./grasshopper-loader', '-d', './test/data/ark.json']);
   l2.on('exit', function(code){
     t.notEqual(code, 0, 'Bails when given an invalid file');
-    if(++count === 3) wipe();
   });
   
   var l3 = spawn('node', ['./grasshopper-loader', '-d', './test/data/t.prj', '-t', 'transformers/arkansas.js']);
   l3.on('exit', function(code){
     t.notEqual(code, 0, 'Bails on bad file type');
-    if(++count === 3) wipe();
   });
 
-  function wipe(){ 
-    spawn('curl', ['-XDELETE','localhost:9200/ind/typ']);
-  }
+  var l4 = spawn('node', ['./grasshopper-loader', '-b', 'wyatt-test', '-d', 'new_york.json', '--profile','wyatt-test']);
+  l4.on('exit', function(code){
+    t.equal(code, 0, 'Loads GeoJson from an S3 bucket.');
+  });
+  
+  var l5 = spawn('node', ['./grasshopper-loader', '-b', 'wyatt-test', '-d', 't.zip', '-t', 'transformers/arkansas.js']);
+  l5.on('exit', function(code){
+    t.equal(code, 0, 'Loads a zipped shape from an S3 bucket.');
+  });
+
+  
+});
+
+test('Cleaning up', function(t){
+  spawn('curl', ['-XDELETE','localhost:9200/ind/typ'])
+    .on('exit', function(){
+      t.end();
+    });
 });
