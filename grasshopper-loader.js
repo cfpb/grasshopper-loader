@@ -79,7 +79,7 @@ function pipeline(fileName, stream, transformer, cb){
   var child = ogrChild(fileName, stream);
   var loader = esLoader.load(client, program.index, program.type);
 
-  //verify.prime(stream);
+  var verifyResults = verify(fileName, stream);
 
   child.stdout 
     .pipe(splitOGRJSON())
@@ -91,7 +91,7 @@ function pipeline(fileName, stream, transformer, cb){
       client.close();
       var count = this.count;
 
-      verify(fileName, count, function(errObj){
+      verifyResults(count, function(errObj){
         if(errObj){
           if(cb) return cb(errObj.error);
           throw errObj.error;

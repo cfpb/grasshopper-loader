@@ -191,17 +191,17 @@ test('esLoader module', function(t){
 test('verify module', function(t){
   t.plan(5);
   
-  verify('test/data/t.json', 20, function(err){
+  verify('test/data/t.json')(20, function(err){
     t.notOk(err, 'No error when featureCount equals passed value.'); 
   }); 
 
-  verify('test/data/t.json', 10, function(err){
+  verify('test/data/t.json')(10, function(err){
     t.ok(err.error, 'Produces an error when compared against the wrong number.'); 
     t.equal(err.actual, 20, 'Actual value propagated.');
     t.equal(err.expected, 10, 'Expected value propagated.');
   });
   
-  verify('test/data/t.jsn', 10, function(err){
+  verify('test/data/t.jsn')(10, function(err){
     t.ok(err.error, 'Produces an error when the file doesn\'t exist'); 
   }); 
   
