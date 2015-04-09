@@ -55,23 +55,23 @@ function processData(err, fileName, stream, cb){
     if(cb) return cb(err);
     throw err;
   }
-   
-  console.log("Streaming %s to elasticsearch.", fileName);
+  
+  var transformer;
+  try{
+    transformer = getTransformer(fileName, cb)
+  }catch(err){
+    return cb(err);
+  }
 
-  return pipeline(fileName, stream, getTransformer(fileName, cb), cb);
+  console.log("Streaming %s to elasticsearch.", fileName);
+   
+  return pipeline(fileName, stream, transformer, cb);
 }
 
 
 function getTransformer(fileName, cb){
   var transFile = resolveTransformer(program.transformer, fileName);
-
-  try{
-    return requireTransformer(transFile, fileName);
-  }catch(err){
-    console.log('\nCouldn\'t find transformer: %s.\nProvide one with the -t option.', transFile);
-    if(cb)return cb(err);
-    throw err;
-  }
+  return requireTransformer(transFile, fileName);
 }
 
 
