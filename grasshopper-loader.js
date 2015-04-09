@@ -27,7 +27,7 @@ program
   .option('-t, --transformer <transformer>', 'Data transformer. Defaults to ./transformers/[[file basename]].js')
   .option('-h, --host <host>', 'ElasticSearch host. Defaults to localhost', 'localhost')
   .option('-p, --port <port>', 'ElasticSearch port. Defaults to 9200', Number, 9200)
-  .option('--aws-profile <profile>', 'The aws credentials profile in ~/.aws/credentials, if not default')
+  .option('--profile <profile>', 'The aws credentials profile in ~/.aws/credentials, if not default')
   .option('--index <index>', 'Elasticsearch index. Defaults to address', 'address')
   .option('--type <type>', 'Elasticsearch type within the provided or default index. Defaults to point', 'point')
   .parse(process.argv);
@@ -44,7 +44,7 @@ if(program.bucket) getS3Files(program, processData)
 else getGeoFiles(program.data, processData)
 
 
-function processData(err, file, stream, cb){
+function processData(err, fileName, stream, cb){
 
   if(typeof stream === 'function'){
     cb = stream;
@@ -56,17 +56,17 @@ function processData(err, file, stream, cb){
     throw err;
   }
    
-  console.log("Streaming %s to elasticsearch.", file);
+  console.log("Streaming %s to elasticsearch.", fileName);
 
-  return pipeline(getTransformer(file, cb), file, stream, cb);
+  return pipeline(fileName, stream, getTransformer(fileName, cb), cb);
 }
 
 
-function getTransformer(file, cb){
-  var transFile = resolveTransformer(program.transformer, file);
+function getTransformer(fileName, cb){
+  var transFile = resolveTransformer(program.transformer, fileName);
 
   try{
-    return requireTransformer(transFile, file);
+    return requireTransformer(transFile, fileName);
   }catch(err){
     console.log('\nCouldn\'t find transformer: %s.\nProvide one with the -t option.', transFile);
     if(cb)return cb(err);
@@ -75,9 +75,11 @@ function getTransformer(file, cb){
 }
 
 
-function pipeline(transformer, file, stream, cb){
-  var child = ogrChild(file, stream);
+function pipeline(fileName, stream, transformer, cb){
+  var child = ogrChild(fileName, stream);
   var loader = esLoader.load(client, program.index, program.type);
+
+  //verify.prime(stream);
 
   child.stdout 
     .pipe(splitOGRJSON())
@@ -89,7 +91,7 @@ function pipeline(transformer, file, stream, cb){
       client.close();
       var count = this.count;
 
-      verify(file, count, function(errObj){
+      verify(fileName, count, function(errObj){
         if(errObj){
           if(cb) return cb(errObj.error);
           throw errObj.error;

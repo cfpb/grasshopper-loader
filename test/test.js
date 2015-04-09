@@ -74,38 +74,42 @@ test('getGeoFiles module', function(t){
 
 
 test('ogrChild module', function(t){
-  t.plan(4);
+  t.plan(6);
   
-  var shp = 'test/data/t.shp';
-  var zip = '/vsizip/test/data/t.zip';
+  var shp= 'test/data/t.shp';
   var shpChild = ogrChild(shp); 
-  var zipChild = ogrChild(zip);
-  var shpData;
-  var zipData;
-  var errInChild = 0;
-    
-  shpChild.stdout.pipe(concat(function(data){
-      shpData = data.toString();
-      if(zipData) t.equal(zipData, shpData, 'ogrChild handles zipped data properly.');
-    })
-  );
-
-  zipChild.stdout.pipe(concat(function(data){
-      zipData = data.toString();
-      if(shpData) t.equal(zipData, shpData, 'ogrChild handles zipped data properly.');
-    })
-  );
-
+  var json = 'test/data/new_york.json';
+  var jsonChild = ogrChild(json, fs.createReadStream(json));
+  var errInShp = 0;
+  var errInJson = 0;
+  var shpStats = streamStats('shp');
+  var jsonStats = streamStats('json');
+  
   t.ok(shpChild, 'ogrChild process is created');
   t.ok(isStream(shpChild.stdout), 'the child process has stdout');
 
-  shpChild.stderr.once('data',function(){
-    errInChild = 1;
+  t.ok(jsonChild, 'ogrChild created for stream');
+  t.ok(isStream(jsonChild.stdout), 'jsonChild produces an output stream');
+
+  jsonChild.stderr.once('data',function(d){
+    errInJson = 1;
+  });
+
+  jsonChild.stderr.once('end',function(){
+    t.notOk(errInJson, 'ogr2ogr doesn\'t emit an error from streamed GeoJson');
+  });
+
+  shpChild.stderr.once('data',function(d){
+    errInShp = 1;
   });
 
   shpChild.stderr.once('end',function(){
-    t.notOk(errInChild, 'ogr2ogr doesn\'t emit an error');
+    t.notOk(errInShp, 'ogr2ogr doesn\'t emit an error from shapefile.');
   });
+
+  shpChild.stdout.pipe(shpStats).sink();
+  jsonChild.stdout.pipe(jsonStats).sink();
+
 });
 
 
