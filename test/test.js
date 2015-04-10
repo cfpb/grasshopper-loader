@@ -10,6 +10,7 @@ var ignore = require('ignore');
 var concat = require('concat-stream');
 
 var checkUsage = require('../lib/checkUsage');
+var Counter = require('../lib/counter');
 var getGeoFiles = require('../lib/getGeoFiles');
 var ogrChild = require('../lib/ogrChild');
 var splitOGRJSON = require('../lib/splitOGRJSON');
@@ -114,26 +115,34 @@ test('Check Usage', function(t){
 
 });
 
+test('counter', function(t){
+  t.plan(1);
+  var counter = new Counter();
+  counter.incr();
+  counter.incr();
+  t.equal(counter.decr(), 1, 'Counter works');
+});
+
 test('getGeoFiles module', function(t){
   t.plan(8); 
   
   ['shp', 'gdb', 'json'].forEach(function(v){
     var input = 'test/data/t.'+ v;
-    getGeoFiles(input, function(err, file, cb) {
+    getGeoFiles(input, new Counter(), function(err, file, cb) {
       t.equal(input, file, v + ' passed through to processData'); 
     });
   });
 
-  getGeoFiles('test/data/threefiles', function(err, file, cb){
+  getGeoFiles('test/data/threefiles', new Counter(), function(err, file, cb){
     t.ok(file, file + ' read from directory');
   }); 
 
-  getGeoFiles('some.txt', function(err, file, cb){
+  getGeoFiles('some.txt', new Counter(), function(err, file, cb){
     t.ok(err, 'Error produced on bad file type.');
   });
 
   try{
-    getGeoFiles('fakepath', function(err, file, cb){
+    getGeoFiles('fakepath', new Counter(), function(err, file, cb){
     });
   }catch(e){
     t.pass('Throws error on bad path.');
@@ -412,7 +421,7 @@ test('Entire loader', function(t){
     t.equal(code, 0, 'Loads GeoJson from an S3 bucket.');
   });
   
-  var l5 = spawn('node', ['./grasshopper-loader', '-b', 'wyatt-test', '-d', 't.zip', '-t', 'arkansas']);
+  var l5 = spawn('node', ['./grasshopper-loader', '-b', 'wyatt-test', '-d', 'arkansas.zip']);
   l5.on('exit', function(code){
     t.equal(code, 0, 'Loads a zipped shape from an S3 bucket.');
   });
