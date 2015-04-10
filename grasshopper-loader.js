@@ -7,74 +7,86 @@ var path = require('path');
 
 var program = require('commander');
 var lump = require('lump-stream');
-var unzip = require('unzip');
 
 var checkUsage = require('./lib/checkUsage');
 var esLoader = require('./lib/esLoader');
+var getGeoFiles = require('./lib/getGeoFiles');
+var resolveTransformer = require('./lib/resolveTransformer');
+var requireTransformer = require('./lib/requireTransformer');
 var ogrChild = require('./lib/ogrChild');
 var splitOGRJSON = require('./lib/splitOGRJSON');
 var makeBulkSeparator = require('./lib/makeBulkSeparator');
+var verify = require('./lib/verify');
 
-var index = 'address';
-var type = 'point';
+var transformer;
 
 
 program
   .version('1.0.0')
   .option('-d, --data <data>', 'Point data as a .zip, .shp, .gdb, or directory')
+  .option('-t, --transformer <transformer>', 'Data transformer. Defaults to ./transformers/[[file basename]].js')
   .option('-h, --host <host>', 'ElasticSearch host. Defaults to localhost', 'localhost')
   .option('-p, --port <port>', 'ElasticSearch port. Defaults to 9200', Number, 9200)
-  .option('-t, --transformer <transformer>', 'Data transformer. Defaults to ./transformers/default', './transformers/default')
+  .option('--index <index>', 'Elasticsearch index. Defaults to address', 'address')
+  .option('--type <type>', 'Elasticsearch type within the provided or default index. Defaults to point', 'point')
   .parse(process.argv);
 
 var usage = checkUsage(program);
 console.log(usage.messages.join(''));
 if(usage.err) return;
 
-var transformer = require(path.resolve(program.transformer));
 
-esLoader.connect(program.host, program.port, index, type);
-
-
-var geodata = program.data;
-var ext = path.extname(geodata);
-var basename = path.basename(geodata, ext);
-var dirname = path.dirname(geodata);
+var client = esLoader.connect(program.host, program.port);
 
 
-//fast dir check... requires passing ext with data
-if(!ext){
-  dirname = geodata;
-}
+getGeoFiles(program.data, processData);
 
 
-if(ext.toLowerCase() === '.zip'){
-  dirname = path.join(dirname, basename);
+function processData(err, file, cb){
+  if(err){
+    if(cb) return cb(err);
+    throw err;
+  }
 
-  fs.mkdir(dirname, function(err){
-    if(err) throw err;
-    var unzipped = unzip.Extract({path: dirname});
-    unzipped.on('close', processData);
-
-    fs.createReadStream(geodata).pipe(unzipped)
-  });
-}else{
-  processData(); 
-}
+  console.log("Streaming %s to elasticsearch.", file);
 
 
-function processData(){
-  var datafile = path.join(dirname, basename + ext);
-  console.log("Streaming %s to elasticsearch.",datafile);
-  var child = ogrChild(datafile);
+  var transFile = resolveTransformer(program.transformer, file);
+
+  try{
+    transformer = requireTransformer(transFile, file);
+  }catch(err){
+    console.log('\nCouldn\'t find transformer: %s.\nProvide one with the -t option.', transFile);
+    if(cb)return cb(err);
+    throw err;
+  }
+
+
+  var child = ogrChild(file);
+  var loader = esLoader.load(client, program.index, program.type);
 
   child.stdout 
     .pipe(splitOGRJSON())
     .pipe(transformer(makeBulkSeparator(), '\n'))
     .pipe(lump(Math.pow(2,20)))
-    .pipe(esLoader.load())
+    .pipe(loader)
     .on('error',function(err){
       console.log("Error piping data",err); 
+    });
+
+    loader.on('finish', function(){
+      client.close();
+      var count = this.count;
+
+      verify(file, count, function(errObj){
+        if(errObj){
+          if(cb) return cb(errObj.error);
+          throw errObj.error;
+        }
+        console.log("All %d records loaded.", count);
+        if(cb) cb();
+      });
+
     });
 }
 
