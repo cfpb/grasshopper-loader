@@ -11,6 +11,8 @@ var concat = require('concat-stream');
 
 var checkUsage = require('../lib/checkUsage');
 var Counter = require('../lib/counter');
+var getS3Files = require('../lib/getS3Files');
+var getGeoUrl = require('../lib/getGeoUrl');
 var getGeoFiles = require('../lib/getGeoFiles');
 var ogrChild = require('../lib/ogrChild');
 var splitOGRJSON = require('../lib/splitOGRJSON');
@@ -24,7 +26,6 @@ var transformerTemplate = require('../lib/transformerTemplate');
 
 
 test('Check Usage', function(t){
-  t.plan(14);
 
   var programs = [{
     program:{
@@ -37,6 +38,30 @@ test('Check Usage', function(t){
       err:0
     },
     label:'data, host, port'
+  },
+  {
+    program:{
+      data:'http://www.google.com/fake.txt',
+      host: 'localhost',
+      port: 9200
+    },
+    expected:{
+      messages:1,
+      err:1
+    },
+    label:'Url test with bad filetype'
+  },
+  {
+    program:{
+      data:'http://www.google.com/fake.zip',
+      host: 'localhost',
+      port: 9200
+    },
+    expected:{
+      messages:3,
+      err:0
+    },
+    label:'Url with good filetype'
   },
   {
     program:{
@@ -110,8 +135,10 @@ test('Check Usage', function(t){
   programs.forEach(function(v){
     var usage = checkUsage(v.program);
     t.equal(usage.messages.length, v.expected.messages, v.label + ' messages.');
-    t.equal(usage.err, v.expected.err, v.label + 'err.');
+    t.equal(usage.err, v.expected.err, v.label + ' err.');
   });
+
+  t.end();
 
 });
 
@@ -121,6 +148,22 @@ test('counter', function(t){
   counter.incr();
   counter.incr();
   t.equal(counter.decr(), 1, 'Counter works');
+});
+
+test('getGeoUrl module', function(t){
+  t.plan(3);
+
+  var zip = "http://cfpb.github.io/grasshopper-loader/arkansas.zip"
+  var json = "http://cfpb.github.io/grasshopper-loader/arkansas.json"
+
+  getGeoUrl(zip, new Counter(), function(err, file, stream, cb){
+    t.equal(path.join(path.basename(path.dirname(file)), path.basename(file)), 'arkansas/t.shp', 'Shapefile extracted and passed from remote zip.');
+  });
+
+  getGeoUrl(json, new Counter(), function(err, file, stream, cb){
+    t.equal(file, 'arkansas.json', 'GeoJson file pulled remotely.');
+    t.ok(isStream(stream), 'GeoJson file streamed in');
+  })
 });
 
 test('getGeoFiles module', function(t){

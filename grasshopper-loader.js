@@ -26,7 +26,7 @@ var Counter = require('./lib/counter');
 program
   .version('1.0.0')
   .option('-b, --bucket <bucket>', 'An S3 bucket where data resides. If no -d option is passed, will attempt to load all data in the bucket.')
-  .option('-d, --data <data>', 'Point data as a .zip, .shp, .gdb, or directory. Provide a local or remote path.')
+  .option('-d, --data <data>', 'Point data as a .zip, .shp, .gdb, or directory. Provide a local or an S3 key. Zip an GeoJson data can also be accessed via url.')
   .option('-t, --transformer <transformer>', 'Data transformer. Defaults to ./transformers/[[file basename]].js')
   .option('-h, --host <host>', 'ElasticSearch host. Defaults to localhost', 'localhost')
   .option('-p, --port <port>', 'ElasticSearch port. Defaults to 9200', Number, 9200)
