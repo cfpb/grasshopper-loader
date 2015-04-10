@@ -41,6 +41,7 @@
     "elasticsearch": "^3.0.2",
     "is-url": "^1.2.0",
     "lump-stream": "0.x",
+    "mkdirp": "^0.5.0",
     "node-dir": "^0.1.6",
     "readable-stream": "^1.0.33",
     "rimraf": "^2.3.2",

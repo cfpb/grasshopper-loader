@@ -18,6 +18,7 @@ var ogrChild = require('./lib/ogrChild');
 var splitOGRJSON = require('./lib/splitOGRJSON');
 var makeBulkSeparator = require('./lib/makeBulkSeparator');
 var verify = require('./lib/verify');
+var Counter = require('./lib/counter');
 
 
 program
@@ -38,14 +39,14 @@ if(usage.err) return;
 
 
 var client = esLoader.connect(program.host, program.port);
+var counter = new Counter();
 
-
-if(program.bucket) getS3Files(program, processData)
-else getGeoFiles(program.data, processData)
+if(program.bucket) getS3Files(program, counter, processData)
+else getGeoFiles(program.data, counter, processData)
 
 
 function processData(err, fileName, stream, cb){
-
+ 
   if(typeof stream === 'function'){
     cb = stream;
     stream = null;
@@ -64,7 +65,7 @@ function processData(err, fileName, stream, cb){
   }
 
   console.log("Streaming %s to elasticsearch.", fileName);
-   
+
   return pipeline(fileName, stream, transformer, cb);
 }
 
@@ -88,10 +89,12 @@ function pipeline(fileName, stream, transformer, cb){
     .pipe(loader)
 
     loader.on('finish', function(){
-      client.close();
+      if(counter.decr() === 0) client.close();
+
       var count = this.count;
 
       verifyResults(count, function(errObj){
+        console.log("VERIFY");
         if(errObj){
           if(cb) return cb(errObj.error);
           throw errObj.error;
