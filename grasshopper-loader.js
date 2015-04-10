@@ -89,17 +89,20 @@ function pipeline(fileName, stream, transformer, cb){
     .pipe(loader)
 
     loader.on('finish', function(){
-      if(counter.decr() === 0) client.close();
+      console.log('Finished streaming %s', fileName);
+
+      if(counter.decr() === 0){
+        client.close();
+      }
 
       var count = this.count;
 
       verifyResults(count, function(errObj){
-        console.log("VERIFY");
         if(errObj){
           if(cb) return cb(errObj.error);
           throw errObj.error;
         }
-        console.log("All %d records loaded.", count);
+        console.log("All %d records from %s loaded.", count, fileName);
         if(cb) cb();
       });
 
