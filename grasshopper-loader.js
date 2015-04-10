@@ -6,11 +6,13 @@ var fs = require('fs');
 var path = require('path');
 
 var program = require('commander');
+var isUrl = require('is-url');
 var lump = require('lump-stream');
 
 var checkUsage = require('./lib/checkUsage');
 var esLoader = require('./lib/esLoader');
 var getS3Files = require('./lib/getS3Files');
+var getGeoUrl = require('./lib/getGeoUrl');
 var getGeoFiles = require('./lib/getGeoFiles');
 var resolveTransformer = require('./lib/resolveTransformer');
 var requireTransformer = require('./lib/requireTransformer');
@@ -42,6 +44,7 @@ var client = esLoader.connect(program.host, program.port);
 var counter = new Counter();
 
 if(program.bucket) getS3Files(program, counter, processData)
+else if(isUrl(program.data)) getGeoUrl(program.data, counter, processData);
 else getGeoFiles(program.data, counter, processData)
 
 
@@ -61,7 +64,8 @@ function processData(err, fileName, stream, cb){
   try{
     transformer = getTransformer(fileName, cb)
   }catch(err){
-    return cb(err);
+    if(cb) return cb(err);
+    throw err;
   }
 
   console.log("Streaming %s to elasticsearch.", fileName);
