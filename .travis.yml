@@ -1,13 +1,15 @@
 language: node_js
-node_js: "0.10"
+node_js: '0.10'
 services: elasticsearch
 branches:
   only:
-    - master
-    - verify
+  - master
+  - verify
 before_install:
-  - sudo add-apt-repository ppa:ubuntugis/ubuntugis-unstable -y
-  - sudo apt-get update -q
-  - sudo apt-get install -y libgdal-dev gdal-bin
-
- 
+- sudo add-apt-repository ppa:ubuntugis/ubuntugis-unstable -y
+- sudo apt-get update -q
+- sudo apt-get install -y libgdal-dev gdal-bin
+env:
+  matrix:
+  - secure: ayERmLid3KOeDK6s0+UXeXhEStIl5mSNd4hMFSpmfnt6Q0sjHkmrl6QYbou3cRDaSuuDMDQTadDo5YfJnSkpJHEWvINzVA9qN6P4MAid7u6lNCvg8M9Y44RXJLc8E6ZuZv7naWXkRcDTpjE/zvaaUQ6n6b/+u2GkqP6xZbs7ZbM=
+  - secure: eLeoGnJGghyonLfJL/w36A6f0VTP+h8Uqc4Q40QYQXzkv6IzsfHgjbrDFelZleN5hmFd2rhhygLau9uOb5hKNNca/uOgJUrq8rtLfgw5EI2pHykhqf5fxvntkCC1aqHsZd6n7XGh0x6LfKOO5LZ8W1YVeI9hil+vCXTxTwcBKk8=
