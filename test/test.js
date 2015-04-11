@@ -150,6 +150,50 @@ test('counter', function(t){
   t.equal(counter.decr(), 1, 'Counter works');
 });
 
+test('getS3Files module', function(t){
+  t.plan(15);
+
+  var simpleKeys = [
+    {"bucket":"wyatt-test", "data":"new_york.json"},
+    {"bucket":"wyatt-test", "data":"new_york.json", "profile":"wyatt-test"},
+    {"bucket":"wyatt-test", "data":"test/arkansas.json"}
+  ];
+
+  var zip = {'bucket':'wyatt-test', 'data':'arkansas.zip'};
+  var folder = {'bucket':'wyatt-test', 'data':'test'};
+  var bucket = {'bucket':'wyatt-test'};
+
+  simpleKeys.forEach(function(v){
+    getS3Files(v, new Counter(), function(err, file, stream, cb){
+      t.notOk(err, 'No error with '+ JSON.stringify(v));
+      t.ok(isStream(stream), 'Stream exists');
+      t.equal(v.data, file, 'Carries key into file');
+    });
+  });
+
+  getS3Files(zip, new Counter(), function(err, file, stream, cb){
+    if(typeof stream === 'function') cb = stream;
+    t.notOk(err, 'No error getting zip');
+    t.equal(path.join(path.basename(path.dirname(file)), path.basename(file)), 'arkansas/t.shp', 'Shapefile extracted and passed from S3.');
+    if(cb) cb();
+  });
+
+  getS3Files(folder, new Counter(), function(err, file, stream, cb){
+    t.notOk(err, 'No error on folder');
+    t.ok(isStream(stream), 'Generates stream');
+    t.equal(file,'test/arkansas.json', 'Operate on only actual file in folder.'); 
+  });
+
+  var count = 0;
+  getS3Files(bucket, new Counter(), function(err, file, stream, cb){
+    if(typeof stream === 'function') cb = stream;
+    if(++count === 4) t.pass('Gets all the files from the bucket.'); 
+    if(cb) cb();
+  })
+     
+});
+
+
 test('getGeoUrl module', function(t){
   t.plan(3);
 
@@ -157,7 +201,9 @@ test('getGeoUrl module', function(t){
   var json = "http://cfpb.github.io/grasshopper-loader/arkansas.json"
 
   getGeoUrl(zip, new Counter(), function(err, file, stream, cb){
+    if(typeof stream === 'function') cb = stream;
     t.equal(path.join(path.basename(path.dirname(file)), path.basename(file)), 'arkansas/t.shp', 'Shapefile extracted and passed from remote zip.');
+    if(cb)cb();
   });
 
   getGeoUrl(json, new Counter(), function(err, file, stream, cb){
