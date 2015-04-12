@@ -4,7 +4,7 @@ services: elasticsearch
 branches:
   only:
   - master
-  - verify
+  - remote
 before_install:
 - sudo add-apt-repository ppa:ubuntugis/ppa -y
 - sudo apt-get update -q
