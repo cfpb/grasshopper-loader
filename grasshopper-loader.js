@@ -22,6 +22,8 @@ var makeBulkSeparator = require('./lib/makeBulkSeparator');
 var verify = require('./lib/verify');
 var Counter = require('./lib/counter');
 
+//Favor source GDAL installations for ogr transformations
+process.env.PATH = '/usr/local/bin:' + process.env.PATH
 
 program
   .version('1.0.0')
