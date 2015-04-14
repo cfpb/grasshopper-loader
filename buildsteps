@@ -1,44 +1,29 @@
-install current gdal from source
-sudo ln -s /usr/lib/libproj.so.0 /usr/lib/libproj.so
-sudo ln -s /usr/lib/libproj.so.0 /usr/local/lib/libproj.so
-sudo ln -s /usr/lib/libproj.so.0 /usr/local/lib/libproj.so.1
-set env variables
-install elasticsearch for testing
-install node
-npm install
-start elasticsearch
-  
 sudo apt-get update -q
-sudo apt-get install python-software-properties -y
+sudo apt-get -y install python-software-properties 
 sudo apt-add-repository ppa:chris-lea/node.js -y
 sudo apt-get update -q
-sudo apt-get install nodejs -y
-sudo apt-get install g++ -y
-sudo apt-get install build-essential -y
-sudo apt-get install git -y
+sudo apt-get -y install nodejs g++ build-essential git curl
 
-wget http://download.osgeo.org/gdal/1.11.2/gdal-1.11.2.tar.gz
-tar xvfz gdal-1.11.2.tar.gz
+curl http://download.osgeo.org/gdal/1.11.2/gdal-1.11.2.tar.gz | tar xfz 
 cd gdal-1.11.2
 ./configure && make && sudo make install
 sudo ldconfig
 cd ..
 
-
-wget http://download.osgeo.org/proj/proj-4.9.1.tar.gz
-tar xfz proj-4.9.1.tar.gz
+curl http://download.osgeo.org/proj/proj-4.9.1.tar.gz | tar xfz 
 cd proj-4.9.1
 ./configure && make && sudo make install
 sudo ldconfig
 cd ..
 
-export AWS_ACCESS_KEY_ID=<key>
-export AWS_SECRET_ACCESS_KEY=<secret>
 
 git clone https://github.com/cfpb/grasshopper-loader.git
 cd grasshopper-loader
 npm install
-<start elasticsearch on localhost:9200>
+
+export AWS_ACCESS_KEY_ID=<key>
+export AWS_SECRET_ACCESS_KEY=<secret>
+
 sudo apt-get install openjdk-6-jre
 wget https://download.elasticsearch.org/elasticsearch/elasticsearch/elasticsearch-0.90.7.tar.gz
 tar -xf elasticsearch-0.90.7.tar.gz
@@ -46,6 +31,7 @@ sudo mkdir /etc/elasticsearch
 echo network.bind_host: localhost | sudo tee -a /etc/elasticsearch/elasticsearch.yml
 echo script.disable_dynamic: true | sudo tee -a /etc/elasticsearch/elasticsearch.yml
 ./elasticsearch-0.90.7/bin/elasticsearch&
+
 npm test
 
 
