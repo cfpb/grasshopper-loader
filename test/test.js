@@ -258,7 +258,8 @@ test('ogrChild module', function(t){
   t.ok(jsonChild, 'ogrChild created for stream');
   t.ok(isStream(jsonChild.stdout), 'jsonChild produces an output stream');
 
-  jsonChild.stderr.once('data',function(d){
+  jsonChild.stderr.on('data',function(d){
+    console.log(d.toString());
     errInJson = 1;
   });
 
@@ -266,7 +267,8 @@ test('ogrChild module', function(t){
     t.notOk(errInJson, 'ogr2ogr doesn\'t emit an error from streamed GeoJson');
   });
 
-  shpChild.stderr.once('data',function(d){
+  shpChild.stderr.on('data',function(d){
+    console.log(d.toString());
     errInShp = 1;
   });
 
