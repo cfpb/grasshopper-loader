@@ -30,9 +30,9 @@ program
   .option('-h, --host <host>', 'ElasticSearch host. Defaults to localhost', 'localhost')
   .option('-p, --port <port>', 'ElasticSearch port. Defaults to 9200', Number, 9200)
   .option('--index <index>', 'Elasticsearch index. Defaults to testind', 'testindex')
-  .option('--type <type>', 'Elasticsearch type within the provided or default index. Defaults to testtype', 'point')
+  .option('--type <type>', 'Elasticsearch type within the provided or default index. Defaults to testtype', 'testtype')
   .parse(process.argv);
-
+console.log(program.host,program.port, program.index, program.type);
 
 test('Check Usage', function(t){
 
@@ -500,28 +500,28 @@ test('Transformers', function(t){
 
 test('Entire loader', function(t){
   t.plan(5);
-  var loader = spawn('node', ['./grasshopper-loader', '-d', './test/data/arkansas.json', '--index', 'ind', '--type', 'typ'])
+  var loader = spawn('node', ['./grasshopper-loader', '-d', './test/data/arkansas.json', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type])
 
   loader.on('exit', function(code){
-    t.equal(code, 0, 'Ran without errors, exit code 0, on elasticsearch at localhost:9200')
+    t.equal(code, 0, 'Ran without errors, exit code 0, on elasticsearch at ' + program.host + ':' + program.port)
   });
 
-  var l2 = spawn('node', ['./grasshopper-loader', '-d', './test/data/ark.json']);
+  var l2 = spawn('node', ['./grasshopper-loader', '-d', './test/data/ark.json', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]);
   l2.on('exit', function(code){
     t.notEqual(code, 0, 'Bails when given an invalid file');
   });
   
-  var l3 = spawn('node', ['./grasshopper-loader', '-d', './test/data/t.prj', '-t', 'transformers/arkansas.js']);
+  var l3 = spawn('node', ['./grasshopper-loader', '-d', './test/data/t.prj', '-t', 'transformers/arkansas.js', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]);
   l3.on('exit', function(code){
     t.notEqual(code, 0, 'Bails on bad file type');
   });
 
-  var l4 = spawn('node', ['./grasshopper-loader', '-b', 'wyatt-test', '-d', 'new_york.json', '--profile','wyatt-test']);
+  var l4 = spawn('node', ['./grasshopper-loader', '-b', 'wyatt-test', '-d', 'new_york.json', '--profile','wyatt-test', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]);
   l4.on('exit', function(code){
     t.equal(code, 0, 'Loads GeoJson from an S3 bucket.');
   });
   
-  var l5 = spawn('node', ['./grasshopper-loader', '-b', 'wyatt-test', '-d', 'arkansas.zip']);
+  var l5 = spawn('node', ['./grasshopper-loader', '-b', 'wyatt-test', '-d', 'arkansas.zip', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]);
   l5.on('exit', function(code){
     t.equal(code, 0, 'Loads a zipped shape from an S3 bucket.');
   });
