@@ -500,31 +500,33 @@ test('Transformers', function(t){
 
 test('Entire loader', function(t){
   t.plan(5);
-  var loader = spawn('node', ['./grasshopper-loader', '-d', './test/data/arkansas.json', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type])
+  var args = [
+    {ok:1, message: 'Ran without errors, exit code 0, on elasticsearch at ' + program.host + ':' + program.port, arr: ['./grasshopper-loader', '-d', './test/data/arkansas.json', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]},
+    {ok:0, message: 'Bails when given an invalid file', arr: ['./grasshopper-loader', '-d', './test/data/ark.json', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]},
+    {ok:0, message: 'Bails on bad file type', arr: ['./grasshopper-loader', '-d', './test/data/t.prj', '-t', 'transformers/arkansas.js', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]},
+    {ok:1, message: 'Loads GeoJson from an S3 bucket.', arr: ['./grasshopper-loader', '-b', 'wyatt-test', '-d', 'new_york.json', '--profile','wyatt-test', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]},
+    {ok:1, message: 'Loads a zipped shape from an S3 bucket.', arr: ['./grasshopper-loader', '-b', 'wyatt-test', '-d', 'arkansas.zip', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]},
+  ];
 
-  loader.on('exit', function(code){
-    t.equal(code, 0, 'Ran without errors, exit code 0, on elasticsearch at ' + program.host + ':' + program.port)
-  });
+  args.forEach(function(v,i){
+    var loader = spawn('node', v.arr);
+    var stats;
 
-  var l2 = spawn('node', ['./grasshopper-loader', '-d', './test/data/ark.json', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]);
-  l2.on('exit', function(code){
-    t.notEqual(code, 0, 'Bails when given an invalid file');
-  });
-  
-  var l3 = spawn('node', ['./grasshopper-loader', '-d', './test/data/t.prj', '-t', 'transformers/arkansas.js', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]);
-  l3.on('exit', function(code){
-    t.notEqual(code, 0, 'Bails on bad file type');
-  });
+    if(v.ok){
+      stats = streamStats('loader'+i,{store:1});
+      loader.stderr.pipe(stats);
+    }
 
-  var l4 = spawn('node', ['./grasshopper-loader', '-b', 'wyatt-test', '-d', 'new_york.json', '--profile','wyatt-test', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]);
-  l4.on('exit', function(code){
-    t.equal(code, 0, 'Loads GeoJson from an S3 bucket.');
-  });
-  
-  var l5 = spawn('node', ['./grasshopper-loader', '-b', 'wyatt-test', '-d', 'arkansas.zip', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]);
-  l5.on('exit', function(code){
-    t.equal(code, 0, 'Loads a zipped shape from an S3 bucket.');
-  });
-
+    loader.on('exit', function(code){
+      if(v.ok){
+        t.equal(code, 0, v.message);
+        if(stats.stats.store.length){
+          console.log(stats.stats.store.toString());
+        }
+      }else{
+        t.notEqual(code, 0, v.message);
+      }
+    });
+  })
   
 });
