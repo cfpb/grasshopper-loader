@@ -26,13 +26,13 @@ var Counter = require('./lib/counter');
 process.env.PATH = '/usr/local/bin:' + process.env.PATH
 
 program
-  .version('1.0.0')
+  .version('0.0.1')
   .option('-b, --bucket <bucket>', 'An S3 bucket where data resides. If no -d option is passed, will attempt to load all data in the bucket.')
   .option('-d, --data <data>', 'Point data as a .zip, .shp, .gdb, or directory. Provide a local or an S3 key. Zip an GeoJson data can also be accessed via url.')
   .option('-t, --transformer <transformer>', 'Data transformer. Defaults to ./transformers/[[file basename]].js')
   .option('-h, --host <host>', 'ElasticSearch host. Defaults to localhost', 'localhost')
   .option('-p, --port <port>', 'ElasticSearch port. Defaults to 9200', Number, 9200)
-  .option('--profile <profile>', 'The aws credentials profile in ~/.aws/credentials, if not default')
+  .option('--profile <profile>', 'The aws credentials profile in ~/.aws/credentials, if not default. Will also respect AWS keys as environment variables.')
   .option('--index <index>', 'Elasticsearch index. Defaults to address', 'address')
   .option('--type <type>', 'Elasticsearch type within the provided or default index. Defaults to point', 'point')
   .parse(process.argv);

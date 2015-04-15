@@ -4,7 +4,6 @@ services: elasticsearch
 branches:
   only:
   - master
-  - remote
 before_install:
 - sudo apt-get -y install python-software-properties 
 - sudo apt-add-repository ppa:chris-lea/node.js -y

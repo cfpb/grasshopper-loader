@@ -2,6 +2,7 @@
 var fs = require('fs');
 var path = require('path');
 var spawn = require('child_process').spawn;
+var program = require('commander');
 
 var test = require('tape');
 var streamStats = require('stream-stats');
@@ -24,11 +25,19 @@ var resolveTransformer = require('../lib/resolveTransformer');
 var requireTransformer = require('../lib/requireTransformer');
 var transformerTemplate = require('../lib/transformerTemplate');
 
+program
+  .version('0.0.1')
+  .option('-h, --host <host>', 'ElasticSearch host. Defaults to localhost', 'localhost')
+  .option('-p, --port <port>', 'ElasticSearch port. Defaults to 9200', Number, 9200)
+  .option('--index <index>', 'Elasticsearch index. Defaults to testind', 'testindex')
+  .option('--type <type>', 'Elasticsearch type within the provided or default index. Defaults to testtype', 'point')
+  .parse(process.argv);
+
 
 test('Check Usage', function(t){
 
-  var programs = [{
-    program:{
+  var instances = [{
+    args:{
       data: 'someshape',
       host: 'localhost',
       port: 9200
@@ -40,7 +49,7 @@ test('Check Usage', function(t){
     label:'data, host, port'
   },
   {
-    program:{
+    args:{
       data:'http://www.google.com/fake.txt',
       host: 'localhost',
       port: 9200
@@ -52,7 +61,7 @@ test('Check Usage', function(t){
     label:'Url test with bad filetype'
   },
   {
-    program:{
+    args:{
       data:'http://www.google.com/fake.zip',
       host: 'localhost',
       port: 9200
@@ -64,7 +73,7 @@ test('Check Usage', function(t){
     label:'Url with good filetype'
   },
   {
-    program:{
+    args:{
       port: 9201
     },
     expected:{
@@ -73,7 +82,7 @@ test('Check Usage', function(t){
     },
     label:'Non-default port, no data'
   },{
-    program:{
+    args:{
       port: NaN 
     },
     expected:{
@@ -82,7 +91,7 @@ test('Check Usage', function(t){
     },
     label:'No data, bad port'
   },{
-    program:{
+    args:{
       bucket: 'abuck',
       data: 'data',
       profile: 'www',
@@ -95,7 +104,7 @@ test('Check Usage', function(t){
     },
     label:'Bucket, data, profile'
   },{
-    program:{
+    args:{
       bucket: 'anotherb',
       host: 'localhost',
       port: 9200
@@ -106,7 +115,7 @@ test('Check Usage', function(t){
     },
     label:'Bucket only'
   },{
-    program:{
+    args:{
       data: 'da',
       profile: 'unneeded',
       host: 'localhost',
@@ -118,7 +127,7 @@ test('Check Usage', function(t){
     },
     label:'Data, unnecessary profile'
   },{
-    program:{
+    args:{
       bucket: 'buck3',
       transformer:'arkansas',
       host: 'localhost',
@@ -132,8 +141,8 @@ test('Check Usage', function(t){
   }
   ];
 
-  programs.forEach(function(v){
-    var usage = checkUsage(v.program);
+  instances.forEach(function(v){
+    var usage = checkUsage(v.args);
     t.equal(usage.messages.length, v.expected.messages, v.label + ' messages.');
     t.equal(usage.err, v.expected.err, v.label + ' err.');
   });
@@ -310,9 +319,9 @@ test('splitOGRJSON module', function(t){
 
 test('makeBulkSeparator module', function(t){
   t.plan(3);
-  var sep = makeBulkSeparator('ind','typ'); 
+  var sep = makeBulkSeparator(program.index, program.type); 
   var sepObj = JSON.parse(sep.slice(0,sep.length-1));
-  var expectedSep = {index:{_index:'ind',_type:'typ'}}
+  var expectedSep = {index:{_index:program.index,_type:program.type}}
   t.deepEqual(sepObj, expectedSep, 'Bulk separator on standard input');
 
   var mtSep = makeBulkSeparator();

@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+#Ubuntu installation
 sudo apt-get update -q
 sudo apt-get -y install python-software-properties 
 sudo apt-add-repository ppa:chris-lea/node.js -y

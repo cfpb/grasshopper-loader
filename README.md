@@ -9,6 +9,8 @@ Data is transformed from these standard formats and loaded into Elasticsearch (t
   - [Install node](https://nodejs.org/)
   - [Install GDAL](http://trac.osgeo.org/gdal/wiki/DownloadingGdalBinaries)
     - On OSX, instead of using a binary or building from source, you can [download homebrew](http://brew.sh/) and `brew install gdal`.
+  - [Install elasticsearch](https://www.elastic.co/downloads/elasticsearch)
+    - You can also point the loader to elasticsearch running on another machine.
   - Run `npm install` from the project root
   - The loader is a command-line application, run by invoking **grasshopper-loader.js** with the following options:
     - **-d, --data** *Required* The data source to load. This can be a gdb, shp, GeoJSON, zip, or a directory of any of these which gets loaded recursively.
@@ -18,8 +20,8 @@ Data is transformed from these standard formats and loaded into Elasticsearch (t
     - **--index** *Default: address* The elasticsearch index
     - **--type** *Default: point* The elasticsearch type
   - Test the loader by starting elasticsearch on localhost:9200 and running `npm test`
-    - This will run the tests in test/test.js
-  from the root of the project, run `./grasshopper-loader.js -d test/data/new_york.json` 
+    - This will run the tests in test/test.js from the root of the project
+  - To manually test the loader, run `./grasshopper-loader.js -d test/data/new_york.json` 
     - This will load 100 addresses from New York into the address index and the point type
     - Check this with `curl -XGET "localhost:9200/address/point/_count?q=properties.address:NY"`
 
