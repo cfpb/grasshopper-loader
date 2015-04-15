@@ -31,8 +31,8 @@ program
   .option('-p, --port <port>', 'ElasticSearch port. Defaults to 9200', Number, 9200)
   .option('--index <index>', 'Elasticsearch index. Defaults to testind', 'testindex')
   .option('--type <type>', 'Elasticsearch type within the provided or default index. Defaults to testtype', 'testtype')
+  .option('--profile <profile>', 'The aws credentials profile in ~/.aws/credentials. Will also respect AWS keys as environment variables.', 'default')
   .parse(process.argv);
-console.log(program.host,program.port, program.index, program.type);
 
 test('Check Usage', function(t){
 
@@ -527,11 +527,4 @@ test('Entire loader', function(t){
   });
 
   
-});
-
-test('Cleaning up', function(t){
-  spawn('curl', ['-XDELETE','localhost:9200/ind/typ'])
-    .on('exit', function(){
-      t.end();
-    });
 });
