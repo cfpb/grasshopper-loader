@@ -80,10 +80,17 @@ function processData(err, fileName, stream, cb){
     index: program.index,
     type: program.type || type  
   }
+   
+  console.log("Clearing %s/%s from elasticsearch.", params.index, params.type);
 
-  console.log("Streaming %s to elasticsearch.", fileName);
+  esLoader.wipe(client, params.index, params.type, function(err){
+    if(err){
+      if(cb) return cb(err);
+    }
 
-  return pipeline(params, cb);
+    console.log("Streaming %s to elasticsearch.", fileName);
+    return pipeline(params, cb);
+  })
 }
 
 
