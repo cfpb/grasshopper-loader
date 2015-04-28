@@ -81,7 +81,7 @@ function processData(err, fileName, stream, cb){
     type: program.type || type  
   }
    
-  console.log("Clearing %s/%s from elasticsearch.", params.index, params.type);
+  console.log("Loading into the %s/%s elasticsearch mapping.\nWiping any preexisting data contained there.\n", params.index, params.type);
 
   esLoader.wipe(client, params.index, params.type, function(err){
     if(err){
@@ -101,6 +101,7 @@ function pipeline(params, cb){
   var transformer = params.transformer;
   var index = params.index;
   var type = params.type;
+
   var child = ogrChild(fileName, stream);
   var loader = esLoader.load(client, index, type);
 
