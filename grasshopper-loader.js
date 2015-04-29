@@ -51,7 +51,6 @@ else getGeoFiles(program.data, counter, processData)
 
 
 function processData(err, fileName, stream, cb){
- 
   if(typeof stream === 'function'){
     cb = stream;
     stream = null;
@@ -81,16 +80,9 @@ function processData(err, fileName, stream, cb){
     type: program.type || type  
   }
    
-  console.log("Loading into the %s/%s elasticsearch mapping.\nWiping any preexisting data contained there.\n", params.index, params.type);
+  console.log("Streaming %s into the %s/%s elasticsearch mapping.\n", fileName, params.index, params.type);
 
-  esLoader.wipe(client, params.index, params.type, function(err){
-    if(err){
-      if(cb) return cb(err);
-    }
-
-    console.log("Streaming %s to elasticsearch.", fileName);
-    return pipeline(params, cb);
-  })
+  return pipeline(params, cb);
 }
 
 
@@ -103,9 +95,10 @@ function pipeline(params, cb){
   var type = params.type;
 
   var child = ogrChild(fileName, stream);
-  var loader = esLoader.load(client, index, type);
+  var loader = esLoader.load(client, index, type, finishLoading);
 
   var verifyResults = verify(fileName, stream);
+
 
   child.stdout 
     .pipe(splitOGRJSON())
@@ -113,24 +106,26 @@ function pipeline(params, cb){
     .pipe(lump(Math.pow(2,20)))
     .pipe(loader)
 
-    loader.on('finish', function(){
-      console.log('Finished streaming %s', fileName);
 
-      if(counter.decr() === 0){
-        client.close();
+  function finishLoading(err){
+    if(err) cb(err);
+    console.log('Finished streaming %s', fileName);
+
+    if(counter.decr() === 0){
+      client.close();
+    }
+
+    var count = this.count;
+
+    verifyResults(count, function(errObj){
+      if(errObj){
+        if(cb) return cb(errObj.error);
+        throw errObj.error;
       }
-
-      var count = this.count;
-
-      verifyResults(count, function(errObj){
-        if(errObj){
-          if(cb) return cb(errObj.error);
-          throw errObj.error;
-        }
-        console.log("All %d records from %s loaded.", count, fileName);
-        if(cb) cb();
-      });
-
+      console.log("All %d records from %s loaded.", count, fileName);
+      if(cb) cb();
     });
+
+  }
 }
 
