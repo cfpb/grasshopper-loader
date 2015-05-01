@@ -41,7 +41,8 @@ test('Check Usage', function(t){
     args:{
       data: 'someshape',
       host: 'localhost',
-      port: 9200
+      port: 9200,
+      profile: 'default'
     },
     expected:{
       messages:3,
@@ -65,7 +66,8 @@ test('Check Usage', function(t){
     args:{
       data:'http://www.google.com/fake.zip',
       host: 'localhost',
-      port: 9200
+      port: 9200,
+      profile: 'default'
     },
     expected:{
       messages:3,
@@ -145,6 +147,7 @@ test('Check Usage', function(t){
       data: 'someshape',
       host: 'localhost',
       port: 9200,
+      profile: 'default',
       s_srs: 'NAD83'
     },
     expected:{
@@ -158,6 +161,7 @@ test('Check Usage', function(t){
       data: 'someshape',
       host: 'localhost',
       port: 9200,
+      profile: 'default',
       preformatted: 1
     },
     expected:{
