@@ -224,7 +224,7 @@ test('getGeoUrl module', function(t){
 });
 
 test('getGeoFiles module', function(t){
-  t.plan(8); 
+  t.plan(13); 
   
   ['shp', 'gdb', 'json'].forEach(function(v){
     var input = 'test/data/t.'+ v;
@@ -248,6 +248,22 @@ test('getGeoFiles module', function(t){
     t.pass('Throws error on bad path.');
   }
 
+  getGeoFiles('test/data/virginia.csv', new Counter(), function(err, file, aPC){
+    t.notOk(err, 'No error using .csvs');
+    t.equal(path.basename(file), 'virginia.vrt', 'vrt wraps csv')
+    aPC();
+  }, 0, function(err){
+     try{
+       fs.openSync('test/data/virginia.vrt', 'r')
+     }catch(e){
+       t.pass('vrt cleaned up after loading');
+     }
+  })
+
+  getGeoFiles('test/data/virg.vrt', new Counter(), function(err, file, aPC){
+    t.notOk(err, 'No err from vrt');
+    t.equal(path.basename(file), 'virg.vrt', 'vrt passed through getGeoFiles')
+  })
 });
 
 
