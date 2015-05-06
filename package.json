@@ -38,6 +38,7 @@
     "async": "^0.9.0",
     "aws-sdk": "^2.1.21",
     "commander": "^2.5.1",
+    "csv-to-vrt": "0.0.x",
     "elasticsearch": "^3.0.2",
     "is-url": "^1.2.0",
     "lump-stream": "0.x",
