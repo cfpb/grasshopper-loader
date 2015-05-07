@@ -24,6 +24,7 @@ var verify = require('../lib/verify');
 var resolveTransformer = require('../lib/resolveTransformer');
 var requireTransformer = require('../lib/requireTransformer');
 var pointTransformer = require('../lib/pointTransformer');
+var tigerTransformer = require('../lib/tigerTransformer');
 
 program
   .version('0.0.1')
@@ -410,7 +411,7 @@ test('requireTransformer module', function(t){
 });
 
 
-test('pointTemplate module', function(t){
+test('pointTransformer module', function(t){
   t.plan(5);
   var trans = pointTransformer('addr','cty','st', 'zip');
 
@@ -435,6 +436,53 @@ test('pointTemplate module', function(t){
   }catch(e){
     t.pass('Calling the template without all arguments throws an error');
   }
+});
+
+
+test('tigerTransformer module', function(t){
+  t.plan(5);
+  var trans = tigerTransformer();
+
+  t.equal(typeof trans, 'function', 'template returns a function');
+  t.ok(isStream.isDuplex(trans()), 'The produced transformer generates a transform stream'); 
+
+  var stats = streamStats('transTemp2',{store:1});
+
+  var preSufTest = trans('start','finish');
+
+  preSufTest.pipe(stats).sink();
+  stats.on('end',function(){
+    var result = stats.getResult();
+    var output = result.store.toString();
+    t.ok(/^start/.test(output), 'prefix applied properly'); 
+    t.ok(/finish$/.test(output), 'suffix applied properly');
+  });
+
+  preSufTest.end('{"properties":{"addr":"123 a st","cty":"sunny","st":"ca","zip":54321},"geometry":{"coordinates":[]}}')
+
+
+  var passThrough = tigerTransformer()();
+
+  var props = {
+    "properties": {
+      "a":1,
+      "b":2,
+      "c":3,
+      "load_date":0
+    } 
+  } 
+
+  var passStats = streamStats('transTemp3', {store:1});
+  passThrough.pipe(passStats).sink();
+
+  passStats.on('end', function(){
+    var result = passStats.getResult();
+    var output = JSON.parse(result.store.toString());
+    t.deepEqual(Object.keys(output.properties), Object.keys(props.properties), "tigerTransformer passes through props and adds load_date if missing");
+  });
+
+  passThrough.end(JSON.stringify(props));
+
 });
 
 test('Transformers', function(t){
