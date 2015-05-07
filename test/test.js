@@ -420,7 +420,7 @@ test('pointTransformer module', function(t){
 
   var stats = streamStats('transTemplate',{store:1});
 
-  var preSufTest = trans('start','finish');
+  var preSufTest = trans('someFile', 'start','finish');
 
   preSufTest.pipe(stats).sink();
   stats.on('end',function(){
@@ -440,15 +440,15 @@ test('pointTransformer module', function(t){
 
 
 test('tigerTransformer module', function(t){
-  t.plan(5);
+  t.plan(6);
   var trans = tigerTransformer();
 
   t.equal(typeof trans, 'function', 'template returns a function');
-  t.ok(isStream.isDuplex(trans()), 'The produced transformer generates a transform stream'); 
+  t.ok(isStream.isDuplex(trans('tl_2014_21155_addrfeat.zip')), 'The produced transformer generates a transform stream'); 
 
   var stats = streamStats('transTemp2',{store:1});
 
-  var preSufTest = trans('start','finish');
+  var preSufTest = trans('tl_2014_21155_addrfeat.zip', 'start', 'finish');
 
   preSufTest.pipe(stats).sink();
   stats.on('end',function(){
@@ -461,14 +461,15 @@ test('tigerTransformer module', function(t){
   preSufTest.end('{"properties":{"addr":"123 a st","cty":"sunny","st":"ca","zip":54321},"geometry":{"coordinates":[]}}')
 
 
-  var passThrough = tigerTransformer()();
+  var passThrough = tigerTransformer()('tl_2014_21155_addrfeat.zip');
 
   var props = {
     "properties": {
       "a":1,
       "b":2,
       "c":3,
-      "load_date":0
+      "load_date":0,
+      "STATE": ""
     } 
   } 
 
@@ -479,6 +480,7 @@ test('tigerTransformer module', function(t){
     var result = passStats.getResult();
     var output = JSON.parse(result.store.toString());
     t.deepEqual(Object.keys(output.properties), Object.keys(props.properties), "tigerTransformer passes through props and adds load_date if missing");
+    t.equal('KY', output.properties.STATE, 'Generates state from filename');
   });
 
   passThrough.end(JSON.stringify(props));
@@ -490,7 +492,7 @@ test('Transformers', function(t){
   fs.readdir('transformers/',function(err, transformers){
 
     var pointFields = 'test/data/pointFields.json';
-    var lineFields = 'test/data/lineFields.json';
+    var tigerFields = 'test/data/tl_2014_21155_tigerFields.json';
     var bulkMatch = {index:{_index:'address',_type:'point'}}
 
     var pointMatch = {
@@ -506,7 +508,7 @@ test('Transformers', function(t){
       }
     };
 
-    var lineMatch = {
+    var tigerMatch = {
       "type": "Feature",
       "properties":{
         "RFROMHn":"123",
@@ -515,7 +517,8 @@ test('Transformers', function(t){
         "CITY":"sunny",
         "ZIPL":"54321",
         "ZIPR":"54321",
-        "load_date": 1234567890123
+        "load_date": 1234567890123,
+        "STATE": "KY"
       },
       "geometry":{
         "type":"LineString",
@@ -545,12 +548,12 @@ test('Transformers', function(t){
     filtered.forEach(function(transFile){
       var transformer = require(path.join('../transformers', transFile));
       var stats = streamStats(transFile, {store:1});
-      var fields = transFile === 'tiger.js' ? lineFields : pointFields; 
-      var match = transFile === 'tiger.js' ? lineMatch : pointMatch;
+      var fields = transFile === 'tiger.js' ? tigerFields : pointFields; 
+      var match = transFile === 'tiger.js' ? tigerMatch : pointMatch;
 
       fs.createReadStream(fields)
         .pipe(splitOGRJSON())
-        .pipe(transformer(bulkMetadata, '\n'))
+        .pipe(transformer(fields, bulkMetadata, '\n'))
         .pipe(stats)
         .sink();
 
@@ -562,8 +565,13 @@ test('Transformers', function(t){
         var data = JSON.parse(output[1]);
         t.deepEqual(bulkMatch, bulkMeta, "Bulk metadata created properly");
         t.ok(data.properties.load_date, "load_date added to output");
-        t.ok(validAddresses.indexOf(data.properties.address) !== -1, "Address formed correctly for " + transFile);
         t.deepEqual(match.geometry, data.geometry, "Data to insert transformed correctly for " + transFile);
+
+        if(fields === pointFields){
+          t.ok(validAddresses.indexOf(data.properties.address) !== -1, "Address formed correctly for " + transFile);
+        }else{
+          t.equal(data.properties.STATE, match.properties.STATE, 'STATE fields created for tiger data');
+        }
 
       });
     });
