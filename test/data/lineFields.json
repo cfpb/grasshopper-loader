@@ -10,7 +10,7 @@
       "CITY":"sunny",
       "ZIPL":"54321",
       "ZIPR":"54321",
-      "load_date": 1234567890123
+      "address": "123 a st sunny ca 54321"
     },
   "geometry":{"type":"LineString","coordinates":[[-129.1234,38.2],[-129.1235,38.2],[-129.1236,38.2]]} }
 ]

@@ -23,7 +23,7 @@ var esLoader = require('../lib/esLoader');
 var verify = require('../lib/verify');
 var resolveTransformer = require('../lib/resolveTransformer');
 var requireTransformer = require('../lib/requireTransformer');
-var transformerTemplate = require('../lib/transformerTemplate');
+var pointTransformer = require('../lib/pointTransformer');
 
 program
   .version('0.0.1')
@@ -410,9 +410,9 @@ test('requireTransformer module', function(t){
 });
 
 
-test('transformerTemplate module', function(t){
+test('pointTemplate module', function(t){
   t.plan(5);
-  var trans = transformerTemplate('addr','cty','st', 'zip');
+  var trans = pointTransformer('addr','cty','st', 'zip');
 
   t.equal(typeof trans, 'function', 'template returns a function');
   t.ok(isStream.isDuplex(trans()), 'The produced transformer generates a transform stream'); 
@@ -431,7 +431,7 @@ test('transformerTemplate module', function(t){
   preSufTest.end('{"properties":{"addr":"123 a st","cty":"sunny","st":"ca","zip":54321},"geometry":{"coordinates":[]}}')
 
   try{
-    transformerTemplate();
+    pointTransformer();
   }catch(e){
     t.pass('Calling the template without all arguments throws an error');
   }
@@ -439,11 +439,13 @@ test('transformerTemplate module', function(t){
 
 test('Transformers', function(t){
   
-  fs.readdir('transformers/',function(err,transformers){
+  fs.readdir('transformers/',function(err, transformers){
 
-    var fieldtest = 'test/data/fieldtest.json';
+    var pointFields = 'test/data/pointFields.json';
+    var lineFields = 'test/data/lineFields.json';
     var bulkMatch = {index:{_index:'address',_type:'point'}}
-    var dataMatch = {
+
+    var pointMatch = {
       "type": "Feature",
       "properties": {
         "address": "123 a st sunny ca 54321",
@@ -455,6 +457,28 @@ test('Transformers', function(t){
          "coordinates": [-129.1,38.2]
       }
     };
+
+    var lineMatch = {
+      "type": "Feature",
+      "properties":{
+        "RFROMHn":"123",
+        "RTOHN":"101",
+        "FULLNAME":"a st",
+        "CITY":"sunny",
+        "ZIPL":"54321",
+        "ZIPR":"54321",
+        "load_date": 1234567890123
+      },
+      "geometry":{
+        "type":"LineString",
+        "coordinates":[
+          [-129.1234,38.2],
+          [-129.1235,38.2],
+          [-129.1236,38.2]
+        ]
+      }
+    }
+
     var validAddresses = ["123 a st sunny ca 54321",
                           "123 a st",
                           "123 a st sunny",
@@ -468,13 +492,15 @@ test('Transformers', function(t){
     var bulkMetadata =  makeBulkSeparator('address', 'point');
     var filtered = ignore().addIgnoreFile('.gitignore').filter(transformers);
 
-    t.plan(filtered.length*3);
+    t.plan(filtered.length*4);
 
     filtered.forEach(function(transFile){
       var transformer = require(path.join('../transformers', transFile));
       var stats = streamStats(transFile, {store:1});
+      var fields = transFile === 'tiger.js' ? lineFields : pointFields; 
+      var match = transFile === 'tiger.js' ? lineMatch : pointMatch;
 
-      fs.createReadStream(fieldtest)
+      fs.createReadStream(fields)
         .pipe(splitOGRJSON())
         .pipe(transformer(bulkMetadata, '\n'))
         .pipe(stats)
@@ -486,10 +512,10 @@ test('Transformers', function(t){
 
         var bulkMeta = JSON.parse(output[0]);
         var data = JSON.parse(output[1]);
-
         t.deepEqual(bulkMatch, bulkMeta, "Bulk metadata created properly");
+        t.ok(data.properties.load_date, "load_date added to output");
         t.ok(validAddresses.indexOf(data.properties.address) !== -1, "Address formed correctly for " + transFile);
-        t.deepEqual(dataMatch.geometry, data.geometry, "Data to insert transformed correctly for " + transFile);
+        t.deepEqual(match.geometry, data.geometry, "Data to insert transformed correctly for " + transFile);
 
       });
     });
