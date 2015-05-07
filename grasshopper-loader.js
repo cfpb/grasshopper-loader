@@ -91,7 +91,7 @@ function pipeline(fileName, stream, transformer, cb){
 
   child.stdout 
     .pipe(splitOGRJSON())
-    .pipe(transformer(makeBulkSeparator(), '\n'))
+    .pipe(transformer(fileName, makeBulkSeparator(), '\n'))
     .pipe(lump(Math.pow(2,20)))
     .pipe(loader)
 

@@ -48,7 +48,8 @@
     "request": "^2.55.0",
     "rimraf": "^2.3.2",
     "split": "^0.3.3",
-    "unzip": "^0.1.11"
+    "unzip": "^0.1.11",
+    "us": "^1.1.0"
   },
   "keywords": "ElasticSearch, Streams, Address, Shapefile",
   "preferGlobal": "true",
