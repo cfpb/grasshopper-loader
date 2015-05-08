@@ -1,0 +1,20 @@
+{
+  "type": "Feature",
+  "properties": {
+    "Id": 44,
+    "Number": "265",
+    "Address": "GLACIER PINES DR",
+    "Alt_Addr": null,
+    "City": "WEST GLACIER",
+    "State": "MT",
+    "ZIP": "59936",
+    "Date": null
+  },
+  "geometry": {
+    "type": "Point",
+    "coordinates": [
+      -114.05085297475499,
+      48.464237527584785
+    ]
+  }
+}
