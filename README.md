@@ -18,8 +18,8 @@ Data is transformed from these standard formats and loaded into Elasticsearch (t
     - **-t, --transformer** *Default: transformers/[[data file basename]].js* The transformer to use. This converts state-specific data formats to our [Point Data Schema](https://github.com/cfpb/grasshopper/blob/master/docs/point_data_spec.md)
     - **-h, --host** *Default: localhost* The elasticsearch host
     - **-p, --port** *Default: 9200* The elasticsearch port
-    - **--index** *Default: address* The elasticsearch index
-    - **--type** *Default: point* The elasticsearch type
+    - **--index** *Default: state* The elasticsearch index
+    - **--type** *Default: [[resolved transformer basename]]* The elasticsearch type
     - **--profile** *Default: default* The aws credentials profile in ~/.aws/credentials. AWS keys as environment variables will override this setting.')
   - Test the loader by starting elasticsearch on localhost:9200 and running `npm test`
     - This will run the tests in test/test.js from the root of the project

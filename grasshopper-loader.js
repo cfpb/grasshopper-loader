@@ -32,8 +32,8 @@ program
   .option('-t, --transformer <transformer>', 'Data transformer. Defaults to ./transformers/[[file basename]].js')
   .option('-h, --host <host>', 'ElasticSearch host. Defaults to localhost', 'localhost')
   .option('-p, --port <port>', 'ElasticSearch port. Defaults to 9200', Number, 9200)
-  .option('--index <index>', 'Elasticsearch index. Defaults to address', 'address')
-  .option('--type <type>', 'Elasticsearch type within the provided or default index. Defaults to point', 'point')
+  .option('--index <index>', 'Elasticsearch index. Defaults to state', 'state')
+  .option('--type <type>', 'Elasticsearch type within the provided or default index. Defaults to the transformer\'s basename')
   .option('--profile <profile>', 'The aws credentials profile in ~/.aws/credentials. Will also respect AWS keys as environment variables.', 'default')
   .parse(process.argv);
 
@@ -51,7 +51,6 @@ else getGeoFiles(program.data, counter, processData)
 
 
 function processData(err, fileName, stream, cb){
- 
   if(typeof stream === 'function'){
     cb = stream;
     stream = null;
@@ -63,30 +62,43 @@ function processData(err, fileName, stream, cb){
   }
   
   var transformer;
+  var type; 
   try{
-    transformer = getTransformer(fileName, cb)
+    var transFile = resolveTransformer(program.transformer, fileName);
+    type = path.basename(transFile, '.js');
+    transformer = requireTransformer(transFile, fileName);
   }catch(err){
     if(cb) return cb(err);
     throw err;
   }
 
-  console.log("Streaming %s to elasticsearch.", fileName);
+  var params = {
+    fileName : fileName,
+    stream : stream,
+    transformer : transformer,
+    index: program.index,
+    type: program.type || type  
+  }
+   
+  console.log("Streaming %s into the %s/%s elasticsearch mapping.\n", fileName, params.index, params.type);
 
-  return pipeline(fileName, stream, transformer, cb);
+  return pipeline(params, cb);
 }
 
 
-function getTransformer(fileName, cb){
-  var transFile = resolveTransformer(program.transformer, fileName);
-  return requireTransformer(transFile, fileName);
-}
 
+function pipeline(params, cb){
+  var fileName = params.fileName;
+  var stream = params.stream;
+  var transformer = params.transformer;
+  var index = params.index;
+  var type = params.type;
 
-function pipeline(fileName, stream, transformer, cb){
   var child = ogrChild(fileName, stream);
-  var loader = esLoader.load(client, program.index, program.type);
+  var loader = esLoader.load(client, index, type, finishLoading);
 
   var verifyResults = verify(fileName, stream);
+
 
   child.stdout 
     .pipe(splitOGRJSON())
@@ -94,24 +106,26 @@ function pipeline(fileName, stream, transformer, cb){
     .pipe(lump(Math.pow(2,20)))
     .pipe(loader)
 
-    loader.on('finish', function(){
-      console.log('Finished streaming %s', fileName);
 
-      if(counter.decr() === 0){
-        client.close();
+  function finishLoading(err){
+    if(err) cb(err);
+    console.log('Finished streaming %s', fileName);
+
+    if(counter.decr() === 0){
+      client.close();
+    }
+
+    var count = this.count;
+
+    verifyResults(count, function(errObj){
+      if(errObj){
+        if(cb) return cb(errObj.error);
+        throw errObj.error;
       }
-
-      var count = this.count;
-
-      verifyResults(count, function(errObj){
-        if(errObj){
-          if(cb) return cb(errObj.error);
-          throw errObj.error;
-        }
-        console.log("All %d records from %s loaded.", count, fileName);
-        if(cb) cb();
-      });
-
+      console.log("All %d records from %s loaded.", count, fileName);
+      if(cb) cb();
     });
+
+  }
 }
 

@@ -29,7 +29,7 @@ program
   .version('0.0.1')
   .option('-h, --host <host>', 'ElasticSearch host. Defaults to localhost', 'localhost')
   .option('-p, --port <port>', 'ElasticSearch port. Defaults to 9200', Number, 9200)
-  .option('--index <index>', 'Elasticsearch index. Defaults to testind', 'testindex')
+  .option('--index <index>', 'Elasticsearch index. Defaults to testindex', 'testindex')
   .option('--type <type>', 'Elasticsearch type within the provided or default index. Defaults to testtype', 'testtype')
   .option('--profile <profile>', 'The aws credentials profile in ~/.aws/credentials. Will also respect AWS keys as environment variables.', 'default')
   .parse(process.argv);
@@ -43,7 +43,7 @@ test('Check Usage', function(t){
       port: 9200
     },
     expected:{
-      messages:3,
+      messages:2,
       err:0
     },
     label:'data, host, port'
@@ -67,7 +67,7 @@ test('Check Usage', function(t){
       port: 9200
     },
     expected:{
-      messages:3,
+      messages:2,
       err:0
     },
     label:'Url with good filetype'
@@ -99,7 +99,7 @@ test('Check Usage', function(t){
       port: 9200
     },
     expected:{
-      messages:3,
+      messages:2,
       err:0
     },
     label:'Bucket, data, profile'
@@ -110,7 +110,7 @@ test('Check Usage', function(t){
       port: 9200
     },
     expected:{
-      messages:5,
+      messages:4,
       err:0
     },
     label:'Bucket only'
@@ -122,7 +122,7 @@ test('Check Usage', function(t){
       port: 9200
     },
     expected:{
-      messages:4,
+      messages:3,
       err:0
     },
     label:'Data, unnecessary profile'
@@ -134,7 +134,7 @@ test('Check Usage', function(t){
       port: 9200
     },
     expected:{
-      messages:5,
+      messages:4,
       err:0
     },
     label:'Bucket and transformer'
