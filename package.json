@@ -39,6 +39,7 @@
     "aws-sdk": "^2.1.21",
     "commander": "^2.5.1",
     "elasticsearch": "^3.0.2",
+    "inherits": "^2.0.1",
     "is-url": "^1.2.0",
     "lump-stream": "0.x",
     "mkdirp": "^0.5.0",
@@ -47,8 +48,8 @@
     "request": "^2.55.0",
     "rimraf": "^2.3.2",
     "split": "^0.3.3",
-    "through2": "^0.6.3",
-    "unzip": "^0.1.11"
+    "unzip": "^0.1.11",
+    "us": "^1.1.0"
   },
   "keywords": "ElasticSearch, Streams, Address, Shapefile",
   "preferGlobal": "true",

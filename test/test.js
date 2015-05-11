@@ -23,7 +23,8 @@ var esLoader = require('../lib/esLoader');
 var verify = require('../lib/verify');
 var resolveTransformer = require('../lib/resolveTransformer');
 var requireTransformer = require('../lib/requireTransformer');
-var transformerTemplate = require('../lib/transformerTemplate');
+var pointTransformer = require('../lib/pointTransformer');
+var tigerTransformer = require('../lib/tigerTransformer');
 
 program
   .version('0.0.1')
@@ -410,16 +411,16 @@ test('requireTransformer module', function(t){
 });
 
 
-test('transformerTemplate module', function(t){
+test('pointTransformer module', function(t){
   t.plan(5);
-  var trans = transformerTemplate('addr','cty','st', 'zip');
+  var trans = pointTransformer('addr','cty','st', 'zip');
 
   t.equal(typeof trans, 'function', 'template returns a function');
   t.ok(isStream.isDuplex(trans()), 'The produced transformer generates a transform stream'); 
 
   var stats = streamStats('transTemplate',{store:1});
 
-  var preSufTest = trans('start','finish');
+  var preSufTest = trans('someFile', 'start','finish');
 
   preSufTest.pipe(stats).sink();
   stats.on('end',function(){
@@ -431,19 +432,70 @@ test('transformerTemplate module', function(t){
   preSufTest.end('{"properties":{"addr":"123 a st","cty":"sunny","st":"ca","zip":54321},"geometry":{"coordinates":[]}}')
 
   try{
-    transformerTemplate();
+    pointTransformer();
   }catch(e){
     t.pass('Calling the template without all arguments throws an error');
   }
 });
 
+
+test('tigerTransformer module', function(t){
+  t.plan(6);
+  var trans = tigerTransformer();
+
+  t.equal(typeof trans, 'function', 'template returns a function');
+  t.ok(isStream.isDuplex(trans('tl_2014_21155_addrfeat.zip')), 'The produced transformer generates a transform stream'); 
+
+  var stats = streamStats('transTemp2',{store:1});
+
+  var preSufTest = trans('tl_2014_21155_addrfeat.zip', 'start', 'finish');
+
+  preSufTest.pipe(stats).sink();
+  stats.on('end',function(){
+    var result = stats.getResult();
+    var output = result.store.toString();
+    t.ok(/^start/.test(output), 'prefix applied properly'); 
+    t.ok(/finish$/.test(output), 'suffix applied properly');
+  });
+
+  preSufTest.end('{"properties":{"addr":"123 a st","cty":"sunny","st":"ca","zip":54321},"geometry":{"coordinates":[]}}')
+
+
+  var passThrough = tigerTransformer()('tl_2014_21155_addrfeat.zip');
+
+  var props = {
+    "properties": {
+      "a":1,
+      "b":2,
+      "c":3,
+      "load_date":0,
+      "STATE": ""
+    } 
+  } 
+
+  var passStats = streamStats('transTemp3', {store:1});
+  passThrough.pipe(passStats).sink();
+
+  passStats.on('end', function(){
+    var result = passStats.getResult();
+    var output = JSON.parse(result.store.toString());
+    t.deepEqual(Object.keys(output.properties), Object.keys(props.properties), "tigerTransformer passes through props and adds load_date if missing");
+    t.equal('KY', output.properties.STATE, 'Generates state from filename');
+  });
+
+  passThrough.end(JSON.stringify(props));
+
+});
+
 test('Transformers', function(t){
   
-  fs.readdir('transformers/',function(err,transformers){
+  fs.readdir('transformers/',function(err, transformers){
 
-    var fieldtest = 'test/data/fieldtest.json';
+    var pointFields = 'test/data/pointFields.json';
+    var tigerFields = 'test/data/tl_2014_21155_tigerFields.json';
     var bulkMatch = {index:{_index:'address',_type:'point'}}
-    var dataMatch = {
+
+    var pointMatch = {
       "type": "Feature",
       "properties": {
         "address": "123 a st sunny ca 54321",
@@ -455,6 +507,31 @@ test('Transformers', function(t){
          "coordinates": [-129.1,38.2]
       }
     };
+
+    var tigerMatch = {
+      "type": "Feature",
+      "properties":{
+        "RFROMHN":"123",
+        "RTOHN":"101",
+        "LFROMHN":"102",
+        "LTOHN":"124",
+        "FULLNAME":"a st",
+        "CITY":"sunny",
+        "ZIPL":"54321",
+        "ZIPR":"54321",
+        "load_date": 1234567890123,
+        "STATE": "KY"
+      },
+      "geometry":{
+        "type":"LineString",
+        "coordinates":[
+          [-129.1234,38.2],
+          [-129.1235,38.2],
+          [-129.1236,38.2]
+        ]
+      }
+    }
+
     var validAddresses = ["123 a st sunny ca 54321",
                           "123 a st",
                           "123 a st sunny",
@@ -468,15 +545,17 @@ test('Transformers', function(t){
     var bulkMetadata =  makeBulkSeparator('address', 'point');
     var filtered = ignore().addIgnoreFile('.gitignore').filter(transformers);
 
-    t.plan(filtered.length*3);
+    t.plan(filtered.length*4);
 
     filtered.forEach(function(transFile){
       var transformer = require(path.join('../transformers', transFile));
       var stats = streamStats(transFile, {store:1});
+      var fields = transFile === 'tiger.js' ? tigerFields : pointFields; 
+      var match = transFile === 'tiger.js' ? tigerMatch : pointMatch;
 
-      fs.createReadStream(fieldtest)
+      fs.createReadStream(fields)
         .pipe(splitOGRJSON())
-        .pipe(transformer(bulkMetadata, '\n'))
+        .pipe(transformer(fields, bulkMetadata, '\n'))
         .pipe(stats)
         .sink();
 
@@ -486,10 +565,15 @@ test('Transformers', function(t){
 
         var bulkMeta = JSON.parse(output[0]);
         var data = JSON.parse(output[1]);
-
         t.deepEqual(bulkMatch, bulkMeta, "Bulk metadata created properly");
-        t.ok(validAddresses.indexOf(data.properties.address) !== -1, "Address formed correctly for " + transFile);
-        t.deepEqual(dataMatch.geometry, data.geometry, "Data to insert transformed correctly for " + transFile);
+        t.ok(data.properties.load_date, "load_date added to output");
+        t.deepEqual(match.geometry, data.geometry, "Data to insert transformed correctly for " + transFile);
+
+        if(fields === pointFields){
+          t.ok(validAddresses.indexOf(data.properties.address) !== -1, "Address formed correctly for " + transFile);
+        }else{
+          t.equal(data.properties.STATE, match.properties.STATE, 'STATE fields created for tiger data');
+        }
 
       });
     });

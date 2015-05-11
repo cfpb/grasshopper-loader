@@ -66,10 +66,11 @@ function processData(err, fileName, stream, cb){
   try{
     transformer = getTransformer(fileName, cb)
   }catch(err){
+    console.log("transformer error", err, cb);
     if(cb) return cb(err);
     throw err;
   }
-
+  
   console.log("Streaming %s to elasticsearch.", fileName);
 
   return pipeline(fileName, stream, transformer, cb);
@@ -90,7 +91,7 @@ function pipeline(fileName, stream, transformer, cb){
 
   child.stdout 
     .pipe(splitOGRJSON())
-    .pipe(transformer(makeBulkSeparator(), '\n'))
+    .pipe(transformer(fileName, makeBulkSeparator(), '\n'))
     .pipe(lump(Math.pow(2,20)))
     .pipe(loader)
 
