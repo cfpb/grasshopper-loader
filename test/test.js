@@ -511,8 +511,10 @@ test('Transformers', function(t){
     var tigerMatch = {
       "type": "Feature",
       "properties":{
-        "RFROMHn":"123",
+        "RFROMHN":"123",
         "RTOHN":"101",
+        "LFROMHN":"102",
+        "LTOHN":"124",
         "FULLNAME":"a st",
         "CITY":"sunny",
         "ZIPL":"54321",
