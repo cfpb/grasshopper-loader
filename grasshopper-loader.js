@@ -87,12 +87,19 @@ function getTransformer(fileName, cb){
 
 
 function pipeline(fileName, stream, transformer, cb){
-  var child = ogrChild(fileName, stream);
   var loader = esLoader.load(client, program.index, program.type);
+  var source;
+
+  if(program.preformatted){
+    if(stream) source = stream;
+    else source = fs.createReadStream(fileName);
+  }else{
+    source = ogrChild(fileName, stream).stdout;
+  }
 
   var verifyResults = verify(fileName, stream);
 
-  child.stdout 
+  source
     .pipe(splitOGRJSON())
     .pipe(transformer(fileName, makeBulkSeparator(), '\n'))
     .pipe(lump(Math.pow(2,20)))
