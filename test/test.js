@@ -139,6 +139,46 @@ test('Check Usage', function(t){
       err:0
     },
     label:'Bucket and transformer'
+  },
+  {
+    args:{
+      data: 'someshape',
+      host: 'localhost',
+      port: 9200,
+      s_srs: 'NAD83'
+    },
+    expected:{
+      messages:4,
+      err:0
+    },
+    label:'s_srs provided'
+  },
+  {
+    args:{
+      data: 'someshape',
+      host: 'localhost',
+      port: 9200,
+      preformatted: 1
+    },
+    expected:{
+      messages:4,
+      err:0
+    },
+    label:'preformatted'
+  },
+  {
+    args:{
+      data: 'someshape',
+      host: 'localhost',
+      port: 9200,
+      preformatted: 1,
+      s_srs: 'NAD83'
+    },
+    expected:{
+      messages:1,
+      err:1
+    },
+    label:'preformatted and s_srs'
   }
   ];
 
