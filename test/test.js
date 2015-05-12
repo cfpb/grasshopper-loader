@@ -623,13 +623,16 @@ test('Transformers', function(t){
 });
 
 test('Entire loader', function(t){
-  t.plan(5);
+  t.plan(8);
   var args = [
     {ok:1, message: 'Ran without errors, exit code 0, on elasticsearch at ' + program.host + ':' + program.port, arr: ['./grasshopper-loader', '-d', './test/data/arkansas.json', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]},
     {ok:0, message: 'Bails when given an invalid file', arr: ['./grasshopper-loader', '-d', './test/data/ark.json', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]},
     {ok:0, message: 'Bails on bad file type', arr: ['./grasshopper-loader', '-d', './test/data/t.prj', '-t', 'transformers/arkansas.js', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]},
     {ok:1, message: 'Loads GeoJson from an S3 bucket.', arr: ['./grasshopper-loader', '-b', 'wyatt-test', '-d', 'new_york.json', '--profile','wyatt-test', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]},
     {ok:1, message: 'Loads a zipped shape from an S3 bucket.', arr: ['./grasshopper-loader', '-b', 'wyatt-test', '-d', 'arkansas.zip', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]},
+    {ok:0, message: 'Bails when given a bad log level.', arr: ['./grasshopper-loader', '-d', './test/data/arkansas.json',  '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type, '--log', 'LOG']},
+    {ok:1, message: 'Ran without errors on preformatted data.', arr: ['./grasshopper-loader', '-d', './test/data/arkansas.json', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type, '--preformatted']},
+    {ok:1, message: 'Ran without errors with provided s_srs.', arr: ['./grasshopper-loader', '-d', './test/data/arkNAD.json', '-t', 'arkansas', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type, '--s_srs', 'NAD83']},
   ];
 
   args.forEach(function(v,i){
