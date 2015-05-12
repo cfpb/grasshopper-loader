@@ -94,7 +94,7 @@ function pipeline(fileName, stream, transformer, cb){
     if(stream) source = stream;
     else source = fs.createReadStream(fileName);
   }else{
-    source = ogrChild(fileName, stream).stdout;
+    source = ogrChild(fileName, stream, program.s_srs).stdout;
   }
 
   var verifyResults = verify(fileName, stream);
