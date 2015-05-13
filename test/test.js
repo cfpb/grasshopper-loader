@@ -337,27 +337,34 @@ test('ogrChild module', function(t){
 
 
 test('splitOGRJSON module', function(t){
-  t.plan(1); 
+  t.plan(2);
 
-  var json = 'test/data/t.json';
-  var stats = streamStats('splitOGR',{store:1});
-  
-  fs.createReadStream(json)
-    .pipe(splitOGRJSON())
-    .pipe(stats)
-    .sink();
+  var arr = [
+    'test/data/t.json',
+    'test/data/nullGeo.json'
+  ]
 
-  stats.on('end', function(){
-    var result = stats.getResult(); 
-    var validJSON = 1;
-    result.chunks.forEach(function(v){
+  arr.forEach(function(v){
+    var stats = streamStats({store:1});
+
+    fs.createReadStream(v)
+      .pipe(splitOGRJSON())
+      .pipe(stats)
+      .sink();
+
+    stats.on('end', function(){
+      var result = stats.getResult(); 
+      var validJSON = 1;
       try{
-        JSON.parse(v.chunk.toString())   
+        result.chunks.forEach(function(v){
+          JSON.parse(v.chunk.toString())   
+        });
       }catch(e){
         validJSON = 0;
       }
-    });
-    t.ok(validJSON, 'splitOGRJSON yields valid JSON chunks');
+
+      t.ok(validJSON, 'splitOGRJSON yields valid JSON chunks from '+ v);
+    })
   })
 });
 
@@ -627,7 +634,7 @@ test('Transformers', function(t){
 });
 
 test('Entire loader', function(t){
-  t.plan(8);
+  t.plan(9);
   var args = [
     {ok:1, message: 'Ran without errors, exit code 0, on elasticsearch at ' + program.host + ':' + program.port, arr: ['./grasshopper-loader', '-d', './test/data/arkansas.json', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]},
     {ok:0, message: 'Bails when given an invalid file', arr: ['./grasshopper-loader', '-d', './test/data/ark.json', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]},
@@ -636,6 +643,7 @@ test('Entire loader', function(t){
     {ok:1, message: 'Loads a zipped shape from an S3 bucket.', arr: ['./grasshopper-loader', '-b', 'wyatt-test', '-d', 'arkansas.zip', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]},
     {ok:0, message: 'Bails when given a bad log level.', arr: ['./grasshopper-loader', '-d', './test/data/arkansas.json',  '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type, '--log', 'LOG']},
     {ok:1, message: 'Ran without errors on preformatted data.', arr: ['./grasshopper-loader', '-d', './test/data/arkansas.json', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type, '--preformatted']},
+    {ok:1, message: 'Ran without errors on csv', arr: ['./grasshopper-loader', '-d', './test/data/virginia.csv', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]},
     {ok:1, message: 'Ran without errors with provided s_srs.', arr: ['./grasshopper-loader', '-d', './test/data/arkNAD.json', '-t', 'arkansas', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type, '--s_srs', 'NAD83']},
   ];
 
