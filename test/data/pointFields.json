@@ -10,8 +10,8 @@
     "COMP_STR":"123 a st","STATE_NAME":"ca","ZIP_CODE":54321,
     "FULLADDR":"123 a st","PO_NAME":"sunny","STATE":"ca","ZIP_5":"54,321",
     "ADDRESS":"123 a st","MUNICIPALI":"sunny","STATE":"ca","ZIPCODE":"54321",
-    "Number": "123", "Address": "a st", "City": "sunny", "State": "ca", "ZIP": 54321 
-  },
+    "Number": "123", "Address": "a st", "City": "sunny", "State": "ca", "ZIP": 54321
+},
   "geometry":{"type":"Point","coordinates":[-129.1,38.2]} }
 ]
 }

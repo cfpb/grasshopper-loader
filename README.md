@@ -18,9 +18,12 @@ Data is transformed from these standard formats and loaded into Elasticsearch (t
     - **-t, --transformer** *Default: transformers/[[data file basename]].js* The transformer to use. This converts state-specific data formats to our [Point Data Schema](https://github.com/cfpb/grasshopper/blob/master/docs/point_data_spec.md)
     - **-h, --host** *Default: localhost* The elasticsearch host
     - **-p, --port** *Default: 9200* The elasticsearch port
+    - **-l, --log** *Default: debug* The elasticsearch log level
     - **--index** *Default: address* The elasticsearch index
     - **--type** *Default: point* The elasticsearch type
     - **--profile** *Default: default* The aws credentials profile in ~/.aws/credentials. AWS keys as environment variables will override this setting.')
+    - **--source-srs** *Auto-detects if possible* Source spatial reference system. Needed for untransformed .csv files. Passes the value to ogr2ogr's -s_srs parameter.'
+    - **--preformatted** Indicates whether input has already been converted to GeoJson and transformed to WGS84 by ogr2ogr. Will skip the ogr2ogr step if so.
   - Test the loader by starting elasticsearch on localhost:9200 and running `npm test`
     - This will run the tests in test/test.js from the root of the project
     - The host, port, index, type, and profile arguments to the loader can all be passed to `npm test` as well, with respective defaults of localhost, 9200, testindex, testtype, and default.

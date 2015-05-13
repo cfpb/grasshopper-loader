@@ -41,7 +41,8 @@ test('Check Usage', function(t){
     args:{
       data: 'someshape',
       host: 'localhost',
-      port: 9200
+      port: 9200,
+      profile: 'default'
     },
     expected:{
       messages:3,
@@ -65,7 +66,8 @@ test('Check Usage', function(t){
     args:{
       data:'http://www.google.com/fake.zip',
       host: 'localhost',
-      port: 9200
+      port: 9200,
+      profile: 'default'
     },
     expected:{
       messages:3,
@@ -139,6 +141,48 @@ test('Check Usage', function(t){
       err:0
     },
     label:'Bucket and transformer'
+  },
+  {
+    args:{
+      data: 'someshape',
+      host: 'localhost',
+      port: 9200,
+      profile: 'default',
+      sourceSrs: 'NAD83'
+    },
+    expected:{
+      messages:4,
+      err:0
+    },
+    label:'source-srs provided'
+  },
+  {
+    args:{
+      data: 'someshape',
+      host: 'localhost',
+      port: 9200,
+      profile: 'default',
+      preformatted: 1
+    },
+    expected:{
+      messages:4,
+      err:0
+    },
+    label:'preformatted'
+  },
+  {
+    args:{
+      data: 'someshape',
+      host: 'localhost',
+      port: 9200,
+      preformatted: 1,
+      sourceSrs: 'NAD83'
+    },
+    expected:{
+      messages:1,
+      err:1
+    },
+    label:'preformatted and source-srs'
   }
   ];
 
@@ -293,27 +337,34 @@ test('ogrChild module', function(t){
 
 
 test('splitOGRJSON module', function(t){
-  t.plan(1); 
+  t.plan(2);
 
-  var json = 'test/data/t.json';
-  var stats = streamStats('splitOGR',{store:1});
-  
-  fs.createReadStream(json)
-    .pipe(splitOGRJSON())
-    .pipe(stats)
-    .sink();
+  var arr = [
+    'test/data/t.json',
+    'test/data/nullGeo.json'
+  ]
 
-  stats.on('end', function(){
-    var result = stats.getResult(); 
-    var validJSON = 1;
-    result.chunks.forEach(function(v){
+  arr.forEach(function(v){
+    var stats = streamStats({store:1});
+
+    fs.createReadStream(v)
+      .pipe(splitOGRJSON())
+      .pipe(stats)
+      .sink();
+
+    stats.on('end', function(){
+      var result = stats.getResult(); 
+      var validJSON = 1;
       try{
-        JSON.parse(v.chunk.toString())   
+        result.chunks.forEach(function(v){
+          JSON.parse(v.chunk.toString())   
+        });
       }catch(e){
         validJSON = 0;
       }
-    });
-    t.ok(validJSON, 'splitOGRJSON yields valid JSON chunks');
+
+      t.ok(validJSON, 'splitOGRJSON yields valid JSON chunks from '+ v);
+    })
   })
 });
 
@@ -376,8 +427,8 @@ test('verify module', function(t){
 
   verify('test/data/t.json')(10, function(err){
     t.ok(err.error, 'Produces an error when compared against the wrong number.'); 
-    t.equal(err.actual, 20, 'Actual value propagated.');
-    t.equal(err.expected, 10, 'Expected value propagated.');
+    t.equal(err.present, 20, 'Present feature count propagated.');
+    t.equal(err.loaded, 10, 'Amount loaded propagated.');
   });
   
   verify('test/data/t.jsn')(10, function(err){
@@ -583,13 +634,17 @@ test('Transformers', function(t){
 });
 
 test('Entire loader', function(t){
-  t.plan(5);
+  t.plan(9);
   var args = [
     {ok:1, message: 'Ran without errors, exit code 0, on elasticsearch at ' + program.host + ':' + program.port, arr: ['./grasshopper-loader', '-d', './test/data/arkansas.json', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]},
     {ok:0, message: 'Bails when given an invalid file', arr: ['./grasshopper-loader', '-d', './test/data/ark.json', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]},
     {ok:0, message: 'Bails on bad file type', arr: ['./grasshopper-loader', '-d', './test/data/t.prj', '-t', 'transformers/arkansas.js', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]},
     {ok:1, message: 'Loads GeoJson from an S3 bucket.', arr: ['./grasshopper-loader', '-b', 'wyatt-test', '-d', 'new_york.json', '--profile','wyatt-test', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]},
     {ok:1, message: 'Loads a zipped shape from an S3 bucket.', arr: ['./grasshopper-loader', '-b', 'wyatt-test', '-d', 'arkansas.zip', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]},
+    {ok:0, message: 'Bails when given a bad log level.', arr: ['./grasshopper-loader', '-d', './test/data/arkansas.json',  '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type, '--log', 'LOG']},
+    {ok:1, message: 'Ran without errors on preformatted data.', arr: ['./grasshopper-loader', '-d', './test/data/arkansas.json', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type, '--preformatted']},
+    {ok:1, message: 'Ran without errors on csv', arr: ['./grasshopper-loader', '-d', './test/data/virginia.csv', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]},
+    {ok:1, message: 'Ran without errors with provided source-srs.', arr: ['./grasshopper-loader', '-d', './test/data/arkNAD.json', '-t', 'arkansas', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type, '--source-srs', 'NAD83']},
   ];
 
   args.forEach(function(v,i){
@@ -604,7 +659,7 @@ test('Entire loader', function(t){
     loader.on('exit', function(code){
       if(v.ok){
         t.equal(code, 0, v.message);
-        if(stats.stats.store.length){
+        if(stats.stats.store && stats.stats.store.length){
           console.log(stats.stats.store.toString());
         }
       }else{
