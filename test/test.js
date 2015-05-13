@@ -420,8 +420,8 @@ test('verify module', function(t){
 
   verify('test/data/t.json')(10, function(err){
     t.ok(err.error, 'Produces an error when compared against the wrong number.'); 
-    t.equal(err.actual, 20, 'Actual value propagated.');
-    t.equal(err.expected, 10, 'Expected value propagated.');
+    t.equal(err.present, 20, 'Present feature count propagated.');
+    t.equal(err.loaded, 10, 'Amount loaded propagated.');
   });
   
   verify('test/data/t.jsn')(10, function(err){
