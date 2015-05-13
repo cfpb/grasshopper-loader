@@ -36,7 +36,7 @@ program
   .option('--index <index>', 'Elasticsearch index. Defaults to address.', 'address')
   .option('--type <type>', 'Elasticsearch type within the provided or default index. Defaults to point.', 'point')
   .option('--profile <profile>', 'The aws credentials profile in ~/.aws/credentials. Will also respect AWS keys as environment variables.', 'default')
-  .option('--s_srs <s_srs>', 'Source Spatial Reference System, passed directly to ogr2ogr. Auto-detects by default.')
+  .option('--source-srs <sourceSrs>', 'Source Spatial Reference System, passed to ogr2ogr as -s_srs. Auto-detects by default.')
   .option('--preformatted', 'Input has been preformatted to GeoJson and transformed to WGS84 by ogr2ogr. Results in the loader skipping ogr2ogr and immediately splitting the input into records.')
   .parse(process.argv);
 
@@ -94,7 +94,7 @@ function pipeline(fileName, stream, transformer, cb){
     if(stream) source = stream;
     else source = fs.createReadStream(fileName);
   }else{
-    source = ogrChild(fileName, stream, program.s_srs).stdout;
+    source = ogrChild(fileName, stream, program.sourceSrs).stdout;
   }
 
   var verifyResults = verify(fileName, stream);

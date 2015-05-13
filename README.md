@@ -22,7 +22,7 @@ Data is transformed from these standard formats and loaded into Elasticsearch (t
     - **--index** *Default: address* The elasticsearch index
     - **--type** *Default: point* The elasticsearch type
     - **--profile** *Default: default* The aws credentials profile in ~/.aws/credentials. AWS keys as environment variables will override this setting.')
-    - **--s_srs** *Auto-detects if possible* Source spatial reference system. Needed for untransformed .csv files.
+    - **--source-srs** *Auto-detects if possible* Source spatial reference system. Needed for untransformed .csv files. Passes the value to ogr2ogr's -s_srs parameter.'
     - **--preformatted** Indicates whether input has already been converted to GeoJson and transformed to WGS84 by ogr2ogr. Will skip the ogr2ogr step if so.
   - Test the loader by starting elasticsearch on localhost:9200 and running `npm test`
     - This will run the tests in test/test.js from the root of the project

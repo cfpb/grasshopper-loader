@@ -148,13 +148,13 @@ test('Check Usage', function(t){
       host: 'localhost',
       port: 9200,
       profile: 'default',
-      s_srs: 'NAD83'
+      sourceSrs: 'NAD83'
     },
     expected:{
       messages:4,
       err:0
     },
-    label:'s_srs provided'
+    label:'source-srs provided'
   },
   {
     args:{
@@ -176,13 +176,13 @@ test('Check Usage', function(t){
       host: 'localhost',
       port: 9200,
       preformatted: 1,
-      s_srs: 'NAD83'
+      sourceSrs: 'NAD83'
     },
     expected:{
       messages:1,
       err:1
     },
-    label:'preformatted and s_srs'
+    label:'preformatted and source-srs'
   }
   ];
 
@@ -644,7 +644,7 @@ test('Entire loader', function(t){
     {ok:0, message: 'Bails when given a bad log level.', arr: ['./grasshopper-loader', '-d', './test/data/arkansas.json',  '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type, '--log', 'LOG']},
     {ok:1, message: 'Ran without errors on preformatted data.', arr: ['./grasshopper-loader', '-d', './test/data/arkansas.json', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type, '--preformatted']},
     {ok:1, message: 'Ran without errors on csv', arr: ['./grasshopper-loader', '-d', './test/data/virginia.csv', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]},
-    {ok:1, message: 'Ran without errors with provided s_srs.', arr: ['./grasshopper-loader', '-d', './test/data/arkNAD.json', '-t', 'arkansas', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type, '--s_srs', 'NAD83']},
+    {ok:1, message: 'Ran without errors with provided source-srs.', arr: ['./grasshopper-loader', '-d', './test/data/arkNAD.json', '-t', 'arkansas', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type, '--source-srs', 'NAD83']},
   ];
 
   args.forEach(function(v,i){
