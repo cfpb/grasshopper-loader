@@ -659,7 +659,7 @@ test('Entire loader', function(t){
     loader.on('exit', function(code){
       if(v.ok){
         t.equal(code, 0, v.message);
-        if(stats.stats.store.length){
+        if(stats.stats.store && stats.stats.store.length){
           console.log(stats.stats.store.toString());
         }
       }else{
