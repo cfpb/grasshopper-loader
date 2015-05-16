@@ -50,7 +50,7 @@ program
   .option('--preformatted', 'Input has been preformatted to GeoJson and transformed to WGS84 by ogr2ogr. Results in the loader skipping ogr2ogr and immediately splitting the input into records.')
   .parse(process.argv);
 
-var usage = checkUsage(program);
+var usage = checkUsage(program, process.env);
 console.log(usage.messages.join(''));
 if(usage.err) return;
 
