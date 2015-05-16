@@ -10,6 +10,8 @@ RUN apt-get update && apt-get install -y \
   nodejs \
   npm
 
+RUN ln -s /usr/bin/nodejs /usr/bin/node
+
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
 COPY . /usr/src/app
