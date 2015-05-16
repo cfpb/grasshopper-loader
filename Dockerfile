@@ -3,9 +3,9 @@
 # A container can be started by running docker run -ti hmda/grasshopper-parser /bin/bash
 # Then run the loader from within the container
 
-FROM wpears/gdal:v1
+FROM geodata/gdal:1.11.2
 MAINTAINER Wyatt Pearsall <wyatt.pearsall@cfpb.gov>
-
+USER root
 RUN apt-get update && apt-get install -y \
   nodejs \
   npm
