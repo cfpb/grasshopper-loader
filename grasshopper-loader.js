@@ -58,7 +58,7 @@ if(usage.err) return;
 var client = esLoader.connect(program.host, program.port, program.log);
 var counter = new Counter();
 
-if(program.bucket) getS3Files(program, counter, processData)
+if(program.bucket) getS3Files(program, counter, process.env, processData)
 else if(isUrl(program.data)) getGeoUrl(program.data, counter, processData);
 else getGeoFiles(program.data, counter, processData)
 
