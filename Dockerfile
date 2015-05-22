@@ -6,6 +6,7 @@
 FROM geodata/gdal:1.11.2
 MAINTAINER Wyatt Pearsall <wyatt.pearsall@cfpb.gov>
 USER root
+
 RUN apt-get update && apt-get install -y \
   nodejs \
   npm
@@ -17,6 +18,12 @@ WORKDIR /usr/src/app
 COPY . /usr/src/app
 
 RUN npm install
+
+
+RUN useradd tester
+RUN chown -R tester /usr/src/app
+RUN chmod u+rwx /usr/src/app
+USER tester
 
 CMD /bin/bash
 
