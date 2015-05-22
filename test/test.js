@@ -26,6 +26,8 @@ var requireTransformer = require('../lib/requireTransformer');
 var pointTransformer = require('../lib/pointTransformer');
 var tigerTransformer = require('../lib/tigerTransformer');
 
+var grasshopperLoader = require('../grasshopper-loader');
+
 var esVar = process.env.ELASTICSEARCH_PORT;
 var esHost;
 var esPort;
@@ -717,5 +719,7 @@ test('Entire loader', function(t){
       }
     });
   })
+
+  grasshopperLoader(
   
 });

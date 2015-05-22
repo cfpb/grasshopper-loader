@@ -55,7 +55,14 @@ if(require.main === module){
     run(program);
 }
 
-function run(program){
+function run(program, loaderCallback){
+  if(!loaderCallback){
+    loaderCallback = function(err){
+      if(err) return console.error(err);
+      console.log("Loading complete.");
+    }
+  }
+
   var usage = checkUsage(program, process.env);
   console.log(usage.messages.join(''));
   if(usage.err) return;
@@ -76,8 +83,8 @@ function run(program){
     }
 
     if(err){
-      if(cb) return cb(err);
-      throw err;
+      if(cb) return cb(err, loaderCallback);
+      return loaderCallback(err);
     }
 
     var transformer;
@@ -85,8 +92,8 @@ function run(program){
       transformer = getTransformer(fileName, cb)
     }catch(err){
       console.log("transformer error", err, cb);
-      if(cb) return cb(err);
-      throw err;
+      if(cb) return cb(err, loaderCallback);
+      return loaderCallback(err);
     }
 
     console.log("Streaming %s to elasticsearch.", fileName);
@@ -131,11 +138,12 @@ function run(program){
 
         verifyResults(count, function(errObj){
           if(errObj){
-            if(cb) return cb(errObj.error);
-            throw errObj.error;
+            if(cb) return cb(errObj.error, loaderCallback);
+            loaderCallback(errObj.error);
           }
           console.log("All %d records from %s loaded.", count, fileName);
-          if(cb) cb();
+          if(cb) return cb(null, loaderCallback);
+          return loaderCallback(null);
         });
 
       });
