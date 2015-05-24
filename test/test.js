@@ -686,7 +686,7 @@ test('Transformers', function(t){
 });
 
 test('Entire loader', function(t){
-  t.plan(9);
+  t.plan(11);
   var args = [
     {ok:1, message: 'Ran without errors, exit code 0, on elasticsearch at ' + program.host + ':' + program.port, arr: ['./grasshopper-loader', '-d', './test/data/arkansas.json', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]},
     {ok:0, message: 'Bails when given an invalid file', arr: ['./grasshopper-loader', '-d', './test/data/ark.json', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]},
@@ -720,6 +720,32 @@ test('Entire loader', function(t){
     });
   })
 
-  grasshopperLoader(
-  
+  var log = console.log;
+  console.log = function(){};
+
+  grasshopperLoader({
+    data: './test/data/arkansas.json', 
+    'host': program.host,
+    'port': program.port,
+    'index': program.index,
+    'type': program.type,
+    'log': 'error'
+  }, function(err){
+    console.log = log; 
+    t.notOk(err, 'Runs as a module.');
+  });
+
+  grasshopperLoader({
+    data: './test/data/arkanfake.json', 
+    'host': program.host,
+    'port': program.port,
+    'index': program.index,
+    'type': program.type,
+    'log': 'error'
+  }, function(err){
+    console.log = log;
+    t.ok(err, 'Loader as module bails on error.');
+    console.log = function(){};
+  })
+
 });

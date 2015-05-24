@@ -58,7 +58,7 @@ if(require.main === module){
 function run(program, loaderCallback){
   if(!loaderCallback){
     loaderCallback = function(err){
-      if(err) return console.error(err);
+      if(err) throw err;
       console.log("Loading complete.");
     }
   }
@@ -91,7 +91,7 @@ function run(program, loaderCallback){
     try{
       transformer = getTransformer(fileName, cb)
     }catch(err){
-      console.log("transformer error", err, cb);
+      console.log("transformer error", err);
       if(cb) return cb(err, loaderCallback);
       return loaderCallback(err);
     }
