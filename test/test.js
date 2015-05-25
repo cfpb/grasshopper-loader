@@ -23,7 +23,7 @@ var esLoader = require('../lib/esLoader');
 var verify = require('../lib/verify');
 var resolveTransformer = require('../lib/resolveTransformer');
 var requireTransformer = require('../lib/requireTransformer');
-var pointTransformer = require('../lib/pointTransformer');
+var transformerTemplate = require('../lib/transformerTemplate');
 var tigerTransformer = require('../lib/tigerTransformer');
 
 var grasshopperLoader = require('../grasshopper-loader');
@@ -514,9 +514,9 @@ test('requireTransformer module', function(t){
 });
 
 
-test('pointTransformer module', function(t){
+test('transformerTemplate module', function(t){
   t.plan(5);
-  var trans = pointTransformer('addr','cty','st', 'zip');
+  var trans = transformerTemplate('addr','cty','st', 'zip');
 
   t.equal(typeof trans, 'function', 'template returns a function');
   t.ok(isStream.isDuplex(trans()), 'The produced transformer generates a transform stream'); 
@@ -535,7 +535,7 @@ test('pointTransformer module', function(t){
   preSufTest.end('{"properties":{"addr":"123 a st","cty":"sunny","st":"ca","zip":54321},"geometry":{"coordinates":[]}}')
 
   try{
-    pointTransformer();
+    transformerTemplate();
   }catch(e){
     t.pass('Calling the template without all arguments throws an error');
   }
