@@ -26,10 +26,20 @@ var requireTransformer = require('../lib/requireTransformer');
 var pointTransformer = require('../lib/pointTransformer');
 var tigerTransformer = require('../lib/tigerTransformer');
 
+var esVar = process.env.ELASTICSEARCH_PORT;
+var esHost;
+var esPort;
+
+if(esVar){
+  esVar = esVar.split('//')[1].split(':');
+  esHost = esVar[0];
+  esPort = +esVar[1];
+}
+
 program
   .version('0.0.1')
-  .option('-h, --host <host>', 'ElasticSearch host. Defaults to localhost', 'localhost')
-  .option('-p, --port <port>', 'ElasticSearch port. Defaults to 9200', Number, 9200)
+  .option('-h, --host <host>', 'ElasticSearch host. Defaults to localhost', esHost || 'localhost')
+  .option('-p, --port <port>', 'ElasticSearch port. Defaults to 9200', Number, esPort || 9200)
   .option('--index <index>', 'Elasticsearch index. Defaults to testind', 'testindex')
   .option('--type <type>', 'Elasticsearch type within the provided or default index. Defaults to testtype', 'testtype')
   .option('--profile <profile>', 'The aws credentials profile in ~/.aws/credentials. Will also respect AWS keys as environment variables.', 'default')
@@ -48,7 +58,22 @@ test('Check Usage', function(t){
       messages:3,
       err:0
     },
+    env:{},
     label:'data, host, port'
+  },
+  {
+    args:{
+      data: 'someshape',
+      profile: 'default',
+      host:'es',
+      port:9200
+    },
+    expected:{
+      messages:2,
+      err:0
+    },
+    env:{ELASTICSEARCH_PORT:'tcp://123.45.6.789:1234'},
+    label:'data, ELASTICSEARCH_PORT'
   },
   {
     args:{
@@ -60,6 +85,7 @@ test('Check Usage', function(t){
       messages:1,
       err:1
     },
+    env:{},
     label:'Url test with bad filetype'
   },
   {
@@ -73,6 +99,7 @@ test('Check Usage', function(t){
       messages:3,
       err:0
     },
+    env:{},
     label:'Url with good filetype'
   },
   {
@@ -83,6 +110,7 @@ test('Check Usage', function(t){
       messages:1,
       err:1
     },
+    env:{},
     label:'Non-default port, no data'
   },{
     args:{
@@ -92,7 +120,21 @@ test('Check Usage', function(t){
       messages:2,
       err:1
     },
+    env:{},
     label:'No data, bad port'
+  },{
+    args:{
+      bucket: 'abuck',
+      data: 'data',
+      host: 'localhost',
+      port: 9200
+    },
+    expected:{
+      messages:4,
+      err:0
+    },
+    env:{AWS_ACCESS_KEY_ID:1},
+    label:'Bucket, env variables'
   },{
     args:{
       bucket: 'abuck',
@@ -102,9 +144,10 @@ test('Check Usage', function(t){
       port: 9200
     },
     expected:{
-      messages:3,
+      messages:4,
       err:0
     },
+    env:{},
     label:'Bucket, data, profile'
   },{
     args:{
@@ -116,6 +159,7 @@ test('Check Usage', function(t){
       messages:5,
       err:0
     },
+    env:{},
     label:'Bucket only'
   },{
     args:{
@@ -128,6 +172,7 @@ test('Check Usage', function(t){
       messages:4,
       err:0
     },
+    env:{},
     label:'Data, unnecessary profile'
   },{
     args:{
@@ -140,6 +185,7 @@ test('Check Usage', function(t){
       messages:5,
       err:0
     },
+    env:{},
     label:'Bucket and transformer'
   },
   {
@@ -154,6 +200,7 @@ test('Check Usage', function(t){
       messages:4,
       err:0
     },
+    env:{},
     label:'source-srs provided'
   },
   {
@@ -168,6 +215,7 @@ test('Check Usage', function(t){
       messages:4,
       err:0
     },
+    env:{},
     label:'preformatted'
   },
   {
@@ -182,12 +230,13 @@ test('Check Usage', function(t){
       messages:1,
       err:1
     },
+    env:{},
     label:'preformatted and source-srs'
   }
   ];
 
   instances.forEach(function(v){
-    var usage = checkUsage(v.args);
+    var usage = checkUsage(v.args, v.env);
     t.equal(usage.messages.length, v.expected.messages, v.label + ' messages.');
     t.equal(usage.err, v.expected.err, v.label + ' err.');
   });
@@ -216,35 +265,36 @@ test('getS3Files module', function(t){
   var zip = {'bucket':'wyatt-test', 'data':'arkansas.zip'};
   var folder = {'bucket':'wyatt-test', 'data':'test'};
   var bucket = {'bucket':'wyatt-test'};
+  var env = {};
 
   simpleKeys.forEach(function(v){
-    getS3Files(v, new Counter(), function(err, file, stream, cb){
+    getS3Files(v, new Counter(), env, function(err, file, stream, cb){
       t.notOk(err, 'No error with '+ JSON.stringify(v));
       t.ok(isStream(stream), 'Stream exists');
       t.equal(v.data, file, 'Carries key into file');
     });
   });
 
-  getS3Files(zip, new Counter(), function(err, file, stream, cb){
+  getS3Files(zip, new Counter(), env, function(err, file, stream, cb){
     if(typeof stream === 'function') cb = stream;
     t.notOk(err, 'No error getting zip');
     t.equal(path.join(path.basename(path.dirname(file)), path.basename(file)), 'arkansas/t.shp', 'Shapefile extracted and passed from S3.');
     if(cb) cb();
   });
 
-  getS3Files(folder, new Counter(), function(err, file, stream, cb){
+  getS3Files(folder, new Counter(), env, function(err, file, stream, cb){
     t.notOk(err, 'No error on folder');
     t.ok(isStream(stream), 'Generates stream');
     t.equal(file,'test/arkansas.json', 'Operate on only actual file in folder.'); 
   });
 
   var count = 0;
-  getS3Files(bucket, new Counter(), function(err, file, stream, cb){
+  getS3Files(bucket, new Counter(), env, function(err, file, stream, cb){
     if(typeof stream === 'function') cb = stream;
     if(++count === 4) t.pass('Gets all the files from the bucket.'); 
     if(cb) cb();
   })
-     
+
 });
 
 
