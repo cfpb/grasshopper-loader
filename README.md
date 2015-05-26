@@ -19,8 +19,8 @@ Data is transformed from these standard formats and loaded into Elasticsearch (t
     - To run the image:
       `docker run -ti --rm hmda/grasshopper-loader`
     - To run tests with dockerized Elasticsearch:
-      `docker run -d --rm --name es elasticsearch`
-      `docker run -ti --rm --link es:elasticsearch hmda/grasshoppper-loader`
+      `docker run -d --name es elasticsearch`
+      `docker run -ti --rm --link es:elasticsearch hmda/grasshopper-loader`
     - And to include AWS S3 credential information
       - With a credentials file: `docker run -ti --rm --link es:elasticsearch -v ~/.aws:/root/.aws hmda/grasshopper-loader`
       - With environment variables: `docker run -ti --rm --link es:elasticsearch -e "AWS_ACCESS_KEY_ID=<your access key>" -e "AWS_SECRET_ACCESS_KEY=<your secret key>"  hmda/grasshopper-loader`
