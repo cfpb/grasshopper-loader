@@ -1,35 +1,37 @@
 {
   "type": "Feature",
   "properties": {
-    "ADDRESS_NU": "20",
-    "BUILDING_I": " ",
-    "UNIT_IDENT": " ",
-    "LANDMARK_N": " ",
-    "PLACE_NAME": " ",
-    "COUNTY": "CHEROKEE",
-    "STATE_NAME": "NC",
-    "ZIP_CODE": 28906,
-    "ZIP_PLUS_4": 0,
-    "ADDRESS_LA": "35.093251637",
-    "ADDRESS_LO": "-84.209602345",
-    "PROCESS": 1,
-    "TRACT": "990600",
-    "BLOCK": "1084",
-    "STATE_FIPS": 37,
-    "STR_PR_DIR": " ",
-    "STR_PR_TYP": " ",
-    "STR_NAME": "PASSWOOD",
-    "STR_PO_TYP": "WAY",
-    "STR_PO_DIR": " ",
-    "USNG_COORD": "16S GD 54373 86948",
-    "COUNT_FIPS": "039",
-    "COMP_STR": "20 PASSWOOD WAY"
+    "ENTRY_ID": "FORSYTHADDRESSPOINTS138806",
+    "ADDR_HN": "191",
+    "ADDR_PD": "",
+    "ADDR_PT": "",
+    "ADDR_SN": "CENTER STAGE",
+    "ADDR_ST": "COURT",
+    "ADDR_SD": "",
+    "FULL_ADDRESS": "191 CENTER STAGE COURT ",
+    "SUB_HN": " ",
+    "APT_UNIT": "103",
+    "RES_TYPE": "Residential Building, Multifamily",
+    "COMMUNITY": "WS",
+    "ZIPCODE": "27127",
+    "PO_NAME": "WINSTON SALEM",
+    "STATE": "NC",
+    "COUNTY_NAME": "FORSYTH",
+    "FIPS": 67,
+    "STATE_ID": 37,
+    "COORSYS": "2264",
+    "POINT_X": 1634906.32837376,
+    "POINT_Y": 847348.20477334,
+    "USNG": "17S NV 68850 92196",
+    "DDLat": "36.07192N",
+    "DDLon": "080.23540W",
+    "PROCESS_ID": "A"
   },
   "geometry": {
     "type": "Point",
     "coordinates": [
-      442397.497516945,
-      529746.783547014
+      1634906.3283737153,
+      847348.2047733068
     ]
   }
 }

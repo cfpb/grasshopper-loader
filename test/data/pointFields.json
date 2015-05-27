@@ -7,7 +7,7 @@
     "AddressLabel": "123 a st","CityTownName":"sunny","State":"ca","ZipCode":54321,
     "FullAdd":"123 a st","AddSystem":"sunny","State":"ca","ZipCode":54321,
     "ADDRESS": "123 a st","CITY":"sunny","STATE":"ca","ZIPCODE":54321,
-    "COMP_STR":"123 a st","STATE_NAME":"ca","ZIP_CODE":54321,
+    "FULL_ADDRESS":"123 a st","STATE":"ca","ZIPCODE":54321,
     "FULLADDR":"123 a st","PO_NAME":"sunny","STATE":"ca","ZIP_5":"54,321",
     "ADDRESS":"123 a st","MUNICIPALI":"sunny","STATE":"ca","ZIPCODE":"54321",
     "Number": "123", "Address": "a st", "City": "sunny", "State": "ca", "ZIP": 54321
