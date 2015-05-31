@@ -36,6 +36,7 @@
   },
   "dependencies": {
     "async": "^0.9.0",
+    "aws-auto-auth": "^0.1.1",
     "aws-sdk": "^2.1.21",
     "commander": "^2.5.1",
     "elasticsearch": "^3.0.2",

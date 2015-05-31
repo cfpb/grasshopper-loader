@@ -267,31 +267,33 @@ test('getS3Files module', function(t){
   var zip = {'bucket':'wyatt-test', 'data':'arkansas.zip'};
   var folder = {'bucket':'wyatt-test', 'data':'test'};
   var bucket = {'bucket':'wyatt-test'};
-  var env = {};
+  
+  //wyatt-test is public, don't need credentials
+  var credentialsObj = null;
 
   simpleKeys.forEach(function(v){
-    getS3Files(v, new Counter(), env, function(err, file, stream, cb){
+    getS3Files(v, new Counter(), credentialsObj, function(err, file, stream, cb){
       t.notOk(err, 'No error with '+ JSON.stringify(v));
       t.ok(isStream(stream), 'Stream exists');
       t.equal(v.data, file, 'Carries key into file');
     });
   });
 
-  getS3Files(zip, new Counter(), env, function(err, file, stream, cb){
+  getS3Files(zip, new Counter(), credentialsObj, function(err, file, stream, cb){
     if(typeof stream === 'function') cb = stream;
     t.notOk(err, 'No error getting zip');
     t.equal(path.join(path.basename(path.dirname(file)), path.basename(file)), 'arkansas/t.shp', 'Shapefile extracted and passed from S3.');
     if(cb) cb();
   });
 
-  getS3Files(folder, new Counter(), env, function(err, file, stream, cb){
+  getS3Files(folder, new Counter(), credentialsObj, function(err, file, stream, cb){
     t.notOk(err, 'No error on folder');
     t.ok(isStream(stream), 'Generates stream');
     t.equal(file,'test/arkansas.json', 'Operate on only actual file in folder.'); 
   });
 
   var count = 0;
-  getS3Files(bucket, new Counter(), env, function(err, file, stream, cb){
+  getS3Files(bucket, new Counter(), credentialsObj, function(err, file, stream, cb){
     if(typeof stream === 'function') cb = stream;
     if(++count === 4) t.pass('Gets all the files from the bucket.'); 
     if(cb) cb();
