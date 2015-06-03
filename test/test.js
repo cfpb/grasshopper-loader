@@ -23,8 +23,10 @@ var esLoader = require('../lib/esLoader');
 var verify = require('../lib/verify');
 var resolveTransformer = require('../lib/resolveTransformer');
 var requireTransformer = require('../lib/requireTransformer');
-var pointTransformer = require('../lib/pointTransformer');
+var transformerTemplate = require('../lib/transformerTemplate');
 var tigerTransformer = require('../lib/tigerTransformer');
+
+var grasshopperLoader = require('../grasshopper-loader');
 
 var esVar = process.env.ELASTICSEARCH_PORT;
 var esHost;
@@ -265,31 +267,33 @@ test('getS3Files module', function(t){
   var zip = {'bucket':'wyatt-test', 'data':'arkansas.zip'};
   var folder = {'bucket':'wyatt-test', 'data':'test'};
   var bucket = {'bucket':'wyatt-test'};
-  var env = {};
+  
+  //wyatt-test is public, don't need credentials
+  var credentialsObj = null;
 
   simpleKeys.forEach(function(v){
-    getS3Files(v, new Counter(), env, function(err, file, stream, cb){
+    getS3Files(v, new Counter(), credentialsObj, function(err, file, stream, cb){
       t.notOk(err, 'No error with '+ JSON.stringify(v));
       t.ok(isStream(stream), 'Stream exists');
       t.equal(v.data, file, 'Carries key into file');
     });
   });
 
-  getS3Files(zip, new Counter(), env, function(err, file, stream, cb){
+  getS3Files(zip, new Counter(), credentialsObj, function(err, file, stream, cb){
     if(typeof stream === 'function') cb = stream;
     t.notOk(err, 'No error getting zip');
     t.equal(path.join(path.basename(path.dirname(file)), path.basename(file)), 'arkansas/t.shp', 'Shapefile extracted and passed from S3.');
     if(cb) cb();
   });
 
-  getS3Files(folder, new Counter(), env, function(err, file, stream, cb){
+  getS3Files(folder, new Counter(), credentialsObj, function(err, file, stream, cb){
     t.notOk(err, 'No error on folder');
     t.ok(isStream(stream), 'Generates stream');
     t.equal(file,'test/arkansas.json', 'Operate on only actual file in folder.'); 
   });
 
   var count = 0;
-  getS3Files(bucket, new Counter(), env, function(err, file, stream, cb){
+  getS3Files(bucket, new Counter(), credentialsObj, function(err, file, stream, cb){
     if(typeof stream === 'function') cb = stream;
     if(++count === 4) t.pass('Gets all the files from the bucket.'); 
     if(cb) cb();
@@ -512,9 +516,9 @@ test('requireTransformer module', function(t){
 });
 
 
-test('pointTransformer module', function(t){
+test('transformerTemplate module', function(t){
   t.plan(5);
-  var trans = pointTransformer('addr','cty','st', 'zip');
+  var trans = transformerTemplate('addr','cty','st', 'zip');
 
   t.equal(typeof trans, 'function', 'template returns a function');
   t.ok(isStream.isDuplex(trans()), 'The produced transformer generates a transform stream'); 
@@ -533,7 +537,7 @@ test('pointTransformer module', function(t){
   preSufTest.end('{"properties":{"addr":"123 a st","cty":"sunny","st":"ca","zip":54321},"geometry":{"coordinates":[]}}')
 
   try{
-    pointTransformer();
+    transformerTemplate();
   }catch(e){
     t.pass('Calling the template without all arguments throws an error');
   }
@@ -684,7 +688,7 @@ test('Transformers', function(t){
 });
 
 test('Entire loader', function(t){
-  t.plan(9);
+  t.plan(11);
   var args = [
     {ok:1, message: 'Ran without errors, exit code 0, on elasticsearch at ' + program.host + ':' + program.port, arr: ['./grasshopper-loader', '-d', './test/data/arkansas.json', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]},
     {ok:0, message: 'Bails when given an invalid file', arr: ['./grasshopper-loader', '-d', './test/data/ark.json', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]},
@@ -717,5 +721,33 @@ test('Entire loader', function(t){
       }
     });
   })
-  
+
+  var log = console.log;
+  console.log = function(){};
+
+  grasshopperLoader({
+    data: './test/data/arkansas.json', 
+    'host': program.host,
+    'port': program.port,
+    'index': program.index,
+    'type': program.type,
+    'log': 'error'
+  }, function(err){
+    console.log = log; 
+    t.notOk(err, 'Runs as a module.');
+  });
+
+  grasshopperLoader({
+    data: './test/data/arkanfake.json', 
+    'host': program.host,
+    'port': program.port,
+    'index': program.index,
+    'type': program.type,
+    'log': 'error'
+  }, function(err){
+    console.log = log;
+    t.ok(err, 'Loader as module bails on error.');
+    console.log = function(){};
+  })
+
 });
