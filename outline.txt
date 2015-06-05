@@ -1,0 +1,67 @@
+Building a National Address Point Data Set
+  (From Existing State Resources)
+
+
+CFPB Needs a Geocoder
+ - Are loans being distributed fairly to all communities?
+ - Are loans in rural or underserved areas?
+ - Are multiple loans being given to the same high-risk household?
+
+
+Data we need for geocoding
+
+ At minimum:
+ - Street Number
+ - Street Name
+ - City
+ - State
+ - Zip
+ 
+ Also useful:
+ - Alternate address (1275 First St vs. 1 Constitution Square)
+ - Collection date (for each record or the entire dataset)
+
+
+retriever
+data list -> request from source -> unzip -> ogr2ogr to csv -> gzip -> load to S3
+
+loader
+S3 -> gunzip -> convert records to GeoJSON -> extract fields -> load into Elasticsearch -> check all fields loaded
+
+
+Additional technical info:
+ - The loader also works on local files and any zip, gdb, shp or directory it is passed
+ - Data is streamed through every step so memory footprint is kept low 
+ - Loader maintains a list of the mappings from raw data fieldnames to standard address components
+ - The retriever computes a sha256 hash and compares it against a stored hash of a scanned file.
+
+
+Technical stack / Dependencies
+ - node.js
+ - GDAL, for ogr2ogr
+ - Elasticsearch (just need an http endpoint, likely on another machine from the loader)
+ - Also runs as a Docker container, reducing dependencies on the host machine to just Docker
+   - Don't have to worry about GDAL installs across systems
+ 
+
+States Loaded
+ - Virginia
+ - New York
+ - Arkansas
+ - Maine
+ - North Carolina
+ - Utah
+ - Maryland
+ - Montana
+
+ The loader has also consumed TIGER data for each of these datasets to allow geocode attempts to cascade from points to interpolated lines.
+
+
+ Enhancements
+  - More data
+  - Better concurrency management
+  - No downtime update cycles (in progress)
+
+
+Questions?
+ 
