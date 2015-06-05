@@ -44,7 +44,7 @@
 					<h1>Building a National Address Point Dataset</h1>
 					<h3>(from existing state resources)</h3>
 					<p>
-          <small>HMDA Operations @ <a href="consumerfinance.gov">cfpb</a></small>
+          <small>HMDA Operations @ <a href="http://www.consumerfinance.gov">cfpb</a></small>
 					</p>
 				</section>
 
@@ -71,16 +71,20 @@
             <li>Collection date (for each record or the entire dataset)</li>
 					</ul>
 				</section>
-          
+
         <section>
-					<h2>Additional technical info:</h2>
-					<ul>
+          <h2>Dataflow</h2>
+          <img width="75%" alt="dataflow" src="dataflow.jpg"></img> 
+        </section>     
+        <section>
+          <h2>Additional technical info:</h2>
+          <ul>
             <li class="fragment">The loader also works on local files and any zip, gdb, shp or directory it is passed</li>
-						<li class="fragment">Data is streamed through every step so memory footprint is kept low</li>
-						<li class="fragment">Loader maintains a list of the mappings from raw data fieldnames to standard address components</li>
-						<li class="fragment">The retriever computes a sha256 hash and compares it against a stored hash of a scanned file</li>
-					</ul>
-				</section>
+            <li class="fragment">Data is streamed through every step so memory footprint is kept low</li>
+            <li class="fragment">Loader maintains a list of the mappings from raw data fieldnames to standard address components</li>
+            <li class="fragment">Before piping to S3, the retriever computes a sha256 hash and compares it against a precomputed hash of the (virus-scanned) file, stored in the list metadata</li>
+          </ul>
+        </section>
 
 			 <section>
 					<h2>Technical stack / Dependencies</h2>
@@ -148,12 +152,6 @@
 
 				// Optional reveal.js plugins
 				dependencies: [
-					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
-					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
-					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
-					{ src: 'plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
-					{ src: 'plugin/zoom-js/zoom.js', async: true },
-					{ src: 'plugin/notes/notes.js', async: true }
 				]
 			});
 
