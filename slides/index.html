@@ -51,9 +51,8 @@
 				<section>
 					<h2>CFPB needs a geocoder</h2>
 					<ul>
-            <li class="fragment">Are loans being distributed fairly to all communities?</li>
-						<li class="fragment">Are rural lenders serving enough rural borrowers?</li>
-						<li class="fragment">Are multiple loans being given to the same high-risk household?</li>
+            <li class="fragment">Home Mortgage Disclosure Act</li>
+						<li class="fragment">Qualified Mortgages</li>
 					</ul>
 				</section>
 
@@ -71,6 +70,32 @@
             <li>Collection date (for each record or the entire dataset)</li>
 					</ul>
 				</section>
+
+        <section>
+          <h2>Current schema</h2>
+          <pre style="box-shadow:none;">
+            <code class="hljs json">
+            {
+              "type": "Feature",
+
+              "properties": {
+                "address": "123 Veracity Street Truesville AR 54321",
+                "alt_address": "",
+                "load_date": 1428674650380
+              },
+
+              "geometry": {
+                "type": "Point",
+                "coordinates": [
+                  -92.22772946379642,
+                  34.70449216917261
+                ]
+              }
+
+            }
+            </code>
+          </pre>
+        </section>
 
         <section>
           <h2>Dataflow</h2>
@@ -102,6 +127,12 @@
 					</ul>
        </section>
 
+       <section>
+         <h2>Code Repositories</h2>
+            <h3><a href="https://github.com/cfpb/grasshopper-loader">Loader</a></h3>
+            <h3><a href="https://github.com/cfpb/grasshopper-retriever">Retriever</a></h3>
+       </section>
+
       	<section>
 					<h2>States with point data</h2>
 					<ul class="fragment">
@@ -115,6 +146,7 @@
             <li>Montana</li>
 					</ul>
           <p class="fragment">The loader also consumes TIGER data so geocodes cascade from point data to interpolated lines.</p> 
+          <h3 class="fragment">18.6 million points, 4.7 million lines</h3> 
 				</section>
         
         <section>
@@ -152,6 +184,7 @@
 
 				// Optional reveal.js plugins
 				dependencies: [
+          { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } }
 				]
 			});
 
