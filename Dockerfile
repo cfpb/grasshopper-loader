@@ -6,12 +6,10 @@
 FROM geodata/gdal:1.11.2
 MAINTAINER Wyatt Pearsall <wyatt.pearsall@cfpb.gov>
 USER root
+RUN apt-get update && apt-get install -y curl
+RUN curl -sL https://deb.nodesource.com/setup_0.12 | sudo bash -
 
-RUN apt-get update && apt-get install -y \
-  nodejs \
-  npm
-
-RUN ln -s /usr/bin/nodejs /usr/bin/node
+RUN apt-get install -y nodejs
 
 RUN mkdir -p /usr/src/app
 WORKDIR /usr/src/app
