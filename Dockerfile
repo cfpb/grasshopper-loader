@@ -7,7 +7,7 @@ FROM geodata/gdal:1.11.2
 MAINTAINER Wyatt Pearsall <wyatt.pearsall@cfpb.gov>
 USER root
 
-RUN apt-get update && apt-get install -y curl && \
+RUN apt-get update && apt-get install -y curl git && \
     curl -sL https://deb.nodesource.com/setup_0.12 | sudo bash - && \
     apt-get install -y nodejs &&\
     mkdir -p /usr/src/app
