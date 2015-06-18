@@ -3,9 +3,9 @@
 'use strict';
 
 var fs = require('fs');
-var path = require('path');
 
 var isUrl = require('is-url');
+var pump = require('pump');
 var lump = require('lump-stream');
 
 var checkUsage = require('./lib/checkUsage');
@@ -89,7 +89,7 @@ function run(program, loaderCallback){
 
     var transformer;
     try{
-      transformer = getTransformer(fileName, cb)
+      transformer = getTransformer(fileName)
     }catch(err){
       console.log("transformer error", err);
       if(cb) return cb(err, loaderCallback);
@@ -102,7 +102,7 @@ function run(program, loaderCallback){
   }
 
 
-  function getTransformer(fileName, cb){
+  function getTransformer(fileName){
     var transFile = resolveTransformer(program.transformer, fileName);
     return requireTransformer(transFile, fileName);
   }
@@ -121,20 +121,26 @@ function run(program, loaderCallback){
 
     var verifyResults = verify(fileName, stream);
 
-    source
-      .pipe(splitOGRJSON())
-      .pipe(transformer(fileName, makeBulkSeparator(), '\n'))
-      .pipe(lump(Math.pow(2,20)))
-      .pipe(loader)
+    pump(
+      source,
+      splitOGRJSON(),
+      transformer(fileName, makeBulkSeparator(), '\n'),
+      lump(Math.pow(2, 20)),
+      loader,
 
-      loader.on('finish', function(){
+      function(err){
+        if(err){
+          console.log('Streaming of %s interrupted by error,', fileName);
+          return cb(err, loaderCallback);
+        }
+
         console.log('Finished streaming %s', fileName);
 
         if(counter.decr() === 0){
           client.close();
         }
 
-        var count = this.count;
+        var count = loader.count;
 
         verifyResults(count, function(errObj){
           if(errObj){
@@ -145,8 +151,8 @@ function run(program, loaderCallback){
           if(cb) return cb(null, loaderCallback);
           return loaderCallback(null);
         });
-
-      });
+      }
+    )
   }
 }
 
