@@ -305,10 +305,11 @@ test('getS3Files module', function(t){
 
 
 test('getGeoUrl module', function(t){
-  t.plan(3);
+  t.plan(5);
 
   var zip = "http://cfpb.github.io/grasshopper-loader/arkansas.zip"
   var json = "http://cfpb.github.io/grasshopper-loader/arkansas.json"
+  var gzip = "http://cfpb.github.io/grasshopper-loader/maine.csv.gz"
 
   getGeoUrl(zip, new Counter(), function(err, file, stream, cb){
     if(err) throw err;
@@ -322,7 +323,14 @@ test('getGeoUrl module', function(t){
     t.equal(file, 'arkansas.json', 'GeoJson file pulled remotely.');
     t.ok(isStream(stream), 'GeoJson file streamed in');
     if(cb) cb();
-  })
+  });
+
+  getGeoUrl(gzip, new Counter(), function(err, file, stream, cb){
+    if(err) throw err;
+    t.equal(file, 'maine.csv', 'Gzipped file strips .gz extension');
+    t.ok(isStream.isDuplex(stream), 'gzipped duplex stream');
+    if(cb) cb();
+  });
 });
 
 test('getGeoFiles module', function(t){
