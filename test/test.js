@@ -255,15 +255,16 @@ test('counter', function(t){
 });
 
 test('getS3Files module', function(t){
-  t.plan(15);
+  t.plan(17);
 
   var simpleKeys = [
-    {"bucket": "wyatt-test", "data": "new_york.json"},
-    {"bucket": "wyatt-test", "data": "new_york.json", "profile": "wyatt-test"},
-    {"bucket": "wyatt-test", "data": "test/arkansas.json"}
+    {"bucket": "wyatt-test", "data": "arkansas.json"},
+    {"bucket": "wyatt-test", "data": "arkansas.json", "profile": "wyatt-test"},
+    {"bucket": "wyatt-test", "data": "loadertest/arkansas.json"}
   ];
 
   var zip = {'bucket': 'wyatt-test', 'data': 'arkansas.zip'};
+  var gzip = {'bucket': 'wyatt-test', 'data': 'maine.csv.gz'};
   var folder = {'bucket': 'wyatt-test', 'data': 'loadertest'};
   var bucket = {'bucket': 'wyatt-test'};
 
@@ -286,6 +287,13 @@ test('getS3Files module', function(t){
     if(cb) cb();
   });
 
+  getS3Files(gzip, new Counter(), credentialsObj, function(err, file, stream, cb){
+    if(typeof stream === 'function') cb = stream;
+    t.notOk(err, 'No error getting gzip');
+    t.equal(file, 'maine.csv', 'Pulls csv from gzipped file in bucket.');
+    if(cb) cb();
+  });
+
   getS3Files(folder, new Counter(), credentialsObj, function(err, file, stream, cb){
     t.notOk(err, 'No error on folder');
     t.ok(isStream(stream), 'Generates stream');
@@ -297,7 +305,7 @@ test('getS3Files module', function(t){
   getS3Files(bucket, new Counter(), credentialsObj, function(err, file, stream, cb){
     if(err) throw err;
     if(typeof stream === 'function') cb = stream;
-    if(++count === 4) t.pass('Gets all the files from the bucket.');
+    if(++count === 5) t.pass('Gets all the files from the bucket.');
     if(cb) cb();
   })
 
@@ -713,7 +721,7 @@ test('Entire loader', function(t){
     {ok: 1, message: 'Ran without errors, exit code 0, on elasticsearch at ' + program.host + ': ' + program.port, arr: ['./grasshopper-loader', '-d', './test/data/arkansas.json', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]},
     {ok: 0, message: 'Bails when given an invalid file', arr: ['./grasshopper-loader', '-d', './test/data/ark.json', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]},
     {ok: 0, message: 'Bails on bad file type', arr: ['./grasshopper-loader', '-d', './test/data/t.prj', '-t', 'transformers/arkansas.js', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]},
-    {ok: 1, message: 'Loads GeoJson from an S3 bucket.', arr: ['./grasshopper-loader', '-b', 'wyatt-test', '-d', 'new_york.json', '--profile', 'wyatt-test', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]},
+    {ok: 1, message: 'Loads GeoJson from an S3 bucket.', arr: ['./grasshopper-loader', '-b', 'wyatt-test', '-d', 'arkansas.json', '--profile', 'wyatt-test', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]},
     {ok: 1, message: 'Loads a zipped shape from an S3 bucket.', arr: ['./grasshopper-loader', '-b', 'wyatt-test', '-d', 'arkansas.zip', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]},
     {ok: 0, message: 'Bails when given a bad log level.', arr: ['./grasshopper-loader', '-d', './test/data/arkansas.json', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type, '--log', 'LOG']},
     {ok: 1, message: 'Ran without errors on preformatted data.', arr: ['./grasshopper-loader', '-d', './test/data/arkansas.json', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type, '--preformatted']},
