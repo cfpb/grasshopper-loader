@@ -2,7 +2,7 @@
 
 'use strict';
 
-var fs = require('fs');
+var fs = require('fs-extra');
 
 var isUrl = require('is-url');
 var pump = require('pump');
@@ -13,6 +13,7 @@ var esLoader = require('./lib/esLoader');
 var getS3Files = require('./lib/getS3Files');
 var getGeoUrl = require('./lib/getGeoUrl');
 var getGeoFiles = require('./lib/getGeoFiles');
+var unzipGeoStream = require('./lib/unzipGeoStream');
 var resolveTransformer = require('./lib/resolveTransformer');
 var requireTransformer = require('./lib/requireTransformer');
 var ogrChild = require('./lib/ogrChild');
@@ -55,9 +56,10 @@ if(require.main === module){
     run(program);
 }
 
-function run(program, loaderCallback){
-  if(!loaderCallback){
-    loaderCallback = function(err){
+function run(program, passedCallback){
+
+  if(!passedCallback){
+    passedCallback = function(err){
       if(err) throw err;
       console.log("Loading complete.");
     }
@@ -66,6 +68,15 @@ function run(program, loaderCallback){
   var usage = checkUsage(program, process.env);
   console.log(usage.messages.join(''));
   if(usage.err) return;
+
+  var scratchSpace = fs.mkdirsSync('./scratch/' + Math.round(Math.random()*1e15));
+  unzipGeoStream.setScratchSpace = scratchSpace;
+
+  var loaderCallback = function(err){
+    fs.remove(scratchSpace, function(e){
+      return passedCallback(err||e);
+    });
+  };
 
 
   var client = esLoader.connect(program.host, program.port, program.log);
@@ -76,29 +87,21 @@ function run(program, loaderCallback){
   else getGeoFiles(program.data, counter, processData)
 
 
-  function processData(err, fileName, stream, cb){
-    if(typeof stream === 'function'){
-      cb = stream;
-      stream = null;
-    }
+  function processData(err, fileName, stream){
 
-    if(err){
-      if(cb) return cb(err, loaderCallback);
-      return loaderCallback(err);
-    }
+    if(err) return loaderCallback(err);
 
     var transformer;
     try{
       transformer = getTransformer(fileName)
     }catch(err){
       console.log("transformer error", err);
-      if(cb) return cb(err, loaderCallback);
       return loaderCallback(err);
     }
 
     console.log("Streaming %s to elasticsearch.", fileName);
 
-    return pipeline(fileName, stream, transformer, cb);
+    return pipeline(fileName, stream, transformer);
   }
 
 
@@ -108,7 +111,7 @@ function run(program, loaderCallback){
   }
 
 
-  function pipeline(fileName, stream, transformer, cb){
+  function pipeline(fileName, stream, transformer){
     var loader = esLoader.load(client, program.index, program.type);
     var source;
 
@@ -131,7 +134,7 @@ function run(program, loaderCallback){
       function(err){
         if(err){
           console.log('Streaming of %s interrupted by error,', fileName);
-          return cb(err, loaderCallback);
+          return loaderCallback(err);
         }
 
         console.log('Finished streaming %s', fileName);
@@ -143,12 +146,8 @@ function run(program, loaderCallback){
         var count = loader.count;
 
         verifyResults(count, function(errObj){
-          if(errObj){
-            if(cb) return cb(errObj.error, loaderCallback);
-            loaderCallback(errObj.error);
-          }
+          if(errObj) return loaderCallback(errObj.error);
           console.log("All %d records from %s loaded.", count, fileName);
-          if(cb) return cb(null, loaderCallback);
           return loaderCallback(null);
         });
       }
