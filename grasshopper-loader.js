@@ -122,7 +122,7 @@ function run(program, passedCallback){
       source = ogrChild(fileName, stream, program.sourceSrs).stdout;
     }
 
-    var verifyResults = verify(fileName, stream);
+    var verifyResults = verify(fileName, stream, scratchSpace, loaderCallback);
 
     pump(
       source,
