@@ -342,7 +342,7 @@ test('getGeoUrl module', function(t){
 });
 
 test('getGeoFiles module', function(t){
-  t.plan(8);
+  t.plan(10);
 
   ['shp', 'gdb', 'json'].forEach(function(v){
     var input = 'test/data/t.'+ v;
@@ -351,6 +351,13 @@ test('getGeoFiles module', function(t){
       t.equal(input, file, v + ' passed through to processData');
       if(cb) cb();
     });
+  });
+
+  getGeoFiles('test/data/maine.csv.gz', new Counter(), function(err, file, stream, cb){
+    if(err) throw err;
+    t.equal(file, 'maine.csv', 'Gets csv from .gz for getGeoFiles');
+    t.ok(isStream.isDuplex(stream), 'Returns a duplex stream.');
+    if(cb) cb();
   });
 
   getGeoFiles('test/data/threefiles', new Counter(), function(err, file, cb){
