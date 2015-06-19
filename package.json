@@ -39,7 +39,7 @@
     "aws-auto-auth": "^0.1.1",
     "aws-sdk": "^2.1.21",
     "commander": "^2.5.1",
-    "elasticsearch": "^3.0.2",
+    "elasticsearch": "^3.1.1",
     "inherits": "^2.0.1",
     "is-url": "^1.2.0",
     "lump-stream": "0.x",

@@ -32,7 +32,7 @@ var esHost;
 var esPort;
 
 if(esVar){
-  esVar = esVar.split('//')[1].split(': ');
+  esVar = esVar.split('//')[1].split(':');
   esHost = esVar[0];
   esPort = +esVar[1];
 }
