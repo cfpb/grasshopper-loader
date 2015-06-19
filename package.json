@@ -27,13 +27,6 @@
   "scripts": {
     "test": "node test/test.js"
   },
-  "devDependencies": {
-    "concat-stream": "^1.4.7",
-    "ignore": "^2.2.15",
-    "isstream": "^0.1.2",
-    "stream-stats": "0.x",
-    "tape": "^3.5.0"
-  },
   "dependencies": {
     "async": "^0.9.0",
     "aws-auto-auth": "^0.1.1",
@@ -51,6 +44,10 @@
     "rimraf": "^2.3.2",
     "split": "^0.3.3",
     "unzip": "^0.1.11",
+    "ignore": "^2.2.15",
+    "isstream": "^0.1.2",
+    "stream-stats": "0.x",
+    "tape": "^3.5.0",
     "us": "^1.1.0"
   },
   "keywords": "ElasticSearch, Streams, Address, Shapefile",
