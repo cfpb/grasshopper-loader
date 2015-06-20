@@ -67,6 +67,35 @@ test('Check Usage', function(t){
     label: 'data, host, port'
   },
   {
+  args: {
+      data: 'some.csv',
+      host: 'localhost',
+      port: 9200,
+      profile: 'default'
+    },
+    expected: {
+      messages: 1,
+      err: 1
+    },
+    env: {},
+    label: 'csv unformatted'
+  },
+  {
+  args: {
+      data: 'some.csv',
+      host: 'localhost',
+      port: 9200,
+      profile: 'default',
+      preformatted: true
+    },
+    expected: {
+      messages: 4,
+      err: 0
+    },
+    env: {},
+    label: 'csv preformatted'
+  },
+  {
     args: {
       data: 'someshape',
       profile: 'default',
