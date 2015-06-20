@@ -70,7 +70,7 @@ function run(program, passedCallback){
   if(usage.err) return;
 
   var scratchSpace = fs.mkdirsSync('./scratch/' + Math.round(Math.random()*1e15));
-  unzipGeoStream.setScratchSpace = scratchSpace;
+  unzipGeoStream.setScratchSpace(scratchSpace);
 
   var loaderCallback = function(err){
     fs.remove(scratchSpace, function(e){
@@ -79,7 +79,21 @@ function run(program, passedCallback){
   };
 
 
-  var client = esLoader.connect(program.host, program.port, program.log);
+  //Cleanup if bad file
+  if(!program.bucket && program.data){
+    try{
+      fs.statSync(program.data);
+    }catch(err){
+      return loaderCallback(err);
+    }
+  }
+
+  try{
+    var client = esLoader.connect(program.host, program.port, program.log);
+  }catch(err){
+    loaderCallback(err);
+  }
+
   var counter = new Counter();
 
   if(program.bucket) getS3Files(program, counter, process.env, processData)

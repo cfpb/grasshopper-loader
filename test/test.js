@@ -1,5 +1,5 @@
 'use strict';
-var fs = require('fs');
+var fs = require('fs-extra');
 var path = require('path');
 var spawn = require('child_process').spawn;
 var program = require('commander');
@@ -16,6 +16,7 @@ var getGeoUrl = require('../lib/getGeoUrl');
 var getGeoFiles = require('../lib/getGeoFiles');
 var ogrChild = require('../lib/ogrChild');
 var splitOGRJSON = require('../lib/splitOGRJSON');
+var unzipGeoStream = require('../lib/unzipGeoStream');
 var makeBulkSeparator = require('../lib/makeBulkSeparator');
 var formatAddress = require('../lib/formatAddress');
 var esLoader = require('../lib/esLoader');
@@ -26,6 +27,9 @@ var transformerTemplate = require('../lib/transformerTemplate');
 var tigerTransformer = require('../lib/tigerTransformer');
 
 var grasshopperLoader = require('../grasshopper-loader');
+
+var scratchSpace = fs.mkdirsSync('./scratch/' + Math.round(Math.random()*1e15));
+unzipGeoStream.setScratchSpace(scratchSpace);
 
 var esVar = process.env.ELASTICSEARCH_PORT;
 var esHost;
@@ -272,41 +276,34 @@ test('getS3Files module', function(t){
   var credentialsObj = null;
 
   simpleKeys.forEach(function(v){
-    getS3Files(v, new Counter(), credentialsObj, function(err, file, stream, cb){
+    getS3Files(v, new Counter(), credentialsObj, function(err, file, stream){
       t.notOk(err, 'No error with '+ JSON.stringify(v));
       t.ok(isStream(stream), 'Stream exists');
       t.equal(v.data, file, 'Carries key into file');
-      if(cb) cb();
     });
   });
 
-  getS3Files(zip, new Counter(), credentialsObj, function(err, file, stream, cb){
-    if(typeof stream === 'function') cb = stream;
+  getS3Files(zip, new Counter(), credentialsObj, function(err, file){
     t.notOk(err, 'No error getting zip');
     t.equal(path.join(path.basename(path.dirname(file)), path.basename(file)), 'arkansas/t.shp', 'Shapefile extracted and passed from S3.');
-    if(cb) cb();
+    fs.removeSync(scratchSpace);
   });
 
-  getS3Files(gzip, new Counter(), credentialsObj, function(err, file, stream, cb){
-    if(typeof stream === 'function') cb = stream;
+  getS3Files(gzip, new Counter(), credentialsObj, function(err, file){
     t.notOk(err, 'No error getting gzip');
     t.equal(file, 'maine.csv', 'Pulls csv from gzipped file in bucket.');
-    if(cb) cb();
   });
 
-  getS3Files(folder, new Counter(), credentialsObj, function(err, file, stream, cb){
+  getS3Files(folder, new Counter(), credentialsObj, function(err, file, stream){
     t.notOk(err, 'No error on folder');
     t.ok(isStream(stream), 'Generates stream');
     t.equal(file, 'loadertest/arkansas.json', 'Operate on only actual file in folder.');
-    if(cb) cb();
   });
 
   var count = 0;
-  getS3Files(bucket, new Counter(), credentialsObj, function(err, file, stream, cb){
+  getS3Files(bucket, new Counter(), credentialsObj, function(err){
     if(err) throw err;
-    if(typeof stream === 'function') cb = stream;
     if(++count === 5) t.pass('Gets all the files from the bucket.');
-    if(cb) cb();
   })
 
 });
@@ -319,25 +316,21 @@ test('getGeoUrl module', function(t){
   var json = "http://cfpb.github.io/grasshopper-loader/arkansas.json"
   var gzip = "http://cfpb.github.io/grasshopper-loader/maine.csv.gz"
 
-  getGeoUrl(zip, new Counter(), function(err, file, stream, cb){
+  getGeoUrl(zip, new Counter(), function(err, file){
     if(err) throw err;
-    if(typeof stream === 'function') cb = stream;
     t.equal(path.join(path.basename(path.dirname(file)), path.basename(file)), 'arkansas/t.shp', 'Shapefile extracted and passed from remote zip.');
-    if(cb) cb();
   });
 
-  getGeoUrl(json, new Counter(), function(err, file, stream, cb){
+  getGeoUrl(json, new Counter(), function(err, file, stream){
     if(err) throw err;
     t.equal(file, 'arkansas.json', 'GeoJson file pulled remotely.');
     t.ok(isStream(stream), 'GeoJson file streamed in');
-    if(cb) cb();
   });
 
-  getGeoUrl(gzip, new Counter(), function(err, file, stream, cb){
+  getGeoUrl(gzip, new Counter(), function(err, file, stream){
     if(err) throw err;
     t.equal(file, 'maine.csv', 'Gzipped file strips .gz extension');
     t.ok(isStream.isDuplex(stream), 'gzipped duplex stream');
-    if(cb) cb();
   });
 });
 
@@ -723,12 +716,13 @@ test('Transformers', function(t){
 });
 
 test('Entire loader', function(t){
-  t.plan(11);
+  t.plan(12);
   var args = [
     {ok: 1, message: 'Ran without errors, exit code 0, on elasticsearch at ' + program.host + ': ' + program.port, arr: ['./grasshopper-loader', '-d', './test/data/arkansas.json', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]},
     {ok: 0, message: 'Bails when given an invalid file', arr: ['./grasshopper-loader', '-d', './test/data/ark.json', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]},
     {ok: 0, message: 'Bails on bad file type', arr: ['./grasshopper-loader', '-d', './test/data/t.prj', '-t', 'transformers/arkansas.js', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]},
     {ok: 1, message: 'Loads GeoJson from an S3 bucket.', arr: ['./grasshopper-loader', '-b', 'wyatt-test', '-d', 'arkansas.json', '--profile', 'wyatt-test', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]},
+    {ok: 0, message: 'Bails on bad file in bucket.', arr: ['./grasshopper-loader', '-b', 'wyatt-test', '-d', 'notthere.json', '--profile', 'wyatt-test', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]},
     {ok: 1, message: 'Loads a zipped shape from an S3 bucket.', arr: ['./grasshopper-loader', '-b', 'wyatt-test', '-d', 'arkansas.zip', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]},
     {ok: 0, message: 'Bails when given a bad log level.', arr: ['./grasshopper-loader', '-d', './test/data/arkansas.json', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type, '--log', 'LOG']},
     {ok: 1, message: 'Ran without errors on preformatted data.', arr: ['./grasshopper-loader', '-d', './test/data/arkansas.json', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type, '--preformatted']},
@@ -786,3 +780,8 @@ test('Entire loader', function(t){
   })
 
 });
+
+test('Clean up', function(t){
+  fs.removeSync(scratchSpace);
+  t.end();
+})
