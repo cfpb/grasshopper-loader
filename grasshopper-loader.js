@@ -67,8 +67,8 @@ function run(program, passedCallback){
   }
 
   var usage = checkUsage(program, process.env);
+  if(usage.err) return passedCallback(new Error(usage.messages.join('')));
   console.log(usage.messages.join(''));
-  if(usage.err) return;
 
   var scratchSpace = fs.mkdirsSync('./scratch/' + Math.round(Math.random()*1e15));
   unzipGeoStream.setScratchSpace(scratchSpace);

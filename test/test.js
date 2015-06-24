@@ -745,7 +745,7 @@ test('Transformers', function(t){
 });
 
 test('Entire loader', function(t){
-  t.plan(12);
+  t.plan(13);
   var args = [
     {ok: 1, message: 'Ran without errors, exit code 0, on elasticsearch at ' + program.host + ': ' + program.port, arr: ['./grasshopper-loader', '-d', './test/data/arkansas.json', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]},
     {ok: 0, message: 'Bails when given an invalid file', arr: ['./grasshopper-loader', '-d', './test/data/ark.json', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]},
@@ -755,7 +755,8 @@ test('Entire loader', function(t){
     {ok: 1, message: 'Loads a zipped shape from an S3 bucket.', arr: ['./grasshopper-loader', '-b', 'wyatt-test', '-d', 'arkansas.zip', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]},
     {ok: 0, message: 'Bails when given a bad log level.', arr: ['./grasshopper-loader', '-d', './test/data/arkansas.json', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type, '--log', 'LOG']},
     {ok: 1, message: 'Ran without errors on preformatted data.', arr: ['./grasshopper-loader', '-d', './test/data/arkansas.json', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type, '--preformatted']},
-    {ok: 1, message: 'Ran without errors on csv', arr: ['./grasshopper-loader', '-d', './test/data/virginia.csv', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]},
+    {ok: 1, message: 'Ran without errors on preformatted, gzipped csv.', arr: ['./grasshopper-loader', '-d', './test/data/maine.csv.gz', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type, '--preformatted']},
+    {ok: 0, message: 'Bails on unformatted csv', arr: ['./grasshopper-loader', '-d', './test/data/virginia.csv', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]},
     {ok: 1, message: 'Ran without errors with provided source-srs.', arr: ['./grasshopper-loader', '-d', './test/data/arkNAD.json', '-t', 'arkansas', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type, '--source-srs', 'NAD83']}
   ];
 
