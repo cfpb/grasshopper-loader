@@ -6,8 +6,8 @@ var fs = require('fs-extra');
 var path = require('path');
 var isUrl = require('is-url');
 var pump = require('pump');
-var split = require('split');
 var lump = require('lump-stream');
+var csvParse = require('csv-parse');
 
 var checkUsage = require('./lib/checkUsage');
 var esLoader = require('./lib/esLoader');
@@ -138,7 +138,7 @@ function run(program, passedCallback){
       source = ogrChild(fileName, stream, program.sourceSrs).stdout;
     }
 
-    if(path.extname(fileName) === '.csv') splitter = split();
+    if(path.extname(fileName) === '.csv') splitter = csvParse({columns: true});
     else splitter = splitOGRJSON();
 
     var verifyResults = verify(fileName, stream, scratchSpace, loaderCallback);
