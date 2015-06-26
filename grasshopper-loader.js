@@ -61,7 +61,12 @@ function run(program, passedCallback){
 
   if(!passedCallback){
     passedCallback = function(err){
-      if(err) throw err;
+      if(err){
+        if(typeof err === "object" && !(err instanceof Error)){
+          err = new Error(JSON.stringify(err));
+        }
+        throw err;
+      }
       console.log("Loading complete.");
     }
   }

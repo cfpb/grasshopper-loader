@@ -314,7 +314,7 @@ test('getS3Files module', function(t){
 
   getS3Files(zip, new Counter(), credentialsObj, function(err, file){
     t.notOk(err, 'No error getting zip');
-    t.equal(path.join(path.basename(path.dirname(file)), path.basename(file)), 'arkansas/t.shp', 'Shapefile extracted and passed from S3.');
+    t.equal(path.join(path.basename(path.dirname(file)), path.basename(file)), 'arkansas/arkansas.shp', 'Shapefile extracted and passed from S3.');
     fs.removeSync(scratchSpace);
   });
 
@@ -347,7 +347,7 @@ test('getGeoUrl module', function(t){
 
   getGeoUrl(zip, new Counter(), function(err, file){
     if(err) throw err;
-    t.equal(path.join(path.basename(path.dirname(file)), path.basename(file)), 'arkansas/t.shp', 'Shapefile extracted and passed from remote zip.');
+    t.equal(path.join(path.basename(path.dirname(file)), path.basename(file)), 'arkansas/arkansas.shp', 'Shapefile extracted and passed from remote zip.');
   });
 
   getGeoUrl(json, new Counter(), function(err, file, stream){
