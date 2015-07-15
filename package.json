@@ -46,6 +46,7 @@
     "split2": "^1.0.0",
     "stream-stats": "0.x",
     "tape": "^3.5.0",
+    "turf-centroid": "^1.1.2",
     "unzip": "^0.1.11",
     "us": "^1.1.0"
   },
