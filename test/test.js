@@ -574,7 +574,7 @@ test('requireTransformer module', function(t){
 
 
 test('transformerTemplate module', function(t){
-  t.plan(5);
+  t.plan(8);
   var trans = transformerTemplate('addr', 'cty', 'st', 'zip');
 
   t.equal(typeof trans, 'function', 'template returns a function');
@@ -591,13 +591,28 @@ test('transformerTemplate module', function(t){
     t.ok(/^start/.test(output), 'prefix applied properly');
     t.ok(/finish$/.test(output), 'suffix applied properly');
   });
-  preSufTest.end('{"properties": {"addr": "123 a st", "cty": "sunny", "st": "ca", "zip": 54321}, "geometry": {"coordinates": []}}')
+  preSufTest.end('{"type": "Feature", "properties": {"addr": "123 a st", "cty": "sunny", "st": "ca", "zip": 54321}, "geometry": {"type": "Point", "coordinates": []}}')
 
   try{
     transformerTemplate();
   }catch(e){
     t.pass('Calling the template without all arguments throws an error');
   }
+
+  var polyTest = trans('someFile');
+  var polyStats = streamStats('polyTrans', {store: 1});
+
+  polyTest.pipe(polyStats).sink();
+  polyStats.on('end', function(){
+    var result = this.getResult();
+    var output = result.store.toString();
+    var geometry = JSON.parse(output).geometry;
+    t.equal(geometry.type, 'Point', 'Produces Point from Polygon feature');
+    t.equal(geometry.coordinates[0], -39, 'Gets expected longitude');
+    t.equal(geometry.coordinates[1], 16, 'Gets expected latitude');
+  });
+
+  polyTest.end('{"type": "Feature", "properties": {"addr": "123 a st", "cty": "sunny", "st": "ca", "zip": 54321}, "geometry": {"type": "Polygon", "coordinates": [[[-38, 14], [-40, 14], [-39, 20], [-38, 14]]]}}')
 });
 
 
@@ -620,7 +635,7 @@ test('tigerTransformer module', function(t){
     t.ok(/finish$/.test(output), 'suffix applied properly');
   });
 
-  preSufTest.end('{"properties": {"addr": "123 a st", "cty": "sunny", "st": "ca", "zip": 54321}, "geometry": {"coordinates": []}}')
+  preSufTest.end('{"properties": {"addr": "123 a st", "cty": "sunny", "st": "ca", "zip": 54321}, "geometry": {"type": "Point", "coordinates": []}}')
 
 
   var passThrough = tigerTransformer()('tl_2014_21155_addrfeat.zip');
