@@ -265,6 +265,44 @@
       "from": "node-dir@*",
       "resolved": "https://registry.npmjs.org/node-dir/-/node-dir-0.1.6.tgz"
     },
+    "ogr-json-stream": {
+      "version": "0.1.0",
+      "from": "ogr-json-stream@*",
+      "dependencies": {
+        "readable-stream": {
+          "version": "2.0.2",
+          "from": "readable-stream@>=2.0.2 <3.0.0",
+          "resolved": "https://registry.npmjs.org/readable-stream/-/readable-stream-2.0.2.tgz",
+          "dependencies": {
+            "core-util-is": {
+              "version": "1.0.1",
+              "from": "core-util-is@>=1.0.0 <1.1.0",
+              "resolved": "https://registry.npmjs.org/core-util-is/-/core-util-is-1.0.1.tgz"
+            },
+            "isarray": {
+              "version": "0.0.1",
+              "from": "isarray@0.0.1",
+              "resolved": "https://registry.npmjs.org/isarray/-/isarray-0.0.1.tgz"
+            },
+            "process-nextick-args": {
+              "version": "1.0.2",
+              "from": "process-nextick-args@>=1.0.0 <1.1.0",
+              "resolved": "https://registry.npmjs.org/process-nextick-args/-/process-nextick-args-1.0.2.tgz"
+            },
+            "string_decoder": {
+              "version": "0.10.31",
+              "from": "string_decoder@>=0.10.0 <0.11.0",
+              "resolved": "https://registry.npmjs.org/string_decoder/-/string_decoder-0.10.31.tgz"
+            },
+            "util-deprecate": {
+              "version": "1.0.1",
+              "from": "util-deprecate@>=1.0.1 <1.1.0",
+              "resolved": "https://registry.npmjs.org/util-deprecate/-/util-deprecate-1.0.1.tgz"
+            }
+          }
+        }
+      }
+    },
     "pump": {
       "version": "1.0.0",
       "from": "pump@*",

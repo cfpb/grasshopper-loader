@@ -8,6 +8,7 @@ var isUrl = require('is-url');
 var pump = require('pump');
 var lump = require('lump-stream');
 var csvParse = require('csv-parse');
+var OgrJsonStream = require('ogr-json-stream');
 
 var checkUsage = require('./lib/checkUsage');
 var esLoader = require('./lib/esLoader');
@@ -18,7 +19,6 @@ var unzipGeoStream = require('./lib/unzipGeoStream');
 var resolveTransformer = require('./lib/resolveTransformer');
 var requireTransformer = require('./lib/requireTransformer');
 var ogrChild = require('./lib/ogrChild');
-var parseOGRJSON = require('./lib/parseOGRJSON');
 var makeBulkSeparator = require('./lib/makeBulkSeparator');
 var verify = require('./lib/verify');
 var Counter = require('./lib/counter');
@@ -144,7 +144,7 @@ function run(program, passedCallback){
     }
 
     if(path.extname(fileName) === '.csv') parser = csvParse({columns: true});
-    else parser = parseOGRJSON();
+    else parser = OgrJsonStream();
 
     var verifyResults = verify(fileName, stream, scratchSpace, loaderCallback);
 

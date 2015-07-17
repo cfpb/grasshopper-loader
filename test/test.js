@@ -9,6 +9,7 @@ var streamStats = require('stream-stats');
 var isStream = require('isstream');
 var ignore = require('ignore');
 var pump = require('pump');
+var OgrJsonStream = require('ogr-json-stream');
 
 var checkUsage = require('../lib/checkUsage');
 var Counter = require('../lib/counter');
@@ -16,7 +17,6 @@ var getS3Files = require('../lib/getS3Files');
 var getGeoUrl = require('../lib/getGeoUrl');
 var getGeoFiles = require('../lib/getGeoFiles');
 var ogrChild = require('../lib/ogrChild');
-var parseOGRJSON = require('../lib/parseOGRJSON');
 var unzipGeoStream = require('../lib/unzipGeoStream');
 var makeBulkSeparator = require('../lib/makeBulkSeparator');
 var formatAddress = require('../lib/formatAddress');
@@ -448,37 +448,6 @@ test('ogrChild module', function(t){
 });
 
 
-test('parseOGRJSON module', function(t){
-  t.plan(5);
-
-  var arr = [
-  {file: 'test/data/t.json', count: 20, err: 0},
-  {file: 'test/data/nullGeo.json', count: 20, err: 0},
-  {file: 'test/data/tfail.json', count: 20, err: 1}
-  ]
-
-  arr.forEach(function(v){
-    var stats = streamStats.obj();
-    var parser = parseOGRJSON();
-    pump(fs.createReadStream(v.file),
-      parser,
-      stats,
-      stats.sink(),
-      function(err){
-        if(err){
-          if(v.err) t.pass('Error on bad json');
-          else t.fail('Error on good json');
-        }else{
-          var result = stats.getResult();
-          t.pass('Reads valid json');
-          t.equal(result.len, v.count, 'Reads all rows of '+ v.file);
-        }
-      }
-    );
-  });
-});
-
-
 test('makeBulkSeparator module', function(t){
   t.plan(3);
   var sep = makeBulkSeparator(program.index, program.type);
@@ -734,7 +703,7 @@ test('Transformers', function(t){
       var match = transFile === 'tiger.js' ? tigerMatch : pointMatch;
 
       pump(fs.createReadStream(fields),
-        parseOGRJSON(),
+        OgrJsonStream(),
         transformer(fields, bulkMetadata, '\n'),
         stats,
         stats.sink(),

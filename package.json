@@ -41,6 +41,7 @@
     "isstream": "^0.1.2",
     "lump-stream": "0.x",
     "node-dir": "^0.1.6",
+    "ogr-json-stream": "^0.1.0",
     "pump": "^1.0.0",
     "readable-stream": "2.0.x",
     "split2": "^1.0.0",
