@@ -435,8 +435,8 @@
       }
     },
     "stream-stats": {
-      "version": "0.4.1",
-      "from": "stream-stats@0.4.1"
+      "version": "0.7.0",
+      "from": "stream-stats@>=0.0.0 <1.0.0"
     },
     "tape": {
       "version": "3.5.0",
@@ -498,6 +498,30 @@
       "version": "2.3.6",
       "from": "through@*",
       "resolved": "https://registry.npmjs.org/through/-/through-2.3.6.tgz"
+    },
+    "turf-centroid": {
+      "version": "1.1.2",
+      "from": "turf-centroid@*",
+      "resolved": "https://registry.npmjs.org/turf-centroid/-/turf-centroid-1.1.2.tgz",
+      "dependencies": {
+        "turf-meta": {
+          "version": "1.0.2",
+          "from": "turf-meta@>=1.0.2 <2.0.0",
+          "resolved": "https://registry.npmjs.org/turf-meta/-/turf-meta-1.0.2.tgz"
+        },
+        "turf-point": {
+          "version": "2.0.1",
+          "from": "turf-point@>=2.0.0 <3.0.0",
+          "resolved": "https://registry.npmjs.org/turf-point/-/turf-point-2.0.1.tgz",
+          "dependencies": {
+            "minimist": {
+              "version": "1.1.1",
+              "from": "minimist@>=1.1.0 <2.0.0",
+              "resolved": "https://registry.npmjs.org/minimist/-/minimist-1.1.1.tgz"
+            }
+          }
+        }
+      }
     },
     "unzip": {
       "version": "0.1.11",

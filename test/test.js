@@ -8,6 +8,7 @@ var test = require('tape');
 var streamStats = require('stream-stats');
 var isStream = require('isstream');
 var ignore = require('ignore');
+var pump = require('pump');
 
 var checkUsage = require('../lib/checkUsage');
 var Counter = require('../lib/counter');
@@ -15,7 +16,7 @@ var getS3Files = require('../lib/getS3Files');
 var getGeoUrl = require('../lib/getGeoUrl');
 var getGeoFiles = require('../lib/getGeoFiles');
 var ogrChild = require('../lib/ogrChild');
-var splitOGRJSON = require('../lib/splitOGRJSON');
+var parseOGRJSON = require('../lib/parseOGRJSON');
 var unzipGeoStream = require('../lib/unzipGeoStream');
 var makeBulkSeparator = require('../lib/makeBulkSeparator');
 var formatAddress = require('../lib/formatAddress');
@@ -441,42 +442,40 @@ test('ogrChild module', function(t){
     t.notOk(errInShp, 'ogr2ogr doesn\'t emit an error from shapefile.');
   });
 
-  shpChild.stdout.pipe(shpStats).sink();
-  jsonChild.stdout.pipe(jsonStats).sink();
+  pump(shpChild.stdout, shpStats, shpStats.sink());
+  pump(jsonChild.stdout, jsonStats, jsonStats.sink());
 
 });
 
 
-test('splitOGRJSON module', function(t){
-  t.plan(2);
+test('parseOGRJSON module', function(t){
+  t.plan(5);
 
   var arr = [
-    'test/data/t.json',
-    'test/data/nullGeo.json'
+  {file: 'test/data/t.json', count: 20, err: 0},
+  {file: 'test/data/nullGeo.json', count: 20, err: 0},
+  {file: 'test/data/tfail.json', count: 20, err: 1}
   ]
 
   arr.forEach(function(v){
-    var stats = streamStats({store: 1});
-
-    fs.createReadStream(v)
-      .pipe(splitOGRJSON())
-      .pipe(stats)
-      .sink();
-
-    stats.on('end', function(){
-      var result = stats.getResult();
-      var validJSON = 1;
-      try{
-        result.chunks.forEach(function(v){
-          JSON.parse(v.chunk.toString());
-        });
-      }catch(e){
-        validJSON = 0;
+    var stats = streamStats.obj();
+    var parser = parseOGRJSON();
+    pump(fs.createReadStream(v.file),
+      parser,
+      stats,
+      stats.sink(),
+      function(err){
+        if(err){
+          if(v.err) t.pass('Error on bad json');
+          else t.fail('Error on good json');
+        }else{
+          var result = stats.getResult();
+          t.pass('Reads valid json');
+          t.equal(result.len, v.count, 'Reads all rows of '+ v.file);
+        }
       }
-
-      t.ok(validJSON, 'splitOGRJSON yields valid JSON chunks from '+ v);
-    })
-  })
+    );
+  });
 });
 
 
@@ -584,13 +583,14 @@ test('transformerTemplate module', function(t){
 
   var preSufTest = trans('someFile', 'start', 'finish');
 
-  preSufTest.pipe(stats).sink();
-  stats.on('end', function(){
-    var result = stats.getResult();
-    var output = result.store.toString();
-    t.ok(/^start/.test(output), 'prefix applied properly');
-    t.ok(/finish$/.test(output), 'suffix applied properly');
+  pump(preSufTest, stats, stats.sink(),
+    function(){
+      var result = stats.getResult();
+      var output = result.store.toString();
+      t.ok(/^start/.test(output), 'prefix applied properly');
+      t.ok(/finish$/.test(output), 'suffix applied properly');
   });
+
   preSufTest.end('{"type": "Feature", "properties": {"addr": "123 a st", "cty": "sunny", "st": "ca", "zip": 54321}, "geometry": {"type": "Point", "coordinates": []}}')
 
   try{
@@ -602,14 +602,14 @@ test('transformerTemplate module', function(t){
   var polyTest = trans('someFile');
   var polyStats = streamStats('polyTrans', {store: 1});
 
-  polyTest.pipe(polyStats).sink();
-  polyStats.on('end', function(){
-    var result = this.getResult();
-    var output = result.store.toString();
-    var geometry = JSON.parse(output).geometry;
-    t.equal(geometry.type, 'Point', 'Produces Point from Polygon feature');
-    t.equal(geometry.coordinates[0], -39, 'Gets expected longitude');
-    t.equal(geometry.coordinates[1], 16, 'Gets expected latitude');
+  pump(polyTest, polyStats, polyStats.sink(),
+    function(){
+      var result = this.getResult();
+      var output = result.store.toString();
+      var geometry = JSON.parse(output).geometry;
+      t.equal(geometry.type, 'Point', 'Produces Point from Polygon feature');
+      t.equal(geometry.coordinates[0], -39, 'Gets expected longitude');
+      t.equal(geometry.coordinates[1], 16, 'Gets expected latitude');
   });
 
   polyTest.end('{"type": "Feature", "properties": {"addr": "123 a st", "cty": "sunny", "st": "ca", "zip": 54321}, "geometry": {"type": "Polygon", "coordinates": [[[-38, 14], [-40, 14], [-39, 20], [-38, 14]]]}}')
@@ -627,12 +627,12 @@ test('tigerTransformer module', function(t){
 
   var preSufTest = trans('tl_2014_21155_addrfeat.zip', 'start', 'finish');
 
-  preSufTest.pipe(stats).sink();
-  stats.on('end', function(){
-    var result = stats.getResult();
-    var output = result.store.toString();
-    t.ok(/^start/.test(output), 'prefix applied properly');
-    t.ok(/finish$/.test(output), 'suffix applied properly');
+  pump(preSufTest, stats, stats.sink(),
+    function(){
+      var result = stats.getResult();
+      var output = result.store.toString();
+      t.ok(/^start/.test(output), 'prefix applied properly');
+      t.ok(/finish$/.test(output), 'suffix applied properly');
   });
 
   preSufTest.end('{"properties": {"addr": "123 a st", "cty": "sunny", "st": "ca", "zip": 54321}, "geometry": {"type": "Point", "coordinates": []}}')
@@ -651,13 +651,13 @@ test('tigerTransformer module', function(t){
   }
 
   var passStats = streamStats('transTemp3', {store: 1});
-  passThrough.pipe(passStats).sink();
 
-  passStats.on('end', function(){
-    var result = passStats.getResult();
-    var output = JSON.parse(result.store.toString());
-    t.deepEqual(Object.keys(output.properties), Object.keys(props.properties), "tigerTransformer passes through props and adds load_date if missing");
-    t.equal('KY', output.properties.STATE, 'Generates state from filename');
+  pump(passThrough, passStats, passStats.sink(),
+    function(){
+      var result = passStats.getResult();
+      var output = JSON.parse(result.store.toString());
+      t.deepEqual(Object.keys(output.properties), Object.keys(props.properties), "tigerTransformer passes through props and adds load_date if missing");
+      t.equal('KY', output.properties.STATE, 'Generates state from filename');
   });
 
   passThrough.end(JSON.stringify(props));
@@ -730,27 +730,26 @@ test('Transformers', function(t){
       var fields = transFile === 'tiger.js' ? tigerFields : pointFields;
       var match = transFile === 'tiger.js' ? tigerMatch : pointMatch;
 
-      fs.createReadStream(fields)
-        .pipe(splitOGRJSON())
-        .pipe(transformer(fields, bulkMetadata, '\n'))
-        .pipe(stats)
-        .sink();
+      pump(fs.createReadStream(fields),
+        parseOGRJSON(),
+        transformer(fields, bulkMetadata, '\n'),
+        stats,
+        stats.sink(),
+        function(){
+          var result = stats.getResult();
+          var output = result.store.toString().split('\n');
 
-      stats.once('end', function(){
-        var result = stats.getResult();
-        var output = result.store.toString().split('\n');
+          var bulkMeta = JSON.parse(output[0]);
+          var data = JSON.parse(output[1]);
+          t.deepEqual(bulkMatch, bulkMeta, "Bulk metadata created properly");
+          t.ok(data.properties.load_date, "load_date added to output");
+          t.deepEqual(match.geometry, data.geometry, "Data to insert transformed correctly for " + transFile);
 
-        var bulkMeta = JSON.parse(output[0]);
-        var data = JSON.parse(output[1]);
-        t.deepEqual(bulkMatch, bulkMeta, "Bulk metadata created properly");
-        t.ok(data.properties.load_date, "load_date added to output");
-        t.deepEqual(match.geometry, data.geometry, "Data to insert transformed correctly for " + transFile);
-
-        if(fields === pointFields){
-          t.ok(validAddresses.indexOf(data.properties.address) !== -1, "Address formed correctly for " + transFile);
-        }else{
-          t.equal(data.properties.STATE, match.properties.STATE, 'STATE fields created for tiger data');
-        }
+          if(fields === pointFields){
+            t.ok(validAddresses.indexOf(data.properties.address) !== -1, "Address formed correctly for " + transFile);
+          }else{
+            t.equal(data.properties.STATE, match.properties.STATE, 'STATE fields created for tiger data');
+          }
 
       });
     });
@@ -781,7 +780,7 @@ test('Entire loader', function(t){
 
     if(v.ok){
       stats = streamStats('loader'+i, {store: 1});
-      loader.stderr.pipe(stats);
+      pump(loader.stderr, stats);
     }
 
     loader.on('exit', function(code){
