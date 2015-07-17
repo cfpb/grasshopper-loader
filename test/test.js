@@ -584,14 +584,15 @@ test('transformerTemplate module', function(t){
   var preSufTest = trans('someFile', 'start', 'finish');
 
   pump(preSufTest, stats, stats.sink(),
-    function(){
+    function(err){
+      if(err) t.fail(err);
       var result = stats.getResult();
       var output = result.store.toString();
       t.ok(/^start/.test(output), 'prefix applied properly');
       t.ok(/finish$/.test(output), 'suffix applied properly');
   });
 
-  preSufTest.end('{"type": "Feature", "properties": {"addr": "123 a st", "cty": "sunny", "st": "ca", "zip": 54321}, "geometry": {"type": "Point", "coordinates": []}}')
+  preSufTest.end({"type": "Feature", "properties": {"addr": "123 a st", "cty": "sunny", "st": "ca", "zip": 54321}, "geometry": {"type": "Point", "coordinates": []}})
 
   try{
     transformerTemplate();
@@ -603,8 +604,9 @@ test('transformerTemplate module', function(t){
   var polyStats = streamStats('polyTrans', {store: 1});
 
   pump(polyTest, polyStats, polyStats.sink(),
-    function(){
-      var result = this.getResult();
+    function(err){
+      if(err) t.fail(err);
+      var result = polyStats.getResult();
       var output = result.store.toString();
       var geometry = JSON.parse(output).geometry;
       t.equal(geometry.type, 'Point', 'Produces Point from Polygon feature');
@@ -612,7 +614,7 @@ test('transformerTemplate module', function(t){
       t.equal(geometry.coordinates[1], 16, 'Gets expected latitude');
   });
 
-  polyTest.end('{"type": "Feature", "properties": {"addr": "123 a st", "cty": "sunny", "st": "ca", "zip": 54321}, "geometry": {"type": "Polygon", "coordinates": [[[-38, 14], [-40, 14], [-39, 20], [-38, 14]]]}}')
+  polyTest.end({"type": "Feature", "properties": {"addr": "123 a st", "cty": "sunny", "st": "ca", "zip": 54321}, "geometry": {"type": "Polygon", "coordinates": [[[-38, 14], [-40, 14], [-39, 20], [-38, 14]]]}})
 });
 
 
@@ -628,14 +630,15 @@ test('tigerTransformer module', function(t){
   var preSufTest = trans('tl_2014_21155_addrfeat.zip', 'start', 'finish');
 
   pump(preSufTest, stats, stats.sink(),
-    function(){
+    function(err){
+      if(err) t.fail(err);
       var result = stats.getResult();
       var output = result.store.toString();
       t.ok(/^start/.test(output), 'prefix applied properly');
       t.ok(/finish$/.test(output), 'suffix applied properly');
   });
 
-  preSufTest.end('{"properties": {"addr": "123 a st", "cty": "sunny", "st": "ca", "zip": 54321}, "geometry": {"type": "Point", "coordinates": []}}')
+  preSufTest.end({"properties": {"addr": "123 a st", "cty": "sunny", "st": "ca", "zip": 54321}, "geometry": {"type": "Point", "coordinates": []}})
 
 
   var passThrough = tigerTransformer()('tl_2014_21155_addrfeat.zip');
@@ -660,7 +663,7 @@ test('tigerTransformer module', function(t){
       t.equal('KY', output.properties.STATE, 'Generates state from filename');
   });
 
-  passThrough.end(JSON.stringify(props));
+  passThrough.end(props);
 
 });
 
