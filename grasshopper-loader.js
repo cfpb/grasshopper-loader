@@ -8,6 +8,7 @@ var isUrl = require('is-url');
 var pump = require('pump');
 var lump = require('lump-stream');
 var csvParse = require('csv-parse');
+var OgrJsonStream = require('ogr-json-stream');
 
 var checkUsage = require('./lib/checkUsage');
 var esLoader = require('./lib/esLoader');
@@ -18,7 +19,6 @@ var unzipGeoStream = require('./lib/unzipGeoStream');
 var resolveTransformer = require('./lib/resolveTransformer');
 var requireTransformer = require('./lib/requireTransformer');
 var ogrChild = require('./lib/ogrChild');
-var splitOGRJSON = require('./lib/splitOGRJSON');
 var makeBulkSeparator = require('./lib/makeBulkSeparator');
 var verify = require('./lib/verify');
 var Counter = require('./lib/counter');
@@ -61,10 +61,12 @@ function run(program, passedCallback){
 
   if(!passedCallback){
     passedCallback = function(err){
-      if(err && typeof err === "object" && !(err instanceof Error)){
-        err = new Error(JSON.stringify(err));
+      if(err){
+        if(typeof err === "object" && !(err instanceof Error)){
+          err = new Error(JSON.stringify(err));
+        }
+        throw err;
       }
-      if(err) throw err;
       console.log("Loading complete.");
     }
   }
@@ -132,7 +134,7 @@ function run(program, passedCallback){
   function pipeline(fileName, stream, transformer){
     var loader = esLoader.load(client, program.index, program.type);
     var source;
-    var splitter;
+    var parser;
 
     if(program.preformatted){
       if(stream) source = stream;
@@ -141,14 +143,14 @@ function run(program, passedCallback){
       source = ogrChild(fileName, stream, program.sourceSrs).stdout;
     }
 
-    if(path.extname(fileName) === '.csv') splitter = csvParse({columns: true});
-    else splitter = splitOGRJSON();
+    if(path.extname(fileName) === '.csv') parser = csvParse({columns: true});
+    else parser = OgrJsonStream();
 
     var verifyResults = verify(fileName, stream, scratchSpace, loaderCallback);
 
     pump(
       source,
-      splitter,
+      parser,
       transformer(fileName, makeBulkSeparator(), '\n'),
       lump(Math.pow(2, 20)),
       loader,

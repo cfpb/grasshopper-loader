@@ -39,9 +39,11 @@
     "is-url": "^1.2.0",
     "lump-stream": "0.x",
     "node-dir": "^0.1.6",
+    "ogr-json-stream": "^0.1.0",
     "pump": "^1.0.0",
     "readable-stream": "2.0.x",
     "split2": "^1.0.0",
+    "turf-centroid": "^1.1.2",
     "unzip": "^0.1.11",
     "us": "^1.1.0"
   },

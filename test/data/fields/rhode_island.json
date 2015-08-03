@@ -1,0 +1,40 @@
+{
+  "type": "Feature",
+  "properties": {
+    "OBJECTID": 402922,
+    "UpdateDate": "2007/10/12",
+    "Comments": "1 stry, brick w/ whte trm, WA Excavating",
+    "ESiteID": 402922,
+    "MCode": 122,
+    "PSiteID": -999,
+    "SiteType": "C1",
+    "LR": "L",
+    "Zip": "02852",
+    "ESN": 220,
+    "Measure": 4.544444,
+    "ParcelNum": null,
+    "ZN": "NORTH KINGSTOWN",
+    "HouseNumbe": "3558",
+    "PrimaryAdd": "3558 QUAKER LN",
+    "ALIAddress": "3558 QUAKER LN",
+    "PrimaryNam": "QUAKER LN",
+    "ALIName": "QUAKER LN",
+    "PD": null,
+    "PT": null,
+    "SN": "QUAKER",
+    "ST": "LN",
+    "SD": null,
+    "Alias1": "HWY 2",
+    "Alias2": null,
+    "Alias3": null,
+    "Alias4": null,
+    "Alias5": null
+  },
+  "geometry": {
+    "type": "Point",
+    "coordinates": [
+      -71.49576841503722,
+      41.598387255237654
+    ]
+  }
+}

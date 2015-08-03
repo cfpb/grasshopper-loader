@@ -8,6 +8,8 @@ var test = require('tape');
 var streamStats = require('stream-stats');
 var isStream = require('isstream');
 var ignore = require('ignore');
+var pump = require('pump');
+var OgrJsonStream = require('ogr-json-stream');
 
 var checkUsage = require('../lib/checkUsage');
 var Counter = require('../lib/counter');
@@ -15,7 +17,6 @@ var getS3Files = require('../lib/getS3Files');
 var getGeoUrl = require('../lib/getGeoUrl');
 var getGeoFiles = require('../lib/getGeoFiles');
 var ogrChild = require('../lib/ogrChild');
-var splitOGRJSON = require('../lib/splitOGRJSON');
 var unzipGeoStream = require('../lib/unzipGeoStream');
 var makeBulkSeparator = require('../lib/makeBulkSeparator');
 var formatAddress = require('../lib/formatAddress');
@@ -441,43 +442,11 @@ test('ogrChild module', function(t){
     t.notOk(errInShp, 'ogr2ogr doesn\'t emit an error from shapefile.');
   });
 
-  shpChild.stdout.pipe(shpStats).pipe(shpStats.sink());
-  jsonChild.stdout.pipe(jsonStats).pipe(jsonStats.sink());
+  pump(shpChild.stdout, shpStats, shpStats.sink());
+  pump(jsonChild.stdout, jsonStats, jsonStats.sink());
 
 });
 
-
-test('splitOGRJSON module', function(t){
-  t.plan(2);
-
-  var arr = [
-    'test/data/t.json',
-    'test/data/nullGeo.json'
-  ]
-
-  arr.forEach(function(v){
-    var stats = streamStats({store: 1});
-
-    fs.createReadStream(v)
-      .pipe(splitOGRJSON())
-      .pipe(stats)
-      .pipe(stats.sink());
-
-    stats.on('end', function(){
-      var result = stats.getResult();
-      var validJSON = 1;
-      try{
-        result.chunks.forEach(function(v){
-          JSON.parse(v.chunk.toString());
-        });
-      }catch(e){
-        validJSON = 0;
-      }
-
-      t.ok(validJSON, 'splitOGRJSON yields valid JSON chunks from '+ v);
-    })
-  })
-});
 
 
 test('makeBulkSeparator module', function(t){
@@ -574,7 +543,7 @@ test('requireTransformer module', function(t){
 
 
 test('transformerTemplate module', function(t){
-  t.plan(5);
+  t.plan(8);
   var trans = transformerTemplate('addr', 'cty', 'st', 'zip');
 
   t.equal(typeof trans, 'function', 'template returns a function');
@@ -584,20 +553,38 @@ test('transformerTemplate module', function(t){
 
   var preSufTest = trans('someFile', 'start', 'finish');
 
-  preSufTest.pipe(stats).pipe(stats.sink());
-  stats.on('end', function(){
-    var result = stats.getResult();
-    var output = result.store.toString();
-    t.ok(/^start/.test(output), 'prefix applied properly');
-    t.ok(/finish$/.test(output), 'suffix applied properly');
+  pump(preSufTest, stats, stats.sink(),
+    function(err){
+      if(err) t.fail(err);
+      var result = stats.getResult();
+      var output = result.store.toString();
+      t.ok(/^start/.test(output), 'prefix applied properly');
+      t.ok(/finish$/.test(output), 'suffix applied properly');
   });
-  preSufTest.end('{"properties": {"addr": "123 a st", "cty": "sunny", "st": "ca", "zip": 54321}, "geometry": {"coordinates": []}}')
+
+  preSufTest.end({"type": "Feature", "properties": {"addr": "123 a st", "cty": "sunny", "st": "ca", "zip": 54321}, "geometry": {"type": "Point", "coordinates": []}})
 
   try{
     transformerTemplate();
   }catch(e){
     t.pass('Calling the template without all arguments throws an error');
   }
+
+  var polyTest = trans('someFile');
+  var polyStats = streamStats('polyTrans', {store: 1});
+
+  pump(polyTest, polyStats, polyStats.sink(),
+    function(err){
+      if(err) t.fail(err);
+      var result = polyStats.getResult();
+      var output = result.store.toString();
+      var geometry = JSON.parse(output).geometry;
+      t.equal(geometry.type, 'Point', 'Produces Point from Polygon feature');
+      t.equal(geometry.coordinates[0], -39, 'Gets expected longitude');
+      t.equal(geometry.coordinates[1], 16, 'Gets expected latitude');
+  });
+
+  polyTest.end({"type": "Feature", "properties": {"addr": "123 a st", "cty": "sunny", "st": "ca", "zip": 54321}, "geometry": {"type": "Polygon", "coordinates": [[[-38, 14], [-40, 14], [-39, 20], [-38, 14]]]}})
 });
 
 
@@ -612,15 +599,16 @@ test('tigerTransformer module', function(t){
 
   var preSufTest = trans('tl_2014_21155_addrfeat.zip', 'start', 'finish');
 
-  preSufTest.pipe(stats).pipe(stats.sink());
-  stats.on('end', function(){
-    var result = stats.getResult();
-    var output = result.store.toString();
-    t.ok(/^start/.test(output), 'prefix applied properly');
-    t.ok(/finish$/.test(output), 'suffix applied properly');
+  pump(preSufTest, stats, stats.sink(),
+    function(err){
+      if(err) t.fail(err);
+      var result = stats.getResult();
+      var output = result.store.toString();
+      t.ok(/^start/.test(output), 'prefix applied properly');
+      t.ok(/finish$/.test(output), 'suffix applied properly');
   });
 
-  preSufTest.end('{"properties": {"addr": "123 a st", "cty": "sunny", "st": "ca", "zip": 54321}, "geometry": {"coordinates": []}}')
+  preSufTest.end({"properties": {"addr": "123 a st", "cty": "sunny", "st": "ca", "zip": 54321}, "geometry": {"type": "Point", "coordinates": []}})
 
 
   var passThrough = tigerTransformer()('tl_2014_21155_addrfeat.zip');
@@ -636,16 +624,16 @@ test('tigerTransformer module', function(t){
   }
 
   var passStats = streamStats('transTemp3', {store: 1});
-  passThrough.pipe(passStats).pipe(passStats.sink());
 
-  passStats.on('end', function(){
-    var result = passStats.getResult();
-    var output = JSON.parse(result.store.toString());
-    t.deepEqual(Object.keys(output.properties), Object.keys(props.properties), "tigerTransformer passes through props and adds load_date if missing");
-    t.equal('KY', output.properties.STATE, 'Generates state from filename');
+  pump(passThrough, passStats, passStats.sink(),
+    function(){
+      var result = passStats.getResult();
+      var output = JSON.parse(result.store.toString());
+      t.deepEqual(Object.keys(output.properties), Object.keys(props.properties), "tigerTransformer passes through props and adds load_date if missing");
+      t.equal('KY', output.properties.STATE, 'Generates state from filename');
   });
 
-  passThrough.end(JSON.stringify(props));
+  passThrough.end(props);
 
 });
 
@@ -715,28 +703,26 @@ test('Transformers', function(t){
       var fields = transFile === 'tiger.js' ? tigerFields : pointFields;
       var match = transFile === 'tiger.js' ? tigerMatch : pointMatch;
 
-      fs.createReadStream(fields)
-        .pipe(splitOGRJSON())
-        .pipe(transformer(fields, bulkMetadata, '\n'))
-        .pipe(stats)
-        .pipe(stats.sink());
+      pump(fs.createReadStream(fields),
+        OgrJsonStream(),
+        transformer(fields, bulkMetadata, '\n'),
+        stats,
+        stats.sink(),
+        function(){
+          var result = stats.getResult();
+          var output = result.store.toString().split('\n');
 
-      stats.once('end', function(){
-        var result = stats.getResult();
-        var output = result.store.toString().split('\n');
+          var bulkMeta = JSON.parse(output[0]);
+          var data = JSON.parse(output[1]);
+          t.deepEqual(bulkMatch, bulkMeta, "Bulk metadata created properly");
+          t.ok(data.properties.load_date, "load_date added to output");
+          t.deepEqual(match.geometry, data.geometry, "Data to insert transformed correctly for " + transFile);
 
-        var bulkMeta = JSON.parse(output[0]);
-        var data = JSON.parse(output[1]);
-        t.deepEqual(bulkMatch, bulkMeta, "Bulk metadata created properly");
-        t.ok(data.properties.load_date, "load_date added to output");
-        t.deepEqual(match.geometry, data.geometry, "Data to insert transformed correctly for " + transFile);
-
-        if(fields === pointFields){
-          t.ok(validAddresses.indexOf(data.properties.address) !== -1, "Address formed correctly for " + transFile);
-        }else{
-          t.equal(data.properties.STATE, match.properties.STATE, 'STATE fields created for tiger data');
-        }
-
+          if(fields === pointFields){
+            t.ok(validAddresses.indexOf(data.properties.address) !== -1, "Address formed correctly for " + transFile);
+          }else{
+            t.equal(data.properties.STATE, match.properties.STATE, 'STATE fields created for tiger data');
+          }
       });
     });
 
@@ -745,19 +731,19 @@ test('Transformers', function(t){
 });
 
 test('Entire loader', function(t){
-  t.plan(9);
+  t.plan(13);
   var args = [
-    //{ok: 1, message: 'Ran without errors, exit code 0, on elasticsearch at ' + program.host + ': ' + program.port, arr: ['./grasshopper-loader', '-d', './test/data/arkansas.json', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]},
+    {ok: 1, message: 'Ran without errors, exit code 0, on elasticsearch at ' + program.host + ': ' + program.port, arr: ['./grasshopper-loader', '-d', './test/data/arkansas.json', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]},
     {ok: 0, message: 'Bails when given an invalid file', arr: ['./grasshopper-loader', '-d', './test/data/ark.json', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]},
     {ok: 0, message: 'Bails on bad file type', arr: ['./grasshopper-loader', '-d', './test/data/t.prj', '-t', 'transformers/arkansas.js', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]},
     {ok: 1, message: 'Loads GeoJson from an S3 bucket.', arr: ['./grasshopper-loader', '-b', 'wyatt-test', '-d', 'arkansas.json', '--profile', 'wyatt-test', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]},
     {ok: 0, message: 'Bails on bad file in bucket.', arr: ['./grasshopper-loader', '-b', 'wyatt-test', '-d', 'notthere.json', '--profile', 'wyatt-test', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]},
     {ok: 1, message: 'Loads a zipped shape from an S3 bucket.', arr: ['./grasshopper-loader', '-b', 'wyatt-test', '-d', 'arkansas.zip', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]},
     {ok: 0, message: 'Bails when given a bad log level.', arr: ['./grasshopper-loader', '-d', './test/data/arkansas.json', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type, '--log', 'LOG']},
-   // {ok: 1, message: 'Ran without errors on preformatted data.', arr: ['./grasshopper-loader', '-d', './test/data/arkansas.json', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type, '--preformatted']},
+    {ok: 1, message: 'Ran without errors on preformatted data.', arr: ['./grasshopper-loader', '-d', './test/data/arkansas.json', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type, '--preformatted']},
     {ok: 1, message: 'Ran without errors on preformatted, gzipped csv.', arr: ['./grasshopper-loader', '-d', './test/data/maine.csv.gz', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type, '--preformatted']},
-    {ok: 0, message: 'Bails on unformatted csv', arr: ['./grasshopper-loader', '-d', './test/data/virginia.csv', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]}
-    //{ok: 1, message: 'Ran without errors with provided source-srs.', arr: ['./grasshopper-loader', '-d', './test/data/arkNAD.json', '-t', 'arkansas', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type, '--source-srs', 'NAD83']}
+    {ok: 0, message: 'Bails on unformatted csv', arr: ['./grasshopper-loader', '-d', './test/data/virginia.csv', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type]},
+    {ok: 1, message: 'Ran without errors with provided source-srs.', arr: ['./grasshopper-loader', '-d', './test/data/arkNAD.json', '-t', 'arkansas', '--host', program.host, '--port', program.port, '--index', program.index, '--type', program.type, '--source-srs', 'NAD83']}
   ];
 
   args.forEach(function(v, i){
@@ -766,7 +752,7 @@ test('Entire loader', function(t){
 
     if(v.ok){
       stats = streamStats('loader'+i, {store: 1});
-      loader.stderr.pipe(stats);
+      pump(loader.stderr, stats);
     }
 
     loader.on('exit', function(code){
@@ -783,7 +769,7 @@ test('Entire loader', function(t){
 
   var log = console.log;
   console.log = function(){};
-/*
+
   grasshopperLoader({
     data: './test/data/arkansas.json',
     'host': program.host,
@@ -795,7 +781,7 @@ test('Entire loader', function(t){
     console.log = log;
     t.notOk(err, 'Runs as a module.');
   });
-*/
+
   grasshopperLoader({
     data: './test/data/arkanfake.json',
     'host': program.host,
