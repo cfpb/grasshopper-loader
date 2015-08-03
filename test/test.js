@@ -448,6 +448,7 @@ test('ogrChild module', function(t){
 });
 
 
+
 test('makeBulkSeparator module', function(t){
   t.plan(3);
   var sep = makeBulkSeparator(program.index, program.type);
@@ -722,7 +723,6 @@ test('Transformers', function(t){
           }else{
             t.equal(data.properties.STATE, match.properties.STATE, 'STATE fields created for tiger data');
           }
-
       });
     });
 
