@@ -1,3 +1,3 @@
 'use strict';
 var template = require('../lib/transformerTemplate');
-module.exports = template('ADR_LABEL', 'ADR_CITY', 'ADR_STATE', 'ADR_ZIP5')
+module.exports = template('adr_label', 'adr_city', 'adr_state', 'adr_zip5')
