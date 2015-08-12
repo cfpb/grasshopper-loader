@@ -47,8 +47,8 @@ if(require.main === module){
     .option('-h, --host <host>', 'ElasticSearch host. Defaults to localhost unless linked to a Docker container aliased to Elasticsearch', esHost || 'localhost')
     .option('-p, --port <port>', 'ElasticSearch port. Defaults to 9200 unless linked to a Docker container aliased to Elasticsearch.', Number, esPort || 9200)
     .option('-l, --log <log>', 'ElasticSearch log level. Defaults to debug.', 'debug')
-    .option('--index <index>', 'Elasticsearch index. Defaults to address.', 'address')
-    .option('--type <type>', 'Elasticsearch type within the provided or default index. Defaults to point.', 'point')
+    .option('--alias <alias>', 'Elasticsearch index alias. Defaults to address.', 'address')
+    .option('--type <type>', 'Elasticsearch type within the provided or default alias. Defaults to point.', 'point')
     .option('--profile <profile>', 'The aws credentials profile in ~/.aws/credentials. Will also respect AWS keys as environment variables.', 'default')
     .option('--source-srs <sourceSrs>', 'Source Spatial Reference System, passed to ogr2ogr as -s_srs. Auto-detects by default.')
     .option('--preformatted', 'Input has been preformatted to GeoJson or csv and transformed to WGS84 by ogr2ogr. Results in the loader skipping ogr2ogr and immediately splitting the input into records.')
@@ -132,50 +132,54 @@ function run(program, passedCallback){
 
 
   function pipeline(fileName, stream, transformer){
-    var loader = esLoader.load(client, program.index, program.type);
-    var source;
-    var parser;
+    var basename = path.basename(fileName, path.extname(fileName));
+    var loader = esLoader.load(client, basename, program.alias, program.type, function(err){
+      if(err) return loaderCallback(err);
 
-    if(program.preformatted){
-      if(stream) source = stream;
-      else source = fs.createReadStream(fileName);
-    }else{
-      source = ogrChild(fileName, stream, program.sourceSrs).stdout;
-    }
+      var source;
+      var parser;
 
-    if(path.extname(fileName) === '.csv') parser = csvParse({columns: true});
-    else parser = OgrJsonStream();
-
-    var verifyResults = verify(fileName, stream, scratchSpace, loaderCallback);
-
-    pump(
-      source,
-      parser,
-      transformer(fileName, makeBulkSeparator(), '\n'),
-      lump(Math.pow(2, 20)),
-      loader,
-
-      function(err){
-        if(err){
-          console.log('Streaming of %s interrupted by error,', fileName);
-          return loaderCallback(err);
-        }
-
-        console.log('Finished streaming %s', fileName);
-
-        if(counter.decr() === 0){
-          client.close();
-        }
-
-        var count = loader.count;
-
-        verifyResults(count, function(errObj){
-          if(errObj) return loaderCallback(errObj.error);
-          console.log("All %d records from %s loaded.", count, fileName);
-          return loaderCallback(null);
-        });
+      if(program.preformatted){
+        if(stream) source = stream;
+        else source = fs.createReadStream(fileName);
+      }else{
+        source = ogrChild(fileName, stream, program.sourceSrs).stdout;
       }
-    )
+
+      if(path.extname(fileName) === '.csv') parser = csvParse({columns: true});
+      else parser = OgrJsonStream();
+
+      var verifyResults = verify(fileName, stream, scratchSpace, loaderCallback);
+
+      pump(
+        source,
+        parser,
+        transformer(fileName, makeBulkSeparator(), '\n'),
+        lump(Math.pow(2, 20)),
+        loader,
+
+        function(err){
+          if(err){
+            console.log('Streaming of %s interrupted by error,', fileName);
+            return loaderCallback(err);
+          }
+
+          console.log('Finished streaming %s', fileName);
+
+          if(counter.decr() === 0){
+            client.close();
+          }
+
+          var count = loader.count;
+
+          verifyResults(count, function(errObj){
+            if(errObj) return loaderCallback(errObj.error);
+            console.log("All %d records from %s loaded.", count, fileName);
+            return loaderCallback(null);
+          });
+        }
+      )
+    })
   }
 }
 
