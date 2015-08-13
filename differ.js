@@ -11,7 +11,7 @@ var S3 = new aws.S3();
 var credentials = awsAutoAuth(aws);
 var esHost;
 var esPort;
-var esList;
+var esObj = {};
 var s3List;
 var makeRequest;
 
@@ -45,8 +45,8 @@ var client = new elasticsearch.Client({
 
 client.indices.get({index: program.alias}, function(err, data){
   if (err) throw err;
-  esList = Object.keys(data).map(function(index){
-    return index.split('-').slice(0, -2).join('-');
+  Object.keys(data).forEach(function(index){
+    esObj[index.split('-').slice(0, -2).join('-')] = 1;
   });
   diffLists();
 });
@@ -57,12 +57,14 @@ makeRequest('listObjects', {'Bucket': program.bucket, 'Prefix': program.director
   s3List = res.Contents.filter(function(v){
     return v.Key[v.Key.length - 1] !== '/';
   }).map(function(v){
-    return {key: v.Key, basename: path.basename(v.Key, path.extname(v.Key))};
+    return {key: v.Key, basename: path.basename(v.Key, path.extname(v.Key)).toLowerCase()};
   });
   diffLists();
 });
 
 function diffLists(){
-  if(!s3List || !esList) return;
-  console.log(s3List, esList);
+  if(!s3List || !Object.keys(esObj).length) return;
+  s3List.forEach(function(v){
+    if(!esObj[v.basename]) console.log(v.key);
+  });
 }
