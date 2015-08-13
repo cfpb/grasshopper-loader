@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 'use strict';
-
+var path = require('path');
 var elasticsearch = require('elasticsearch');
 var aws = require('aws-sdk');
 var program = require('commander');
@@ -54,8 +54,10 @@ client.indices.get({index: program.alias}, function(err, data){
 
 makeRequest('listObjects', {'Bucket': program.bucket, 'Prefix': program.directory}, function(err, res){
   if(err) throw err;
-  s3List = res.Contents.map(function(v){
-    return v.Key;
+  s3List = res.Contents.filter(function(v){
+    return v.Key[v.Key.length - 1] !== '/';
+  }).map(function(v){
+    return {key: v.Key, basename: path.basename(v.Key, path.extname(v.Key))};
   });
   diffLists();
 });
