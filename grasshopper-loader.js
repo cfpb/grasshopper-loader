@@ -133,63 +133,66 @@ function run(program, passedCallback){
 
   function pipeline(fileName, stream, transformer){
     var basename = path.basename(fileName, path.extname(fileName));
+    var loader;
 
-    esLoader.load(client, basename, program.alias, program.type, function(err, loader){
-      if(err) return loaderCallback(err);
+    try{
+      loader = esLoader.load(client, basename, program.alias, program.type);
+    }catch(e){
+      return loaderCallback(e);
+    }
 
-      var source;
-      var parser;
+    var source;
+    var parser;
 
-      if(program.preformatted){
-        if(stream) source = stream;
-        else source = fs.createReadStream(fileName);
-      }else{
-        source = ogrChild(fileName, stream, program.sourceSrs).stdout;
-      }
+    if(program.preformatted){
+      if(stream) source = stream;
+      else source = fs.createReadStream(fileName);
+    }else{
+      source = ogrChild(fileName, stream, program.sourceSrs).stdout;
+    }
 
-      if(path.extname(fileName) === '.csv') parser = csvParse({columns: true});
-      else parser = OgrJsonStream();
+    if(path.extname(fileName) === '.csv') parser = csvParse({columns: true});
+    else parser = OgrJsonStream();
 
-      var verifyResults = verify(fileName, stream, scratchSpace, loaderCallback);
+    var verifyResults = verify(fileName, stream, scratchSpace, loaderCallback);
 
-      pump(
-        source,
-        parser,
-        transformer(fileName, makeBulkSeparator(), '\n'),
-        lump(Math.pow(2, 20)),
-        loader,
+    pump(
+      source,
+      parser,
+      transformer(fileName, makeBulkSeparator(), '\n'),
+      lump(Math.pow(2, 20)),
+      loader,
 
-        function(err){
-          var error;
-          if(err){
-            console.log('Streaming of %s interrupted by error,', fileName);
-            return loaderCallback(err);
+      function(err){
+        var error;
+        if(err){
+          console.log('Streaming of %s interrupted by error,', fileName);
+          return loaderCallback(err);
+        }
+
+        loader.on('error', function(err){
+          error = 1;
+          return loaderCallback(err)
+        });
+
+        loader.on('alias', function(){
+          if(error) return;
+          console.log('Finished streaming %s', fileName);
+
+          if(counter.decr() === 0){
+            client.close();
           }
 
-          loader.on('error', function(err){
-            error = 1;
-            return loaderCallback(err)
+          var count = loader.count;
+
+          verifyResults(count, function(errObj){
+            if(errObj) return loaderCallback(errObj.error);
+            console.log("All %d records from %s loaded.", count, fileName);
+            return loaderCallback(null);
           });
-
-          loader.on('alias', function(){
-            if(error) return;
-            console.log('Finished streaming %s', fileName);
-
-            if(counter.decr() === 0){
-              client.close();
-            }
-
-            var count = loader.count;
-
-            verifyResults(count, function(errObj){
-              if(errObj) return loaderCallback(errObj.error);
-              console.log("All %d records from %s loaded.", count, fileName);
-              return loaderCallback(null);
-            });
-          })
-        }
-      )
-    })
+        })
+      }
+    )
   }
 }
 

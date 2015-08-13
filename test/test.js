@@ -488,7 +488,7 @@ test('formatAddress module', function(t){
 
 
 test('esLoader module', function(t){
-  t.plan(5);
+  t.plan(4);
   try{
     esLoader.connect();
   }catch(e){
@@ -505,11 +505,11 @@ test('esLoader module', function(t){
     t.pass('Loader errors without proper arguments');
   }
 
-  esLoader.load(client, 'somename', 'thealias', 'thetype', function(err, stream){
-    t.notOk(err, 'No error on load');
-    t.ok(isStream.isWritable(stream), 'esLoader.load returns a write stream');
-  })
+  var loader = esLoader.load(client, 'somename', 'thealias', 'thetype');
+  t.ok(isStream.isWritable(loader), 'esLoader.load returns a write stream');
+
 });
+
 
 test('verify module', function(t){
   t.plan(5);
