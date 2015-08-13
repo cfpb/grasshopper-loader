@@ -488,14 +488,27 @@ test('formatAddress module', function(t){
 
 
 test('esLoader module', function(t){
-  t.plan(3);
+  t.plan(5);
   try{
     esLoader.connect();
   }catch(e){
     t.pass('Connect fails without host/port')
   }
-  t.ok(esLoader.connect('localhost', 9200, []), 'Proper connect returns an elasticsearch client');
-  t.ok(isStream.isWritable(esLoader.load()), 'esLoader.load returns a write stream');
+
+  var client = esLoader.connect('localhost', 9200, []);
+
+  t.ok(client, 'Proper connect returns an elasticsearch client');
+
+  try{
+    esLoader.load()
+  }catch(e){
+    t.pass('Loader errors without proper arguments');
+  }
+
+  esLoader.load(client, 'somename', 'thealias', 'thetype', function(err, stream){
+    t.notOk(err, 'No error on load');
+    t.ok(isStream.isWritable(stream), 'esLoader.load returns a write stream');
+  })
 });
 
 test('verify module', function(t){
