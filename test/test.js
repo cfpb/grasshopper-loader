@@ -495,7 +495,7 @@ test('esLoader module', function(t){
     t.pass('Connect fails without host/port')
   }
 
-  var client = esLoader.connect('localhost', 9200, []);
+  var client = esLoader.connect(program.host, program.port, []);
 
   t.ok(client, 'Proper connect returns an elasticsearch client');
 
@@ -812,5 +812,8 @@ test('Entire loader', function(t){
 
 test('Clean up', function(t){
   fs.removeSync(scratchSpace);
-  t.end();
+  var client = esLoader.connect(program.host, program.port, []);
+  client.indices.delete({index: program.alias}, function(){
+    t.end();
+  });
 })
