@@ -27,7 +27,7 @@ var requireTransformer = require('../lib/requireTransformer');
 var transformerTemplate = require('../lib/transformerTemplate');
 var tigerTransformer = require('../lib/tigerTransformer');
 
-var grasshopperLoader = require('../grasshopper-loader');
+var grasshopperLoader = require('../loader');
 
 var scratchSpace = fs.mkdirsSync('./scratch/' + Math.round(Math.random()*1e15));
 unzipGeoStream.setScratchSpace(scratchSpace);
@@ -746,17 +746,17 @@ test('Transformers', function(t){
 test('Entire loader', function(t){
   t.plan(13);
   var args = [
-    {ok: 1, message: 'Ran without errors, exit code 0, on elasticsearch at ' + program.host + ': ' + program.port, arr: ['./grasshopper-loader', '-d', './test/data/arkansas.json', '--host', program.host, '--port', program.port, '--alias', program.alias, '--type', program.type]},
-    {ok: 0, message: 'Bails when given an invalid file', arr: ['./grasshopper-loader', '-d', './test/data/ark.json', '--host', program.host, '--port', program.port, '--alias', program.alias, '--type', program.type]},
-    {ok: 0, message: 'Bails on bad file type', arr: ['./grasshopper-loader', '-d', './test/data/t.prj', '-t', 'transformers/arkansas.js', '--host', program.host, '--port', program.port, '--alias', program.alias, '--type', program.type]},
-    {ok: 1, message: 'Loads GeoJson from an S3 bucket.', arr: ['./grasshopper-loader', '-b', 'wyatt-test', '-d', 'arkansas.json', '--profile', 'wyatt-test', '--host', program.host, '--port', program.port, '--alias', program.alias, '--type', program.type]},
-    {ok: 0, message: 'Bails on bad file in bucket.', arr: ['./grasshopper-loader', '-b', 'wyatt-test', '-d', 'notthere.json', '--profile', 'wyatt-test', '--host', program.host, '--port', program.port, '--alias', program.alias, '--type', program.type]},
-    {ok: 1, message: 'Loads a zipped shape from an S3 bucket.', arr: ['./grasshopper-loader', '-b', 'wyatt-test', '-d', 'arkansas.zip', '--host', program.host, '--port', program.port, '--alias', program.alias, '--type', program.type]},
-    {ok: 0, message: 'Bails when given a bad log level.', arr: ['./grasshopper-loader', '-d', './test/data/arkansas.json', '--host', program.host, '--port', program.port, '--alias', program.alias, '--type', program.type, '--log', 'LOG']},
-    {ok: 1, message: 'Ran without errors on preformatted data.', arr: ['./grasshopper-loader', '-d', './test/data/arkansas.json', '--host', program.host, '--port', program.port, '--alias', program.alias, '--type', program.type, '--preformatted']},
-    {ok: 1, message: 'Ran without errors on preformatted, gzipped csv.', arr: ['./grasshopper-loader', '-d', './test/data/maine.csv.gz', '--host', program.host, '--port', program.port, '--alias', program.alias, '--type', program.type, '--preformatted']},
-    {ok: 0, message: 'Bails on unformatted csv', arr: ['./grasshopper-loader', '-d', './test/data/virginia.csv', '--host', program.host, '--port', program.port, '--alias', program.alias, '--type', program.type]},
-    {ok: 1, message: 'Ran without errors with provided source-srs.', arr: ['./grasshopper-loader', '-d', './test/data/arkNAD.json', '-t', 'arkansas', '--host', program.host, '--port', program.port, '--alias', program.alias, '--type', program.type, '--source-srs', 'NAD83']}
+    {ok: 1, message: 'Ran without errors, exit code 0, on elasticsearch at ' + program.host + ': ' + program.port, arr: ['./loader', '-d', './test/data/arkansas.json', '--host', program.host, '--port', program.port, '--alias', program.alias, '--type', program.type]},
+    {ok: 0, message: 'Bails when given an invalid file', arr: ['./loader', '-d', './test/data/ark.json', '--host', program.host, '--port', program.port, '--alias', program.alias, '--type', program.type]},
+    {ok: 0, message: 'Bails on bad file type', arr: ['./loader', '-d', './test/data/t.prj', '-t', 'transformers/arkansas.js', '--host', program.host, '--port', program.port, '--alias', program.alias, '--type', program.type]},
+    {ok: 1, message: 'Loads GeoJson from an S3 bucket.', arr: ['./loader', '-b', 'wyatt-test', '-d', 'arkansas.json', '--profile', 'wyatt-test', '--host', program.host, '--port', program.port, '--alias', program.alias, '--type', program.type]},
+    {ok: 0, message: 'Bails on bad file in bucket.', arr: ['./loader', '-b', 'wyatt-test', '-d', 'notthere.json', '--profile', 'wyatt-test', '--host', program.host, '--port', program.port, '--alias', program.alias, '--type', program.type]},
+    {ok: 1, message: 'Loads a zipped shape from an S3 bucket.', arr: ['./loader', '-b', 'wyatt-test', '-d', 'arkansas.zip', '--host', program.host, '--port', program.port, '--alias', program.alias, '--type', program.type]},
+    {ok: 0, message: 'Bails when given a bad log level.', arr: ['./loader', '-d', './test/data/arkansas.json', '--host', program.host, '--port', program.port, '--alias', program.alias, '--type', program.type, '--log', 'LOG']},
+    {ok: 1, message: 'Ran without errors on preformatted data.', arr: ['./loader', '-d', './test/data/arkansas.json', '--host', program.host, '--port', program.port, '--alias', program.alias, '--type', program.type, '--preformatted']},
+    {ok: 1, message: 'Ran without errors on preformatted, gzipped csv.', arr: ['./loader', '-d', './test/data/maine.csv.gz', '--host', program.host, '--port', program.port, '--alias', program.alias, '--type', program.type, '--preformatted']},
+    {ok: 0, message: 'Bails on unformatted csv', arr: ['./loader', '-d', './test/data/virginia.csv', '--host', program.host, '--port', program.port, '--alias', program.alias, '--type', program.type]},
+    {ok: 1, message: 'Ran without errors with provided source-srs.', arr: ['./loader', '-d', './test/data/arkNAD.json', '-t', 'arkansas', '--host', program.host, '--port', program.port, '--alias', program.alias, '--type', program.type, '--source-srs', 'NAD83']}
   ];
 
   args.forEach(function(v, i){

@@ -3,7 +3,7 @@
 'use strict';
 
 var program = require('commander');
-var retriever = require('../index');
+var retriever = require('../lib/retriever');
 
 program
   .version('0.0.1')
