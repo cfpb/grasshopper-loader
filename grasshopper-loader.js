@@ -4,6 +4,7 @@
 
 var fs = require('fs-extra');
 var path = require('path');
+var crypto = require('crypto');
 var isUrl = require('is-url');
 var pump = require('pump');
 var lump = require('lump-stream');
@@ -75,7 +76,7 @@ function run(program, passedCallback){
   if(usage.err) return passedCallback(new Error(usage.messages.join('')));
   console.log(usage.messages.join(''));
 
-  var scratchSpace = fs.mkdirsSync('./scratch/' + Math.round(Math.random()*1e15));
+  var scratchSpace = fs.mkdirsSync('./scratch/' + crypto.pseudoRandomBytes(8).toString('hex'));
   unzipGeoStream.setScratchSpace(scratchSpace);
 
   var loaderCallback = function(err){
