@@ -1,0 +1,31 @@
+[
+  {
+    "name":"maine",
+    "url":"https://cfpb.github.io/grasshopper-retriever/maine.csv",
+    "hash":"572e11cbb4024a8ee316cb30118d23276e97897414ec2e07ac64d6731b0f49ce",
+    "sourceSrs":"NAD83",
+    "file":"maine.csv",
+    "fields": [
+      {
+        "name": "Address",
+        "type": "static",
+        "value": "ADDRESS"
+      },
+      {
+        "name": "City",
+        "type": "static",
+        "value": "MUNICIPALI"
+      },
+      {
+        "name": "State",
+        "type": "static",
+        "value": "STATE"
+      },
+      {
+        "name": "Zip",
+        "type": "static",
+        "value": "ZIPCODE"
+      }
+    ]
+  }
+]

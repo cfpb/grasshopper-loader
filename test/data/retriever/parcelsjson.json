@@ -1,0 +1,31 @@
+[
+  {
+    "name":"sacramento",
+    "url":"https://cfpb.github.io/grasshopper-retriever/parcels.json",
+    "hash":"65637abd5a01a235467cfea2e1eb859cee5facf1b900604321d2b1e74d4f861b",
+    "file":"parcels.json",
+    "fields": [
+      {
+        "name": "Address",
+        "type": "dynamic",
+        "value": "if(props.STREET_NBR && props.STREET_NAM){return props.STREET_NBR + ' ' + props.STREET_NAM }else{ throw new Error('Empty fields.')}"
+      },
+      {
+        "name": "City",
+        "type": "static",
+        "value": "CITY"
+      },
+      {
+        "name": "State",
+        "type": "dynamic",
+        "value": "return 'CA'"
+      },
+      {
+        "name": "Zip",
+        "type": "static",
+        "value": "ZIP"
+      }
+    ]
+        
+  }
+]

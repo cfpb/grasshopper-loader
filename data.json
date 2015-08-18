@@ -1,0 +1,255 @@
+[
+  {
+    "name": "north_carolina",
+    "url": "http://data.nconemap.gov/downloads/vector/mastadd14.zip",
+    "hash": "1b927688a387275c6b7767a94b46a3467731564c0265c6d3747ae7e80ea65257",
+    "file": "AddressNC_2014.gdb",
+    "fields": [
+      {
+        "name": "Address",
+        "type": "static",
+        "value": "FULL_ADDRESS"
+      },
+      {
+        "name": "City",
+        "type": "static",
+        "value": "PO_NAME"
+      },
+      {
+        "name": "State",
+        "type": "static",
+        "value": "STATE"
+      },
+      {
+        "name": "Zip",
+        "type": "static",
+        "value": "ZIPCODE"
+      }
+    ]
+  },
+  {
+    "name": "utah",
+    "url": "ftp://ftp.agrc.utah.gov/UtahSGID_Vector/UTM12_NAD83/LOCATION/UnpackagedData/AddressPoints/_Statewide/AddressPoints_gdb.zip",
+    "hash": "cf0d50997dadcd5a028aa9ecbd50c39bb3866fca9298b96b4e812c061091b7c8",
+    "file": "AddressPoints.gdb",
+    "fields": [
+      {
+        "name": "Address",
+        "type": "static",
+        "value": "FullAdd"
+      },
+      {
+        "name": "City",
+        "type": "static",
+        "value": "AddSystem"
+      },
+      {
+        "name": "State",
+        "type": "static",
+        "value": "State"
+      },
+      {
+        "name": "Zip",
+        "type": "static",
+        "value": "ZipCode"
+      }
+    ]
+  },
+  {
+    "name": "new_york",
+    "url": "http://gis.ny.gov/gisdata/data/ds_921/SAM_Master_Statewide.gdb.zip",
+    "hash": "9a52775995af73fe5e6cd1aeaa9b52fbe9c35389c8657dbd75f99149caa10fd9",
+    "file": "SAM_Master_Statewide_Database.gdb",
+    "fields": [
+      {
+        "name": "Address",
+        "type": "static",
+        "value": "AddressLabel"
+      },
+      {
+        "name": "City",
+        "type": "static",
+        "value": "CityTownName"
+      },
+      {
+        "name": "State",
+        "type": "static",
+        "value": "State"
+      },
+      {
+        "name": "Zip",
+        "type": "static",
+        "value": "ZipCode"
+      }
+    ]
+  },
+  {
+    "name": "arkansas",
+    "url": "http://geostor-vectors.geostor.org/Location/SHP/SITUS_ADDRESS_PT.zip",
+    "hash": "e48a7c8a95042153de09a08ac2c2eb548b5f1667b340b164adb6ba1a8a2732e1",
+    "file": "STRUC_SITUS_ADDRESS_PT.shp",
+     "fields": [
+      {
+        "name": "Address",
+        "type": "static",
+        "value": "adr_label"
+      },
+      {
+        "name": "City",
+        "type": "static",
+        "value": "adr_city"
+      },
+      {
+        "name": "State",
+        "type": "static",
+        "value": "adr_state"
+      },
+      {
+        "name": "Zip",
+        "type": "static",
+        "value": "adr_zip5"
+      }
+    ]
+  },
+  {
+    "name": "virginia",
+    "url": "https://ftp.vgingis.com/Download/VA_SiteAddress.txt.zip",
+    "hash": "cb37af0e024a78a38574834420142b6bfad8ea3b41970fa3819460db5c8eb815",
+    "file": "VA_SiteAddress.txt",
+    "sourceSrs": "NAD83",
+    "fields": [
+      {
+        "name": "Address",
+        "type": "static",
+        "value": "FULLADDR"
+      },
+      {
+        "name": "City",
+        "type": "static",
+        "value": "PO_NAME"
+      },
+      {
+        "name": "State",
+        "type": "static",
+        "value": "STATE"
+      },
+      {
+        "name": "Zip",
+        "type": "dynamic",
+        "value": "return +props.ZIP_5.replace(/,/,'')"
+      }
+    ]
+  },
+  {
+    "name": "maine",
+    "url": "http://www.maine.gov/megis/catalog/shps/state/ng911pts.zip",
+    "hash": "4eef696b407bd4c0fb0a0b99ff94c9facf65eee1bd36addc9ce673027e51b5d1",
+    "file": "NG_Addresses.shp",
+    "fields": [
+      {
+        "name": "Address",
+        "type": "static",
+        "value": "ADDRESS"
+      },
+      {
+        "name": "City",
+        "type": "static",
+        "value": "MUNICIPALI"
+      },
+      {
+        "name": "State",
+        "type": "static",
+        "value": "STATE"
+      },
+      {
+        "name": "Zip",
+        "type": "static",
+        "value": "ZIPCODE"
+      }
+    ]
+  },
+  {
+    "name": "vermont",
+    "url": "http://maps.vcgi.org/gisdata/vcgi/packaged_zips/EmergencyE911_ESITE.zip",
+    "hash": "32a55c7f1440d2b14f6e7e43df81366d6366e954d66b927d7fe2ce7e55b92bac",
+    "file": "Emergency_ESITE_point.shp",
+    "fields": [
+      {
+        "name": "Address",
+       "type": "static",
+       "value": "PRIMARYADD"
+      },
+      {
+        "name": "City",
+       "type": "static",
+       "value": "TOWNNAME"
+      },
+      {
+        "name": "State",
+       "type": "static",
+       "value": "STATE"
+      },
+      {
+        "name": "Zip",
+       "type": "static",
+       "value": "ZIP"
+      }
+    ]
+  },
+  {
+    "name": "district_of_columbia",
+    "url": "http://opendata.dc.gov/agol/arcgis/aa514416aaf74fdc94748f1e56e7cc8a/0.zip",
+    "hash": "2b116c628c64bcc21f53116ed9265dd4cd51b080f0d6bec3201fcb6c77f75d11",
+    "file": "Address_Points.shp",
+    "fields": [
+      {
+        "name": "Address",
+       "type": "static",
+       "value": "FULLADDRES"
+      },
+      {
+        "name": "City",
+       "type": "static",
+       "value": "CITY"
+      },
+      {
+        "name": "State",
+       "type": "static",
+       "value": "STATE"
+      },
+      {
+        "name": "Zip",
+       "type": "static",
+       "value": "ZIPCODE"
+      }
+    ]
+  },
+  {
+    "name": "rhode_island",
+    "url": "http://www.edc.uri.edu/rigis/spfdata/structure/e911Sites15r1.zip",
+    "hash": "732c126ce35be2a585971c19d2c6eb1fbc5e4347c1147f508fe59759aa83ca53",
+    "file": "e911Sites15r1.shp",
+    "fields": [
+      {
+       "name": "Address",
+       "type": "static",
+       "value": "PrimaryAdd"
+      },
+      {
+       "name": "City",
+       "type": "static",
+       "value": "ZN"
+      },
+      {
+       "name": "State",
+       "type": "dynamic",
+       "value": "return props.State || 'RI'"
+      },
+      {
+       "name": "Zip",
+       "type": "static",
+       "value": "Zip"
+      }
+    ]
+  }
+]

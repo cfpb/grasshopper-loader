@@ -1,0 +1,45 @@
+{
+  "type": "Feature",
+  "properties": {
+    "OBJECTID": 6,
+    "id": 1362633,
+    "adr_num": 10721,
+    "adr_num_su": null,
+    "adr_bldg": null,
+    "adr_unit_t": null,
+    "adr_unit_i": null,
+    "pre_dir": null,
+    "pstr_name": "Highway 5",
+    "pstr_type": null,
+    "psuf_dir": "S",
+    "pstr_mod": null,
+    "pstr_fulna": "Highway 5 S",
+    "adr_place": null,
+    "adr_muni": "Salesville",
+    "adr_city": "Mountain Home",
+    "adr_zip5": "72653",
+    "adr_zip4": "9698",
+    "adr_zip9": "72653-9698",
+    "cnty_name": "Baxter",
+    "adr_state": "AR",
+    "adr_label": "10721 Highway 5 S",
+    "adr_box_ty": null,
+    "adr_box_id": null,
+    "adr_boxgr_": null,
+    "adr_boxgr1": null,
+    "adr_box_lb": null,
+    "lon_x": -92.26726092,
+    "lat_y": 36.24593768,
+    "fea_typ": null,
+    "date_ed": "20141125",
+    "add_auth": "005",
+    "globalid": "{4DE7FF4F-A50B-4D96-8595-06D91CF2A7ED}"
+  },
+  "geometry": {
+    "type": "Point",
+    "coordinates": [
+      565834.9165000003,
+      4011476.0067999996
+    ]
+  }
+}

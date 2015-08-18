@@ -1,0 +1,35 @@
+{
+  "type": "Feature",
+  "properties": {
+    "AddSystem": "PANGUITCH",
+    "UTAddPtID": "PANGUITCH | 140 E BLUE MEADOW LN",
+    "FullAdd": "140 E BLUE MEADOW LN",
+    "AddNum": "140",
+    "AddNumSuffix": null,
+    "PrefixDir": "E",
+    "StreetName": "BLUE MEADOW",
+    "StreetType": "LN",
+    "SuffixDir": null,
+    "LandmarkName": null,
+    "Building": null,
+    "UnitType": null,
+    "UnitID": null,
+    "City": "",
+    "ZipCode": "84759",
+    "CountyID": "49017",
+    "State": "UT",
+    "PtLocation": null,
+    "PtType": null,
+    "Structure": null,
+    "ParcelID": "14-0055-0004",
+    "AddSource": "GARFIELD COUNTY",
+    "LoadDate": "2013/06/25 00:00:00"
+  },
+  "geometry": {
+    "type": "Point",
+    "coordinates": [
+      373903.16000000015,
+      4185446.78
+    ]
+  }
+}

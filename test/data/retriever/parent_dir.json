@@ -1,0 +1,30 @@
+[
+  {
+    "name":"..",
+    "url":"http://www.maine.gov/megis/catalog/shps/state/ng911pts.zip",
+    "hash":"4eef696b407bd4c0fb0a0b99ff94c9facf65eee1bd36addc9ce673027e51b5d1",
+    "file":"NG_Addresses.shp",
+    "fields": [
+      {
+        "name": "Address",
+        "type": "static",
+        "value": "ADDRESS"
+      },
+      {
+        "name": "City",
+        "type": "static",
+        "value": "MUNICIPALI"
+      },
+      {
+        "name": "State",
+        "type": "static",
+        "value": "STATE"
+      },
+      {
+        "name": "Zip",
+        "type": "static",
+        "value": "ZIPCODE"
+      }
+    ]
+  }
+]
