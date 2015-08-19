@@ -88,7 +88,7 @@ test('fieldFilter module', function(t){
 
   var noFields = fs.readJsonSync('test/data/retriever/no_fields.json');
   var emptyFields = fs.readJsonSync('test/data/retriever/empty_fields.json');
-  var nc = fs.readJsonSync('test/data/retriever/fields/north_carolina.json');
+  var nc = fs.readJsonSync('test/data/fields/north_carolina.json');
 
   Object.keys(cases).forEach(function(v){
     var currCase = cases[v];
@@ -265,16 +265,16 @@ test('Field tests', function(t){
 
   t.plan(data.length*5);
 
-  fs.readdirSync('test/data/retriever/fields')
+  fs.readdirSync('test/data/fields')
     .filter(function(v){return v[0] !== '.'})
-    .forEach(function(v){fieldFiles[path.basename(v, '.json')] = fs.readJsonSync(path.join('test/data/retriever/fields', v))});
+    .forEach(function(v){fieldFiles[path.basename(v, '.json')] = fs.readJsonSync(path.join('test/data/fields', v))});
 
   data.forEach(function(source){
     var fieldStream = fieldFilter(source.fields);
 
     var rawField = fieldFiles[source.name];
 
-    t.ok(rawField, util.format('A test record exists in test/data/retriever/fields for %s', source.name));
+    t.ok(rawField, util.format('A test record exists in test/data/fields for %s', source.name));
 
     fieldStream.on('data', function(data){
       var props = data.properties;

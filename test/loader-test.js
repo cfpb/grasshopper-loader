@@ -27,7 +27,7 @@ var requireTransformer = require('../lib/requireTransformer');
 var transformerTemplate = require('../lib/transformerTemplate');
 var tigerTransformer = require('../lib/tigerTransformer');
 
-var grasshopperLoader = require('../loader');
+var grasshopperLoader = require('../lib/loader');
 
 var scratchSpace = fs.mkdirsSync('./scratch/' + Math.round(Math.random()*1e15));
 unzipGeoStream.setScratchSpace(scratchSpace);
@@ -368,7 +368,7 @@ test('getGeoFiles module', function(t){
   t.plan(10);
 
   ['shp', 'gdb', 'json'].forEach(function(v){
-    var input = 'test/data/t.'+ v;
+    var input = 'test/data/loader/t.'+ v;
     getGeoFiles(input, new Counter(), function(err, file, cb) {
       if(err) throw err;
       t.equal(input, file, v + ' passed through to processData');
@@ -376,14 +376,14 @@ test('getGeoFiles module', function(t){
     });
   });
 
-  getGeoFiles('test/data/maine.csv.gz', new Counter(), function(err, file, stream, cb){
+  getGeoFiles('test/data/loader/maine.csv.gz', new Counter(), function(err, file, stream, cb){
     if(err) throw err;
     t.equal(file, 'maine.csv', 'Gets csv from .gz for getGeoFiles');
     t.ok(isStream.isDuplex(stream), 'Returns a duplex stream.');
     if(cb) cb();
   });
 
-  getGeoFiles('test/data/threefiles', new Counter(), function(err, file, cb){
+  getGeoFiles('test/data/loader/threefiles', new Counter(), function(err, file, cb){
     if(err) throw err;
     t.ok(file, file + ' read from directory');
     if(cb) cb();
@@ -409,9 +409,9 @@ test('getGeoFiles module', function(t){
 test('ogrChild module', function(t){
   t.plan(6);
 
-  var shp= 'test/data/t.shp';
+  var shp= 'test/data/loader/t.shp';
   var shpChild = ogrChild(shp);
-  var json = 'test/data/new_york.json';
+  var json = 'test/data/loader/new_york.json';
   var jsonChild = ogrChild(json, fs.createReadStream(json));
   var errInShp = 0;
   var errInJson = 0;
@@ -514,17 +514,17 @@ test('esLoader module', function(t){
 test('verify module', function(t){
   t.plan(5);
 
-  verify('test/data/t.json')(20, function(err){
+  verify('test/data/loader/t.json')(20, function(err){
     t.notOk(err, 'No error when featureCount equals passed value.');
   });
 
-  verify('test/data/t.json')(10, function(err){
+  verify('test/data/loader/t.json')(10, function(err){
     t.ok(err.error, 'Produces an error when compared against the wrong number.');
     t.equal(err.present, 20, 'Present feature count propagated.');
     t.equal(err.loaded, 10, 'Amount loaded propagated.');
   });
 
-  verify('test/data/t.jsn')(10, function(err){
+  verify('test/data/loader/t.jsn')(10, function(err){
     t.ok(err.error, 'Produces an error when the file doesn\'t exist');
   });
 
@@ -545,8 +545,8 @@ test('requireTransformer module', function(t){
   var arkFile = path.resolve('./transformers/arkansas.js')
   var arkTrans = require(arkFile);
 
-  t.equal(arkTrans, requireTransformer(arkFile, 'test/data/arkansas.json'), 'Requires transformer using filename');
-  t.equal(arkTrans, requireTransformer(arkFile, 'test/data/arkansas/t.shp'), 'Requires transformer after walking to directory name');
+  t.equal(arkTrans, requireTransformer(arkFile, 'test/data/loader/arkansas.json'), 'Requires transformer using filename');
+  t.equal(arkTrans, requireTransformer(arkFile, 'test/data/loader/arkansas/t.shp'), 'Requires transformer after walking to directory name');
   try{
     requireTransformer('dkomqwdnqd/dnqwdqiow', 'fwerwef');
   }catch(e){
@@ -654,8 +654,8 @@ test('Transformers', function(t){
 
   fs.readdir('transformers/', function(err, transformers){
     if(err) throw err;
-    var pointFields = 'test/data/pointFields.json';
-    var tigerFields = 'test/data/tl_2014_21155_tigerFields.json';
+    var pointFields = 'test/data/loader/pointFields.json';
+    var tigerFields = 'test/data/loader/tl_2014_21155_tigerFields.json';
     var bulkMatch = {index: {_index: 'address', _type: 'point'}}
 
     var pointMatch = {
@@ -746,17 +746,17 @@ test('Transformers', function(t){
 test('Entire loader', function(t){
   t.plan(13);
   var args = [
-    {ok: 1, message: 'Ran without errors, exit code 0, on elasticsearch at ' + program.host + ': ' + program.port, arr: ['./loader', '-d', './test/data/arkansas.json', '--host', program.host, '--port', program.port, '--alias', program.alias, '--type', program.type]},
-    {ok: 0, message: 'Bails when given an invalid file', arr: ['./loader', '-d', './test/data/ark.json', '--host', program.host, '--port', program.port, '--alias', program.alias, '--type', program.type]},
-    {ok: 0, message: 'Bails on bad file type', arr: ['./loader', '-d', './test/data/t.prj', '-t', 'transformers/arkansas.js', '--host', program.host, '--port', program.port, '--alias', program.alias, '--type', program.type]},
+    {ok: 1, message: 'Ran without errors, exit code 0, on elasticsearch at ' + program.host + ': ' + program.port, arr: ['./loader', '-d', './test/data/loader/arkansas.json', '--host', program.host, '--port', program.port, '--alias', program.alias, '--type', program.type]},
+    {ok: 0, message: 'Bails when given an invalid file', arr: ['./loader', '-d', './test/data/loader/ark.json', '--host', program.host, '--port', program.port, '--alias', program.alias, '--type', program.type]},
+    {ok: 0, message: 'Bails on bad file type', arr: ['./loader', '-d', './test/data/loader/t.prj', '-t', 'transformers/arkansas.js', '--host', program.host, '--port', program.port, '--alias', program.alias, '--type', program.type]},
     {ok: 1, message: 'Loads GeoJson from an S3 bucket.', arr: ['./loader', '-b', 'wyatt-test', '-d', 'arkansas.json', '--profile', 'wyatt-test', '--host', program.host, '--port', program.port, '--alias', program.alias, '--type', program.type]},
     {ok: 0, message: 'Bails on bad file in bucket.', arr: ['./loader', '-b', 'wyatt-test', '-d', 'notthere.json', '--profile', 'wyatt-test', '--host', program.host, '--port', program.port, '--alias', program.alias, '--type', program.type]},
     {ok: 1, message: 'Loads a zipped shape from an S3 bucket.', arr: ['./loader', '-b', 'wyatt-test', '-d', 'arkansas.zip', '--host', program.host, '--port', program.port, '--alias', program.alias, '--type', program.type]},
-    {ok: 0, message: 'Bails when given a bad log level.', arr: ['./loader', '-d', './test/data/arkansas.json', '--host', program.host, '--port', program.port, '--alias', program.alias, '--type', program.type, '--log', 'LOG']},
-    {ok: 1, message: 'Ran without errors on preformatted data.', arr: ['./loader', '-d', './test/data/arkansas.json', '--host', program.host, '--port', program.port, '--alias', program.alias, '--type', program.type, '--preformatted']},
-    {ok: 1, message: 'Ran without errors on preformatted, gzipped csv.', arr: ['./loader', '-d', './test/data/maine.csv.gz', '--host', program.host, '--port', program.port, '--alias', program.alias, '--type', program.type, '--preformatted']},
-    {ok: 0, message: 'Bails on unformatted csv', arr: ['./loader', '-d', './test/data/virginia.csv', '--host', program.host, '--port', program.port, '--alias', program.alias, '--type', program.type]},
-    {ok: 1, message: 'Ran without errors with provided source-srs.', arr: ['./loader', '-d', './test/data/arkNAD.json', '-t', 'arkansas', '--host', program.host, '--port', program.port, '--alias', program.alias, '--type', program.type, '--source-srs', 'NAD83']}
+    {ok: 0, message: 'Bails when given a bad log level.', arr: ['./loader', '-d', './test/data/loader/arkansas.json', '--host', program.host, '--port', program.port, '--alias', program.alias, '--type', program.type, '--log', 'LOG']},
+    {ok: 1, message: 'Ran without errors on preformatted data.', arr: ['./loader', '-d', './test/data/loader/arkansas.json', '--host', program.host, '--port', program.port, '--alias', program.alias, '--type', program.type, '--preformatted']},
+    {ok: 1, message: 'Ran without errors on preformatted, gzipped csv.', arr: ['./loader', '-d', './test/data/loader/maine.csv.gz', '--host', program.host, '--port', program.port, '--alias', program.alias, '--type', program.type, '--preformatted']},
+    {ok: 0, message: 'Bails on unformatted csv', arr: ['./loader', '-d', './test/data/loader/virginia.csv', '--host', program.host, '--port', program.port, '--alias', program.alias, '--type', program.type]},
+    {ok: 1, message: 'Ran without errors with provided source-srs.', arr: ['./loader', '-d', './test/data/loader/arkNAD.json', '-t', 'arkansas', '--host', program.host, '--port', program.port, '--alias', program.alias, '--type', program.type, '--source-srs', 'NAD83']}
   ];
 
   args.forEach(function(v, i){
@@ -784,7 +784,7 @@ test('Entire loader', function(t){
   console.log = function(){};
 
   grasshopperLoader({
-    data: './test/data/arkansas.json',
+    data: './test/data/loader/arkansas.json',
     'host': program.host,
     'port': program.port,
     'alias': program.alias,
@@ -796,7 +796,7 @@ test('Entire loader', function(t){
   });
 
   grasshopperLoader({
-    data: './test/data/arkanfake.json',
+    data: './test/data/loader/arkanfake.json',
     'host': program.host,
     'port': program.port,
     'alias': program.alias,
