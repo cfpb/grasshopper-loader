@@ -7,9 +7,7 @@ var program = require('commander');
 var test = require('tape');
 var streamStats = require('stream-stats');
 var isStream = require('isstream');
-var ignore = require('ignore');
 var pump = require('pump');
-var OgrJsonStream = require('ogr-json-stream');
 
 var checkUsage = require('../lib/checkUsage');
 var Counter = require('../lib/counter');
@@ -51,222 +49,7 @@ program
 
 test('Check Usage', function(t){
 
-  var instances = [{
-    args: {
-      data: 'someshape',
-      host: 'localhost',
-      port: 9200,
-      profile: 'default'
-    },
-    expected: {
-      messages: 3,
-      err: 0
-    },
-    env: {},
-    label: 'data, host, port'
-  },
-  {
-  args: {
-      data: 'some.csv',
-      host: 'localhost',
-      port: 9200,
-      profile: 'default'
-    },
-    expected: {
-      messages: 1,
-      err: 1
-    },
-    env: {},
-    label: 'csv unformatted'
-  },
-  {
-  args: {
-      data: 'some.csv',
-      host: 'localhost',
-      port: 9200,
-      profile: 'default',
-      preformatted: true
-    },
-    expected: {
-      messages: 4,
-      err: 0
-    },
-    env: {},
-    label: 'csv preformatted'
-  },
-  {
-    args: {
-      data: 'someshape',
-      profile: 'default',
-      host: 'es',
-      port: 9200
-    },
-    expected: {
-      messages: 2,
-      err: 0
-    },
-    env: {ELASTICSEARCH_PORT: 'tcp: //123.45.6.789: 1234'},
-    label: 'data, ELASTICSEARCH_PORT'
-  },
-  {
-    args: {
-      data: 'http://www.google.com/fake.txt',
-      host: 'localhost',
-      port: 9200
-    },
-    expected: {
-      messages: 1,
-      err: 1
-    },
-    env: {},
-    label: 'Url test with bad filetype'
-  },
-  {
-    args: {
-      data: 'http://www.google.com/fake.zip',
-      host: 'localhost',
-      port: 9200,
-      profile: 'default'
-    },
-    expected: {
-      messages: 3,
-      err: 0
-    },
-    env: {},
-    label: 'Url with good filetype'
-  },
-  {
-    args: {
-      port: 9201
-    },
-    expected: {
-      messages: 1,
-      err: 1
-    },
-    env: {},
-    label: 'Non-default port, no data'
-  }, {
-    args: {
-      port: NaN
-    },
-    expected: {
-      messages: 2,
-      err: 1
-    },
-    env: {},
-    label: 'No data, bad port'
-  }, {
-    args: {
-      bucket: 'abuck',
-      data: 'data',
-      host: 'localhost',
-      port: 9200
-    },
-    expected: {
-      messages: 4,
-      err: 0
-    },
-    env: {AWS_ACCESS_KEY_ID: 1},
-    label: 'Bucket, env variables'
-  }, {
-    args: {
-      bucket: 'abuck',
-      data: 'data',
-      profile: 'www',
-      host: 'localhost',
-      port: 9200
-    },
-    expected: {
-      messages: 4,
-      err: 0
-    },
-    env: {},
-    label: 'Bucket, data, profile'
-  }, {
-    args: {
-      bucket: 'anotherb',
-      host: 'localhost',
-      port: 9200
-    },
-    expected: {
-      messages: 5,
-      err: 0
-    },
-    env: {},
-    label: 'Bucket only'
-  }, {
-    args: {
-      data: 'da',
-      profile: 'unneeded',
-      host: 'localhost',
-      port: 9200
-    },
-    expected: {
-      messages: 4,
-      err: 0
-    },
-    env: {},
-    label: 'Data, unnecessary profile'
-  }, {
-    args: {
-      bucket: 'buck3',
-      transformer: 'arkansas',
-      host: 'localhost',
-      port: 9200
-    },
-    expected: {
-      messages: 5,
-      err: 0
-    },
-    env: {},
-    label: 'Bucket and transformer'
-  },
-  {
-    args: {
-      data: 'someshape',
-      host: 'localhost',
-      port: 9200,
-      profile: 'default',
-      sourceSrs: 'NAD83'
-    },
-    expected: {
-      messages: 4,
-      err: 0
-    },
-    env: {},
-    label: 'source-srs provided'
-  },
-  {
-    args: {
-      data: 'someshape',
-      host: 'localhost',
-      port: 9200,
-      profile: 'default',
-      preformatted: 1
-    },
-    expected: {
-      messages: 4,
-      err: 0
-    },
-    env: {},
-    label: 'preformatted'
-  },
-  {
-    args: {
-      data: 'someshape',
-      host: 'localhost',
-      port: 9200,
-      preformatted: 1,
-      sourceSrs: 'NAD83'
-    },
-    expected: {
-      messages: 1,
-      err: 1
-    },
-    env: {},
-    label: 'preformatted and source-srs'
-  }
-  ];
+  var instances = fs.readJSONSync('test/data/loader/usage_instances.json');
 
   instances.forEach(function(v){
     var usage = checkUsage(v.args, v.env);
@@ -527,35 +310,28 @@ test('verify module', function(t){
   });
 
 });
-/*
-test('resolveTransformer module', function(t){
-  t.plan(4);
-  var arkTrans = path.resolve('./transformers/arkansas.js');
-  t.equal(arkTrans, resolveTransformer(null, 'arkansas.gdb'), 'Resolves transformer using filename');
-  t.equal(arkTrans, resolveTransformer('./transformers/arkansas.js'), 'Resolves transformer using passed transformer');
-  t.equal(arkTrans, resolveTransformer('./transformers/arkansas.js', 'sometext'), 'Resolver prefers passed transformer');
-  t.equal(arkTrans, resolveTransformer('arkansas'), 'Resolves with state name only.');
-});
-
-test('requireTransformer module', function(t){
-  t.plan(3);
-
-  var arkFile = path.resolve('./transformers/arkansas.js')
-  var arkTrans = require(arkFile);
-
-  t.equal(arkTrans, requireTransformer(arkFile, 'test/data/loader/arkansas.json'), 'Requires transformer using filename');
-  t.equal(arkTrans, requireTransformer(arkFile, 'test/data/loader/arkansas/t.shp'), 'Requires transformer after walking to directory name');
-  try{
-    requireTransformer('dkomqwdnqd/dnqwdqiow', 'fwerwef');
-  }catch(e){
-    t.pass('Throws on bad require');
-  }
-});
 
 
 test('transformerTemplate module', function(t){
   t.plan(8);
-  var trans = transformerTemplate('addr', 'cty', 'st', 'zip');
+  var trans = transformerTemplate({
+    "Address": {
+      "type": "static",
+      "value": "addr"
+    },
+    "City": {
+      "type": "static",
+      "value": "cty"
+    },
+    "State": {
+      "type": "static",
+      "value": "st"
+    },
+    "Zip": {
+      "type": "static",
+      "value": "zip"
+    }
+  });
 
   t.equal(typeof trans, 'function', 'template returns a function');
   t.ok(isStream.isDuplex(trans()), 'The produced transformer generates a transform stream');
@@ -648,99 +424,7 @@ test('tigerTransformer module', function(t){
 
 });
 
-test('Transformers', function(t){
 
-  fs.readdir('transformers/', function(err, transformers){
-    if(err) throw err;
-    var pointFields = 'test/data/loader/pointFields.json';
-    var tigerFields = 'test/data/loader/tl_2014_21155_tigerFields.json';
-    var bulkMatch = {index: {_index: 'address', _type: 'point'}}
-
-    var pointMatch = {
-      "type": "Feature",
-      "properties": {
-        "address": "123 a st sunny ca 54321",
-        "alt_address": "",
-        "load_date": 1234567890123
-       },
-       "geometry": {
-         "type": "Point",
-         "coordinates": [-129.1, 38.2]
-      }
-    };
-
-    var tigerMatch = {
-      "type": "Feature",
-      "properties": {
-        "RFROMHN": "123",
-        "RTOHN": "101",
-        "LFROMHN": "102",
-        "LTOHN": "124",
-        "FULLNAME": "a st",
-        "CITY": "sunny",
-        "ZIPL": "54321",
-        "ZIPR": "54321",
-        "load_date": 1234567890123,
-        "STATE": "KY"
-      },
-      "geometry": {
-        "type": "LineString",
-        "coordinates": [
-          [-129.1234, 38.2],
-          [-129.1235, 38.2],
-          [-129.1236, 38.2]
-        ]
-      }
-    }
-
-    var validAddresses = ["123 a st sunny ca 54321",
-                          "123 a st",
-                          "123 a st sunny",
-                          "123 a st ca",
-                          "123 a st 54321",
-                          "123 a st sunny ca",
-                          "123 a st sunny 54321",
-                          "123 a st ca 54321"
-                          ]
-
-    var bulkMetadata = makeBulkSeparator('address', 'point');
-    var filtered = ignore().addIgnoreFile('.gitignore').filter(transformers);
-
-    t.plan(filtered.length*4);
-
-    filtered.forEach(function(transFile){
-      var transformer = require(path.join('../transformers', transFile));
-      var stats = streamStats(transFile, {store: 1});
-      var fields = transFile === 'tiger.js' ? tigerFields : pointFields;
-      var match = transFile === 'tiger.js' ? tigerMatch : pointMatch;
-
-      pump(fs.createReadStream(fields),
-        OgrJsonStream(),
-        transformer(fields, bulkMetadata, '\n'),
-        stats,
-        stats.sink(),
-        function(){
-          var result = stats.getResult();
-          var output = result.store.toString().split('\n');
-
-          var bulkMeta = JSON.parse(output[0]);
-          var data = JSON.parse(output[1]);
-          t.deepEqual(bulkMatch, bulkMeta, "Bulk metadata created properly");
-          t.ok(data.properties.load_date, "load_date added to output");
-          t.deepEqual(match.geometry, data.geometry, "Data to insert transformed correctly for " + transFile);
-
-          if(fields === pointFields){
-            t.ok(validAddresses.indexOf(data.properties.address) !== -1, "Address formed correctly for " + transFile);
-          }else{
-            t.equal(data.properties.STATE, match.properties.STATE, 'STATE fields created for tiger data');
-          }
-      });
-    });
-
-  });
-
-});
-*/
 test('Entire loader', function(t){
   t.plan(13);
   var args = [
