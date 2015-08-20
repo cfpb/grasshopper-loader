@@ -754,7 +754,7 @@ test('Entire loader', function(t){
     {ok: 1, message: 'Ran without errors on preformatted data.', arr: ['./loader', '-d', './test/data/loader/arkansas.json', '--host', program.host, '--port', program.port, '--alias', program.alias, '--type', program.type, '--preformatted']},
     {ok: 1, message: 'Ran without errors on preformatted, gzipped csv.', arr: ['./loader', '-d', './test/data/loader/maine.csv.gz', '--host', program.host, '--port', program.port, '--alias', program.alias, '--type', program.type, '--preformatted']},
     {ok: 0, message: 'Bails on unformatted csv', arr: ['./loader', '-d', './test/data/loader/virginia.csv', '--host', program.host, '--port', program.port, '--alias', program.alias, '--type', program.type]},
-    {ok: 1, message: 'Ran without errors with provided source-srs.', arr: ['./loader', '-d', './test/data/loader/arkNAD.json', '-f', './data.json', '--host', program.host, '--port', program.port, '--alias', program.alias, '--type', program.type, '--source-srs', 'NAD83']}
+    {ok: 1, message: 'Ran without errors with provided source-srs.', arr: ['./loader', '-d', './test/data/loader/arkNAD.json', '-f', './data.json', '-n', 'arkansas', '--host', program.host, '--port', program.port, '--alias', program.alias, '--type', program.type, '--source-srs', 'NAD83']}
   ];
 
   args.forEach(function(v, i){

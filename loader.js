@@ -22,7 +22,7 @@ program
   .option('-b, --bucket <bucket>', 'An S3 bucket where data resides. If no -d option is passed, will attempt to load all data in the bucket.')
   .option('-d, --data <data>', 'Point data as a .zip, .shp, .gdb, GeoJson, or directory. Will also accept a .csv if preformatted by ogr2ogr. Provide a local file or an S3 key. Zipped, gzipped, and GeoJson data can also be accessed via url. Required if no bucket is passed.')
   .option('-f --fields <fields>', 'The json data file that contains field mappings for <data>. Defaults to ./data.json', './data.json')
-  .option('-n --name <name>', 'The name of the desired mapping in the field mappings file. Defaults to <data>\'s basename')
+  .option('-n --recordname <recordname>', 'The name of the desired mapping in the field mappings file. Defaults to <data>\'s basename')
   .option('-h, --host <host>', 'ElasticSearch host. Defaults to localhost unless linked to a Docker container aliased to Elasticsearch', esHost || 'localhost')
   .option('-p, --port <port>', 'ElasticSearch port. Defaults to 9200 unless linked to a Docker container aliased to Elasticsearch.', Number, esPort || 9200)
   .option('-l, --log <log>', 'ElasticSearch log level. Defaults to debug.', 'debug')
