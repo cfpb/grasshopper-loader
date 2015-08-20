@@ -22,8 +22,6 @@ var makeBulkSeparator = require('../lib/makeBulkSeparator');
 var formatAddress = require('../lib/formatAddress');
 var esLoader = require('../lib/esLoader');
 var verify = require('../lib/verify');
-var resolveTransformer = require('../lib/resolveTransformer');
-var requireTransformer = require('../lib/requireTransformer');
 var transformerTemplate = require('../lib/transformerTemplate');
 var tigerTransformer = require('../lib/tigerTransformer');
 
@@ -529,7 +527,7 @@ test('verify module', function(t){
   });
 
 });
-
+/*
 test('resolveTransformer module', function(t){
   t.plan(4);
   var arkTrans = path.resolve('./transformers/arkansas.js');
@@ -742,13 +740,13 @@ test('Transformers', function(t){
   });
 
 });
-
+*/
 test('Entire loader', function(t){
   t.plan(13);
   var args = [
     {ok: 1, message: 'Ran without errors, exit code 0, on elasticsearch at ' + program.host + ': ' + program.port, arr: ['./loader', '-d', './test/data/loader/arkansas.json', '--host', program.host, '--port', program.port, '--alias', program.alias, '--type', program.type]},
     {ok: 0, message: 'Bails when given an invalid file', arr: ['./loader', '-d', './test/data/loader/ark.json', '--host', program.host, '--port', program.port, '--alias', program.alias, '--type', program.type]},
-    {ok: 0, message: 'Bails on bad file type', arr: ['./loader', '-d', './test/data/loader/t.prj', '-t', 'transformers/arkansas.js', '--host', program.host, '--port', program.port, '--alias', program.alias, '--type', program.type]},
+    {ok: 0, message: 'Bails on bad file type', arr: ['./loader', '-d', './test/data/loader/t.prj', '-f', './arkansas.js', '--host', program.host, '--port', program.port, '--alias', program.alias, '--type', program.type]},
     {ok: 1, message: 'Loads GeoJson from an S3 bucket.', arr: ['./loader', '-b', 'wyatt-test', '-d', 'arkansas.json', '--profile', 'wyatt-test', '--host', program.host, '--port', program.port, '--alias', program.alias, '--type', program.type]},
     {ok: 0, message: 'Bails on bad file in bucket.', arr: ['./loader', '-b', 'wyatt-test', '-d', 'notthere.json', '--profile', 'wyatt-test', '--host', program.host, '--port', program.port, '--alias', program.alias, '--type', program.type]},
     {ok: 1, message: 'Loads a zipped shape from an S3 bucket.', arr: ['./loader', '-b', 'wyatt-test', '-d', 'arkansas.zip', '--host', program.host, '--port', program.port, '--alias', program.alias, '--type', program.type]},

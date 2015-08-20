@@ -14,7 +14,7 @@ var logger = new winston.Logger({
 
 program
   .version('0.0.1')
-  .option('-f --file <file>', 'The json data file that contains the collected data endpoints.')
+  .option('-f --file <file>', 'The json data file that contains the collected data endpoints and field mappings.')
   .option('-b, --bucket <bucket>', 'An S3 bucket where the data should be loaded.')
   .option('-d, --directory <directory>', 'A directory where the data should be loaded, either relative to the current folder or the passed S3 bucket.')
   .option('-p, --profile <profile>', 'The aws profile in ~/.aws/credentials. Will also respect environmental variables.', 'default')
