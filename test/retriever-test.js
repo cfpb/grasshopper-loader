@@ -24,7 +24,7 @@ logger.remove(winston.transports.Console);
 test('checkHash module', function(t){
   t.plan(3);
   var stream = fs.createReadStream(maine);
-  var hash = '824f3e81244489f6458578b990bab5c9f6d1ab7697f89d5485edc1640c6d82a8';
+  var hash = 'c7f2afb44fc9c2fbedd4ee32e67a8d0f31335461a29d44e67e537cece0120c18';
 
   checkHash(stream, hash, function(hashIsEqual, computedHash){
     t.ok(hashIsEqual, 'Computes proper hash');

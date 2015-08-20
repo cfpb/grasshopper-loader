@@ -5,27 +5,23 @@
     "hash":"0023e2d253a83abdd7e2cb6426e73c37a6df029bab7108757e6b4d6b80d47b01",
     "sourceSrs":"NAD83",
     "file":"maine.csv",
-    "fields": [
-      {
-        "name": "Address",
+    "fields": {
+      "Address": {
         "type": "static",
         "value": "ADDRESS"
       },
-      {
-        "name": "City",
+      "City": {
         "type": "static",
         "value": "MUNICIPALI"
       },
-      {
-        "name": "State",
+      "State": {
         "type": "static",
         "value": "STATE"
       },
-      {
-        "name": "Zip",
+      "Zip": {
         "type": "static",
         "value": "ZIPCODE"
       }
-    ]
+    }
   }
 ]

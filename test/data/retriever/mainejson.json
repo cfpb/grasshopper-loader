@@ -4,27 +4,23 @@
     "url":"https://cfpb.github.io/grasshopper-retriever/maine.json",
     "hash":"d2b16e30013d168681e6cb8cf831cb133caff8388aa7275430e35ea4268daf4d",
     "file":"maine.json",
-    "fields": [
-      {
-        "name": "Address",
+    "fields": {
+      "Address": {
         "type": "static",
         "value": "ADDRESS"
       },
-      {
-        "name": "City",
+      "City": {
         "type": "static",
         "value": "MUNICIPALI"
       },
-      {
-        "name": "State",
+      "State": {
         "type": "static",
         "value": "STATE"
       },
-      {
-        "name": "Zip",
+      "Zip": {
         "type": "static",
         "value": "ZIPCODE"
       }
-    ]
+    }
   }
 ]
