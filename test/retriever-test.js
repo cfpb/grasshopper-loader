@@ -4,12 +4,22 @@ var path = require('path');
 var util = require('util');
 var pump = require('pump');
 var spawn = require('child_process').spawn;
+var winston = require('winston');
 var retriever = require('../lib/retriever');
 var checkHash = require('../lib/checkHash');
 var UploadStream = require('../lib/UploadStream');
 var fieldFilter = require('../lib/fieldFilter');
 
 var maine = 'test/data/retriever/maine.json';
+
+var logger = new winston.Logger({
+    transports: [
+      new (winston.transports.Console)()
+    ]
+  });
+
+logger.remove(winston.transports.Console);
+
 
 test('checkHash module', function(t){
   t.plan(3);
@@ -70,17 +80,17 @@ test('fieldFilter module', function(t){
 
   var cases = {
     "no_fields": {
-      stream: fieldFilter(ncmeta.fields),
+      stream: fieldFilter(ncmeta.fields, logger),
       collection: [],
       count: 0
     },
     "empty_fields": {
-      stream: fieldFilter(ncmeta.fields),
+      stream: fieldFilter(ncmeta.fields, logger),
       collection: [],
       count: 0
     },
     "spotty_fields": {
-      stream: fieldFilter(ncmeta.fields),
+      stream: fieldFilter(ncmeta.fields, logger),
       collection: [],
       count: 3
     }
