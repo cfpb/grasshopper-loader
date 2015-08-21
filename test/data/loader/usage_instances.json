@@ -145,7 +145,7 @@
       "port": 9200
     },
     "expected": {
-      "messages": 5,
+      "messages": 4,
       "err": 0
     },
     "env": {},
@@ -173,7 +173,7 @@
       "port": 9200
     },
     "expected": {
-      "messages": 5,
+      "messages": 4,
       "err": 0
     },
     "env": {},
