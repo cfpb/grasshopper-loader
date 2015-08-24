@@ -36,7 +36,6 @@
     "inherits": "^2.0.1",
     "is-url": "^1.2.0",
     "lump-stream": "0.x",
-    "ndjson": "^1.4.1",
     "node-dir": "^0.1.6",
     "ogr-json-stream": "^0.1.0",
     "pump": "^1.0.0",
