@@ -31,18 +31,21 @@ options
   .option('-m --match <match>', 'A string or regular expression that the names from the <file> must contain or match')
   .option('-h, --host <host>', 'ElasticSearch host. Defaults to localhost unless linked to a Docker container aliased to Elasticsearch', esHost || 'localhost')
   .option('-p, --port <port>', 'ElasticSearch port. Defaults to 9200 unless linked to a Docker container aliased to Elasticsearch.', Number, esPort || 9200)
-  .option('--alias <alias>', 'Elasticsearch index alias. Defaults to address.', 'address')
-  .option('--type <type>', 'Elasticsearch type within the provided or default alias. Defaults to point.', 'point')
+  .option('-a, --alias <alias>', 'Elasticsearch index alias. Defaults to address.', 'address')
+  .option('-t, --type <type>', 'Elasticsearch type within the provided or default alias. Defaults to point.', 'point')
   .option('-l, --log <log>', 'ElasticSearch log level. Defaults to debug.', 'debug')
-  .option('-b, --backup-bucket <bucket>', 'An S3 bucket where the data should be backed up.')
-  .option('-d, --backup-directory <directory>', 'A directory where the data should be loaded, either relative to the current folder or the passed S3 bucket.')
+  .option('-b, --backup-bucket <backupBucket>', 'An S3 bucket where the data should be backed up.')
+  .option('-d, --backup-directory <backupDirectory>', 'A directory where the data should be loaded, either relative to the current folder or the passed S3 bucket.')
   .option('-p, --profile <profile>', 'The aws profile in ~/.aws/credentials. Will also respect environmental variables.', 'default')
   .option('-q --quiet', 'Suppress logging.', false)
+  .option('--monitor', 'Run the retriever in monitoring mode which only checks data source freshness and doesn\'t load or backup data.')
   .parse(process.argv);
 
 if(options.quiet){
   logger.remove(winston.transports.Console);
 }
+
+options.logger = logger;
 
 retriever(options, function(output){
   //get streams; load each of them

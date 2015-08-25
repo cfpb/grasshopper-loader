@@ -100,7 +100,7 @@
     "url": "https://ftp.vgingis.com/Download/VA_SiteAddress.txt.zip",
     "hash": "cb37af0e024a78a38574834420142b6bfad8ea3b41970fa3819460db5c8eb815",
     "file": "VA_SiteAddress.txt",
-    "sourceSrs": "NAD83",
+    "spatialReference": "NAD83",
     "fields": {
       "Address": {
         "type": "static",
