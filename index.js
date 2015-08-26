@@ -5,6 +5,7 @@
 var options = require('commander');
 var winston = require('winston');
 var retriever = require('./lib/retriever');
+var checkUsage = require('./lib/checkUsage');
 
 var logger = new winston.Logger({
     transports: [
@@ -46,6 +47,12 @@ if(options.quiet){
 }
 
 options.logger = logger;
+
+
+var usage = checkUsage(options, process.env);
+if(usage.err) throw new Error(usage.messages.join(''));
+usage.messages.forEach(function(v){logger.info(v)});
+
 
 retriever(options, function(output){
   //get streams; load each of them
