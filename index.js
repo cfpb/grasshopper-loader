@@ -35,10 +35,10 @@ options
   .option('-a, --alias <alias>', 'Elasticsearch index alias. Defaults to address.', 'address')
   .option('-t, --type <type>', 'Elasticsearch type within the provided or default alias. Defaults to point.', 'point')
   .option('-l, --log <log>', 'ElasticSearch log level. Defaults to debug.', 'debug')
+  .option('-q --quiet', 'Suppress logging.', false)
   .option('-b, --backup-bucket <backupBucket>', 'An S3 bucket where the data should be backed up.')
   .option('-d, --backup-directory <backupDirectory>', 'A directory where the data should be loaded, either relative to the current folder or the passed S3 bucket.')
-  .option('-p, --profile <profile>', 'The aws profile in ~/.aws/credentials. Will also respect environmental variables.', 'default')
-  .option('-q --quiet', 'Suppress logging.', false)
+  .option('--profile <profile>', 'The aws profile in ~/.aws/credentials. Will also respect environmental variables.', 'default')
   .option('--monitor', 'Run the retriever in monitoring mode which only checks data source freshness and doesn\'t load or backup data.')
   .parse(process.argv);
 

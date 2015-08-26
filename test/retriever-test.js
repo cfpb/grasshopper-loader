@@ -5,10 +5,40 @@ var util = require('util');
 var pump = require('pump');
 var spawn = require('child_process').spawn;
 var winston = require('winston');
+var options = require('commander');
+var isStream = require('isStream');
+var streamStats = require('stream-stats');
+
 var retriever = require('../lib/retriever');
 var checkHash = require('../lib/checkHash');
 var UploadStream = require('../lib/UploadStream');
 var fieldFilter = require('../lib/fieldFilter');
+var formatAddress = require('../lib/formatAddress');
+var esLoader = require('../lib/esLoader');
+var checkUsage = require('../lib/checkUsage');
+var ogrChild = require('../lib/ogrChild');
+var bulkPrefixer = require('../lib/bulkPrefixer');
+
+
+var esVar = process.env.ELASTICSEARCH_PORT;
+var esHost;
+var esPort;
+
+if(esVar){
+  esVar = esVar.split('//')[1].split(':');
+  esHost = esVar[0];
+  esPort = +esVar[1];
+}
+
+options
+  .version('0.0.1')
+  .option('-h, --host <host>', 'ElasticSearch host. Defaults to localhost', esHost || 'localhost')
+  .option('-p, --port <port>', 'ElasticSearch port. Defaults to 9200', Number, esPort || 9200)
+  .option('--alias <alias>', 'Elasticsearch index alias. Defaults to testindex', 'testindex')
+  .option('--type <type>', 'Elasticsearch type within the provided or default index. Defaults to testtype', 'testtype')
+  .option('--profile <profile>', 'The aws credentials profile in ~/.aws/credentials. Will also respect AWS keys as environment variables.', 'default')
+  .parse(process.argv);
+
 
 var maine = 'test/data/retriever/maine.json';
 
@@ -19,6 +49,21 @@ var logger = new winston.Logger({
   });
 
 logger.remove(winston.transports.Console);
+
+
+test('Check Usage', function(t){
+
+  var instances = fs.readJSONSync('test/data/loader/usage_instances.json');
+
+  instances.forEach(function(v){
+    var usage = checkUsage(v.args, v.env);
+    t.equal(usage.messages.length, v.expected.messages, v.label + ' messages.');
+    t.equal(usage.err, v.expected.err, v.label + ' err.');
+  });
+
+  t.end();
+
+});
 
 
 test('checkHash module', function(t){
@@ -36,6 +81,47 @@ test('checkHash module', function(t){
   });
 });
 
+
+test('formatAddress module', function(t){
+  t.plan(4);
+
+  var add1 = '123 fake st. San Francisco CA 12345';
+  var add2 = '221B Baker St. Arg AZ 67876';
+  var add3 = '123 Unique Way';
+
+  t.equal(formatAddress('123 fake st.', 'San Francisco', 'CA', 12345), add1, 'Standard format')
+  t.equal(formatAddress('  221B Baker St.', 'Arg  ', 'AZ', '67876'), add2, 'Trim strings');
+  t.equal(formatAddress('123 Unique Way', '', null), add3, 'Gracefully handles lack of city, state, zip');
+  try{
+    formatAddress('', 'Yreka', 'CA')
+  }catch(e){
+    t.pass('Throws on no street number/name');
+  }
+});
+
+
+test('esLoader module', function(t){
+  t.plan(4);
+  try{
+    esLoader.connect();
+  }catch(e){
+    t.pass('Connect fails without host/port')
+  }
+
+  var client = esLoader.connect(options.host, options.port, []);
+
+  t.ok(client, 'Proper connect returns an elasticsearch client');
+
+  try{
+    esLoader.load()
+  }catch(e){
+    t.pass('Loader errors without proper arguments');
+  }
+
+  var loader = esLoader.load(client, 'somename', 'thealias', 'thetype');
+  t.ok(isStream.isWritable(loader), 'esLoader.load returns a write stream');
+
+});
 
 
 test('uploadStream module', function(t){
@@ -75,22 +161,24 @@ test('uploadStream module', function(t){
 test('fieldFilter module', function(t){
   t.plan(4);
 
+  fieldFilter.setLogger(logger);
+
   var ncmeta = fs.readJsonSync('test/data/retriever/ncmeta.json');
   var count = 0;
 
   var cases = {
     "no_fields": {
-      stream: fieldFilter(ncmeta.fields, logger),
+      stream: fieldFilter(ncmeta.fields),
       collection: [],
       count: 0
     },
     "empty_fields": {
-      stream: fieldFilter(ncmeta.fields, logger),
+      stream: fieldFilter(ncmeta.fields),
       collection: [],
       count: 0
     },
     "spotty_fields": {
-      stream: fieldFilter(ncmeta.fields, logger),
+      stream: fieldFilter(ncmeta.fields),
       collection: [],
       count: 3
     }
@@ -129,79 +217,120 @@ test('fieldFilter module', function(t){
 });
 
 
+test('ogrChild module', function(t){
+  t.plan(6);
+
+  var shp= 'test/data/loader/t.shp';
+  var shpChild = ogrChild(shp);
+  var json = 'test/data/loader/new_york.json';
+  var jsonChild = ogrChild(json, fs.createReadStream(json));
+  var errInShp = 0;
+  var errInJson = 0;
+  var shpStats = streamStats('shp');
+  var jsonStats = streamStats('json');
+
+  t.ok(shpChild, 'ogrChild process is created');
+  t.ok(isStream(shpChild.stdout), 'the child process has stdout');
+
+  t.ok(jsonChild, 'ogrChild created for stream');
+  t.ok(isStream(jsonChild.stdout), 'jsonChild produces an output stream');
+
+  jsonChild.stderr.on('data', function(d){
+    console.log(d.toString());
+    errInJson = 1;
+  });
+
+  jsonChild.stderr.once('end', function(){
+    t.notOk(errInJson, 'ogr2ogr doesn\'t emit an error from streamed GeoJson');
+  });
+
+  shpChild.stderr.on('data', function(d){
+    console.log(d.toString());
+    errInShp = 1;
+  });
+
+  shpChild.stderr.once('end', function(){
+    t.notOk(errInShp, 'ogr2ogr doesn\'t emit an error from shapefile.');
+  });
+
+  pump(shpChild.stdout, shpStats, shpStats.sink());
+  pump(jsonChild.stdout, jsonStats, jsonStats.sink());
+
+});
+
 
 test('retriever', function(t){
 
   t.plan(34);
 
-  retriever({quiet: true, profile: 'default', directory: '.', file: 'nofile'}, function(output){
+  retriever({log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: 'default', directory: '.', file: 'nofile'}, function(output){
     t.equal(output.errors.length, 1, 'Errors on bad file and no bucket.');
   });
 
-  retriever({quiet: true, profile: 'noprofilepresentfakeprofile', 'bucket': 'wyatt-test', file: maine}, function(output){
+  retriever({log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: 'noprofilepresentfakeprofile', 'bucket': 'wyatt-test', file: maine}, function(output){
     var errLen = 1;
     if(process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) errLen = 0;
     t.equal(output.errors.length, errLen, 'Errors on bad profile, only without environment variables set.');
   });
 
-  retriever({quiet: true, profile: 'default', directory: '.', file: ''}, function(output){
+  retriever({log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: 'default', directory: '.', file: ''}, function(output){
     t.equal(output.errors.length, 1, 'Errors with no file passed.');
   });
 
-  retriever({quiet: true, bucket: 'wyatt-test', profile: 'default', directory: '.', file: 'nofile'}, function(output){
+  retriever({log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, bucket: 'wyatt-test', profile: 'default', directory: '.', file: 'nofile'}, function(output){
     t.equal(output.errors.length, 1, 'Errors on bad file and good bucket.');
   });
 
-  retriever({quiet: true, bucket: 'wyatt-test', profile: 'default', directory: '.', file: 'test/data/retriever/parent_dir.json'}, function(output){
+  retriever({log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, bucket: 'wyatt-test', profile: 'default', directory: '.', file: 'test/data/retriever/parent_dir.json'}, function(output){
     t.equal(output.errors.length, 1, 'Errors on parent dir in record name.');
   });
 
-  retriever({quiet: true, bucket: 'wyatt-test', profile: 'default', directory: '.', file: 'test/data/retriever/slash.json'}, function(output){
+  retriever({log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, bucket: 'wyatt-test', profile: 'default', directory: '.', file: 'test/data/retriever/slash.json'}, function(output){
     t.equal(output.errors.length, 1, 'Errors on forward slash in record name.');
   });
 
-  retriever({quiet: true, bucket: 'fakebucketskjhqblwjdqwobdjabmznmbxbcbcnnbmcioqwOws', profile: 'default', directory: '.', file: maine}, function(output){
+  retriever({log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, bucket: 'fakebucketskjhqblwjdqwobdjabmznmbxbcbcnnbmcioqwOws', profile: 'default', directory: '.', file: maine}, function(output){
     t.equal(output.errors.length, 1, 'Error on bad bucket.');
   });
 
-  retriever({quiet: true, bucket: 'wyatt-test', profile: 'default', directory: '.', file: maine}, function(output){
+  retriever({log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, bucket: 'wyatt-test', profile: 'default', directory: '.', file: maine}, function(output){
     t.equal(output.errors.length, 0, 'No error on good file and bucket.');
     t.equal(output.processed.length, 1, 'Loads data from the test dataset to bucket.');
     t.equal(output.location, 'wyatt-test/.', 'Keeps track of location, including bucket.');
   });
 
-  retriever({quiet: true, profile: 'default', directory: 'test/output', file: maine}, function(output){
+  retriever({log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: 'default', directory: 'test/output', file: maine}, function(output){
     t.equal(output.errors.length, 0, 'No error on good file.');
     t.equal(output.processed.length, 1, 'Loads data from test data locally.');
     t.equal(output.location, 'test/output', 'Keeps track of location, including bucket.');
   });
 
-  retriever({quiet: true, bucket: 'wyatt-test', profile: 'default', directory: '.', file: maine, match: 'maine'}, function(output){
+  retriever({log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, bucket: 'wyatt-test', profile: 'default', directory: '.', file: maine, match: 'maine'}, function(output){
     t.equal(output.errors.length, 0, 'No error with match.');
     t.equal(output.processed.length, 1, 'Loads matched data.');
   });
 
-  retriever({quiet: true, bucket: 'wyatt-test', profile: 'default', directory: '.', file: maine, match: 'nomatch'}, function(output){
+  retriever({log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, bucket: 'wyatt-test', profile: 'default', directory: '.', file: maine, match: 'nomatch'}, function(output){
     t.equal(output.errors.length, 0, 'No error with no match.');
     t.equal(output.processed.length, 0, 'Loads nothing when no data matched.');
   });
 
-  retriever({quiet: true, profile: 'default', directory: 'test/output', file: 'test/data/retriever/mainejson.json'}, function(output){
+  retriever({log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: 'default', directory: 'test/output', file: 'test/data/retriever/mainejson.json'}, function(output){
     t.equal(output.errors.length, 0, 'No error on good json file.');
     t.equal(output.processed.length, 1, 'Loads data from json file.');
   });
 
-  retriever({quiet: true, profile: 'default', directory: 'test/output', file: 'test/data/retriever/mainecsv.json'}, function(output){
+  retriever({log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: 'default', directory: 'test/output', file: 'test/data/retriever/mainecsv.json'}, function(output){
     t.equal(output.errors.length, 0, 'No error on csv.');
     t.equal(output.processed.length, 1, 'Loads data from csv.');
   });
 
-  retriever({quiet: true, profile: 'default', directory: 'test/output', file: 'test/data/retriever/mainezipcsv.json'}, function(output){
+  retriever({log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: 'default', directory: 'test/output', file: 'test/data/retriever/mainezipcsv.json'}, function(output){
     t.equal(output.errors.length, 0, 'No error on zipped csv.');
     t.equal(output.processed.length, 1, 'Loads data from zipped csv.');
   });
 
-  retriever({quiet: true, profile: 'default', directory: 'test/output', file: 'test/data/retriever/maineandarkanderr.json'}, function(output){
+  retriever({log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: 'default', directory: 'test/output', file: 'test/data/retriever/maineandarkanderr.json'}, function(output){
     t.equal(output.errors.length, 1, 'Hash error from file with hash error.')
     t.equal(output.processed.length, 3, 'Processes errors and successes alike.');
     t.equal(output.retrieved.length, 2, 'Loads data after hash error.');
@@ -209,19 +338,19 @@ test('retriever', function(t){
     t.equal(output.fresh.length, 2, 'Gets fresh data');
   });
 
-  retriever({quiet: true, profile: 'default', directory: 'test/output', file: 'test/data/retriever/maineandarkandparenterr.json'}, function(output){
+  retriever({log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: 'default', directory: 'test/output', file: 'test/data/retriever/maineandarkandparenterr.json'}, function(output){
     t.equal(output.errors.length, 1, 'Parent dir error');
     t.equal(output.processed.length, 3, 'Processes errors and successes alike.');
     t.equal(output.retrieved.length, 2, 'Loads data after parent dir error.');
     t.equal(output.fresh.length, 2, 'Gets fresh data');
   });
 
-  spawn('./retriever.js', ['-b', 'wyatt-test', '-p', 'default', '-d', '.', '-f', maine])
+  spawn('./retriever.js', ['-l', 'error', '-h', options.host, '-p', options.port, '-a', options.alias, '-t', options.type, '-b', 'wyatt-test', '--profile', 'default', '-d', '.', '-f', maine])
     .on('exit', function(code){
       t.equal(code, 0, 'Loads via cli');
     });
 
-  spawn('./test/no-cb.js', ['-b', 'wyatt-test', '-p', 'default', '-d', '.', '-f', maine])
+  spawn('./test/no-cb.js', ['-l', 'error', '-h', options.host, '-p', options.port, '-a', options.alias, '-t', options.type, '-b', 'wyatt-test', '-profile', 'default', '-d', '.', '-f', maine])
     .on('exit', function(code){
       t.equal(code, 0, 'Works without a callback.');
     });
@@ -234,13 +363,13 @@ test('Ensure output', function(t){
   t.plan(10);
   var count = 0;
 
- retriever({quiet: true, profile: 'default', directory: 'test/output', file: 'test/data/retriever/parcelsjson.json'}, function(output){
+ retriever({quiet: true, logger: logger, profile: 'default', directory: 'test/output', file: 'test/data/retriever/parcelsjson.json'}, function(output){
     t.equal(output.errors.length, 0, 'No error on converted parcels.')
     t.equal(output.processed.length, 1, 'Loads data from parcels');
     ensure(++count);
   });
 
-  retriever({match: 'maine, arkansas', quiet: true, profile: 'default', directory: 'test/output', file: 'test/data/retriever/maineandarkanderr.json'}, function(output){
+  retriever({match: 'maine, arkansas', quiet: true, logger: logger, profile: 'default', directory: 'test/output', file: 'test/data/retriever/maineandarkanderr.json'}, function(output){
     t.equal(output.errors.length, 0, 'No error on filtered file.')
     t.equal(output.processed.length, 2, 'Loads data after filter.');
     ensure(++count);
