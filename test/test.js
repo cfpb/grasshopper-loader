@@ -50,7 +50,7 @@ var logger = new winston.Logger({
 
 logger.remove(winston.transports.Console);
 
-
+/*
 test('Check Usage', function(t){
 
   var instances = fs.readJSONSync('test/data/loader/usage_instances.json');
@@ -64,7 +64,7 @@ test('Check Usage', function(t){
   t.end();
 
 });
-
+*/
 
 test('checkHash module', function(t){
   t.plan(3);
@@ -296,13 +296,11 @@ test('retriever', function(t){
   retriever({log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, bucket: 'wyatt-test', profile: 'default', directory: '.', file: maine}, function(output){
     t.equal(output.errors.length, 0, 'No error on good file and bucket.');
     t.equal(output.processed.length, 1, 'Loads data from the test dataset to bucket.');
-    t.equal(output.location, 'wyatt-test/.', 'Keeps track of location, including bucket.');
   });
 
   retriever({log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: 'default', directory: 'test/output', file: maine}, function(output){
     t.equal(output.errors.length, 0, 'No error on good file.');
     t.equal(output.processed.length, 1, 'Loads data from test data locally.');
-    t.equal(output.location, 'test/output', 'Keeps track of location, including bucket.');
   });
 
   retriever({log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, bucket: 'wyatt-test', profile: 'default', directory: '.', file: maine, match: 'maine'}, function(output){
