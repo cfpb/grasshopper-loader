@@ -19,7 +19,7 @@
     "node": "0.12"
   },
   "scripts": {
-    "test": "node test/retriever-test.js && node test/loader-test.js"
+    "test": "node test/test.js"
   },
   "dependencies": {
     "aws-auto-auth": "^0.1.1",
