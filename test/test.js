@@ -34,9 +34,9 @@ options
   .version('0.0.1')
   .option('-h, --host <host>', 'ElasticSearch host. Defaults to localhost', esHost || 'localhost')
   .option('-p, --port <port>', 'ElasticSearch port. Defaults to 9200', Number, esPort || 9200)
-  .option('--alias <alias>', 'Elasticsearch index alias. Defaults to testindex', 'testindex')
-  .option('--type <type>', 'Elasticsearch type within the provided or default index. Defaults to testtype', 'testtype')
-  .option('--profile <profile>', 'The aws credentials profile in ~/.aws/credentials. Will also respect AWS keys as environment variables.', 'default')
+  .option('-a, --alias <alias>', 'Elasticsearch index alias. Defaults to testindex', 'testindex')
+  .option('-t, --type <type>', 'Elasticsearch type within the provided or default index. Defaults to testtype', 'testtype')
+  .option('--profile', 'The aws credentials profile in ~/.aws/credentials. Will also respect AWS keys as environment variables.', 'default')
   .parse(process.argv);
 
 
