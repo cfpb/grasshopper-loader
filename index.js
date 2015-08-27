@@ -84,6 +84,6 @@ retriever(options, function(output){
     );
   }
 
-  console.log(JSON.stringify(output));
+  logger.info(JSON.stringify(output));
 });
 

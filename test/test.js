@@ -236,7 +236,7 @@ test('ogrChild module', function(t){
   t.ok(isStream(jsonChild.stdout), 'jsonChild produces an output stream');
 
   jsonChild.stderr.on('data', function(d){
-    console.log(d.toString());
+    logger.error(d.toString());
     errInJson = 1;
   });
 
@@ -245,7 +245,7 @@ test('ogrChild module', function(t){
   });
 
   shpChild.stderr.on('data', function(d){
-    console.log(d.toString());
+    logger.error(d.toString());
     errInShp = 1;
   });
 
@@ -299,7 +299,6 @@ test('retriever', function(t){
   });
 
   retriever({log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: 'default', backupDirectory: 'test/output', file: maine}, function(output){
-    console.log(output.errors[0]);
     t.equal(output.errors.length, 0, 'No error on good file.');
     t.equal(output.processed.length, 1, 'Loads data from test data locally.');
   });
@@ -315,19 +314,16 @@ test('retriever', function(t){
   });
 
   retriever({log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: 'default', backupDirectory: 'test/output', file: 'test/data/retriever/mainejson.json'}, function(output){
-    console.log(output.errors[0]);
     t.equal(output.errors.length, 0, 'No error on good json file.');
     t.equal(output.processed.length, 1, 'Loads data from json file.');
   });
 
   retriever({log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: 'default', backupDirectory: 'test/output', file: 'test/data/retriever/mainecsv.json'}, function(output){
-    console.log(output.errors[0]);
     t.equal(output.errors.length, 0, 'No error on csv.');
     t.equal(output.processed.length, 1, 'Loads data from csv.');
   });
 
   retriever({log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: 'default', backupDirectory: 'test/output', file: 'test/data/retriever/mainezipcsv.json'}, function(output){
-    console.log(output.errors[0]);
     t.equal(output.errors.length, 0, 'No error on zipped csv.');
     t.equal(output.processed.length, 1, 'Loads data from zipped csv.');
   });
