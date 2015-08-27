@@ -400,7 +400,7 @@ test('Field tests', function(t){
   var data = fs.readJsonSync('data.json');
   var fieldFiles = {};
 
-  t.plan(data.length*5);
+  t.plan(data.length*3);
 
   fs.readdirSync('test/data/fields')
     .filter(function(v){return v[0] !== '.'})
@@ -415,10 +415,8 @@ test('Field tests', function(t){
 
     fieldStream.on('data', function(data){
       var props = data.properties;
-      t.ok(props.Address, util.format('%s generates address', source.name));
-      t.ok(props.City, util.format('%s generates city', source.name));
-      t.ok(props.State, util.format('%s generates state', source.name));
-      t.ok(props.Zip, util.format('%s generates zip', source.name));
+      t.ok(props.address, util.format('%s generates address', source.name));
+      t.equal(props.alt_address, '', util.format('%s generates alt_address', source.name));
     });
 
     fieldStream.end(fieldFiles[source.name]);
