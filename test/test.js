@@ -6,7 +6,7 @@ var pump = require('pump');
 var spawn = require('child_process').spawn;
 var winston = require('winston');
 var options = require('commander');
-var isStream = require('isStream');
+var isStream = require('isstream');
 var streamStats = require('stream-stats');
 
 var retriever = require('../lib/retriever');
