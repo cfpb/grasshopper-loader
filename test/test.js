@@ -361,13 +361,13 @@ test('Ensure output', function(t){
   t.plan(10);
   var count = 0;
 
- retriever({quiet: true, logger: logger, profile: 'default', backupDirectory: 'test/output', file: 'test/data/retriever/parcelsjson.json'}, function(output){
+ retriever({log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: 'default', backupDirectory: 'test/output', file: 'test/data/retriever/parcelsjson.json'}, function(output){
     t.equal(output.errors.length, 0, 'No error on converted parcels.')
     t.equal(output.processed.length, 1, 'Loads data from parcels');
     ensure(++count);
   });
 
-  retriever({match: 'maine, arkansas', quiet: true, logger: logger, profile: 'default', backupDirectory: 'test/output', file: 'test/data/retriever/maineandarkanderr.json'}, function(output){
+  retriever({log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, match: 'maine, arkansas', quiet: true, logger: logger, profile: 'default', backupDirectory: 'test/output', file: 'test/data/retriever/maineandarkanderr.json'}, function(output){
     t.equal(output.errors.length, 0, 'No error on filtered file.')
     t.equal(output.processed.length, 2, 'Loads data after filter.');
     ensure(++count);
@@ -377,9 +377,9 @@ test('Ensure output', function(t){
     if(count < 2) return;
 
     var outfiles = [
-      {file: 'test/output/arkansas.csv.gz', hash: '38af547a0147a0934f63bda7a4b6614e4b0bc4defca1ecd7eed9e4303fa7af59'},
-      {file: 'test/output/maine.csv.gz', hash: '1af6790085e15625392157c2187a6e6624eaa3c1d856ee8531fe1873fe7548e7'},
-      {file: 'test/output/sacramento.csv.gz', hash: '7f1be41d92041b0d5714fcb1f65a58d87efa3bb46681aa0c5160e7ff7701ae85'}
+      {file: 'test/output/arkansas.csv.gz', hash: '4a68ad11b6907207614caa36fb9a33daed14f676dda4f9734183c4c31e9c3656'},
+      {file: 'test/output/maine.csv.gz', hash: 'e18e059777f14ce2aae153ae99e9baa823eebef00f6c9cf1b850244eb3261595'},
+      {file: 'test/output/sacramento.csv.gz', hash: '4b5006779c13d199232b9ad4a5831c4e83f08abbc43ae56d28837dd7cb334388'}
     ];
 
     outfiles.forEach(function(obj){
