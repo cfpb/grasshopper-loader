@@ -1,0 +1,44 @@
+{
+  "type": "Feature",
+  "properties": {
+    "SITEADDID": "3,464,234.000000000000000",
+    "ADDPTKEY": "1073186733869670",
+    "PREADDRNUM": "",
+    "ADDRNUM": "3786",
+    "ADDRNUMSUF": "",
+    "UNITTYPE": "",
+    "UNITID": "",
+    "STREET_PREMOD": "",
+    "STREET_PREFIX": "",
+    "STREET_PRE_TYPE": "",
+    "STREET_NAME": "LITTLE RIVER",
+    "STREET_TYPE": "RD",
+    "STREET_SUFFIX": "",
+    "FULLNAME": "LITTLE RIVER RD",
+    "FULLADDR": "3786 LITTLE RIVER RD",
+    "PLACENAME": "",
+    "FIPS": "51077",
+    "MUNICIPALITY": "Grayson County",
+    "ESN": "833",
+    "PSAP": "7215",
+    "MSAG_COMMUNITY": "",
+    "USNGCOORD": "17SMA9476050156",
+    "LAT": "36.596880569242089",
+    "LONG": "-81.058582657567683",
+    "ADDRCLASS": "0",
+    "POINTTYPE": "",
+    "CAPTUREMETH": "",
+    "STATUS": "CURRENT",
+    "LASTUPDATE": "12/16/2014 14:12:11",
+    "PO_NAME": "GALAX",
+    "STATE": "VA",
+    "ZIP_5": "24,333"
+  },
+  "geometry": {
+    "type": "Point",
+    "coordinates": [
+      -81.05858265756767,
+      36.59688056924209
+    ]
+  }
+}

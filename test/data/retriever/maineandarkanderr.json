@@ -1,0 +1,74 @@
+[
+  {
+    "name":"maine",
+    "url":"https://cfpb.github.io/grasshopper-retriever/maine.zip",
+    "hash":"7e047fa12e048ebed7e0b7cbd80621a39996666396e685a092ae30f5ea2ee79e",
+    "file":"maine.shp",
+    "fields": {
+      "Address": {
+        "type": "static",
+        "value": "ADDRESS"
+      },
+      "City": {
+        "type": "static",
+        "value": "MUNICIPALI"
+      },
+      "State": {
+        "type": "static",
+        "value": "STATE"
+      },
+      "Zip": {
+        "type": "static",
+        "value": "ZIPCODE"
+      }
+    }
+  },
+  {
+    "name":"arkansas",
+    "url":"https://cfpb.github.io/grasshopper-retriever/arkansas.json",
+    "hash":"ae631ff68108423f9877f8012ce46577f973ba2eef895db6a4b8f40ea901283d",
+    "file":"arkansas.json",
+    "fields": {
+      "Address": {
+        "type": "static",
+        "value": "adr_label"
+      },
+      "City": {
+        "type": "static",
+        "value": "adr_city"
+      },
+      "State": {
+        "type": "static",
+        "value": "adr_state"
+      },
+      "Zip": {
+        "type": "static",
+        "value": "adr_zip5"
+      }
+    }
+  },
+  {
+    "name":"north_carolina",
+    "url":"https://cfpb.github.io/grasshopper-retriever/north_carolina.json",
+    "hash":"badsha",
+    "file":"north_carolina.json",
+    "fields": {
+      "Address": {
+        "type": "static",
+        "value": "FULL_ADDRESS"
+      },
+      "City": {
+        "type": "static",
+        "value": ""
+      },
+      "State": {
+        "type": "static",
+        "value": "STATE"
+      },
+      "Zip": {
+        "type": "static",
+        "value": "ZIPCODE"
+      }
+    }
+  }
+]

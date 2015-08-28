@@ -1,0 +1,37 @@
+{
+  "type": "Feature",
+  "properties": {
+    "ENTRY_ID": "",
+    "ADDR_HN": "",
+    "ADDR_PD": "",
+    "ADDR_PT": "",
+    "ADDR_SN": "",
+    "ADDR_ST": "",
+    "ADDR_SD": "",
+    "FULL_ADDRESS": "",
+    "SUB_HN": "",
+    "APT_UNIT": "",
+    "RES_TYPE": "",
+    "COMMUNITY": "",
+    "ZIPCODE": "",
+    "PO_NAME": "",
+    "STATE": "",
+    "COUNTY_NAME": "",
+    "FIPS": 67,
+    "STATE_ID": 37,
+    "COORSYS": "",
+    "POINT_X": 1634906.32837376,
+    "POINT_Y": 847348.20477334,
+    "USNG": "",
+    "DDLat": "",
+    "DDLon": "",
+    "PROCESS_ID": ""
+  },
+  "geometry": {
+    "type": "Point",
+    "coordinates": [
+      1634906.3283737153,
+      847348.2047733068
+    ]
+  }
+}
