@@ -20,9 +20,10 @@ var ogrChild = require('../lib/ogrChild');
 var bulkPrefixer = require('../lib/bulkPrefixer');
 
 
+//If linked to an elasticsearch Docker container
 var esVar = process.env.ELASTICSEARCH_PORT;
-var esHost;
-var esPort;
+var esHost = 'localhost';
+var esPort = 9200;
 
 if(esVar){
   esVar = esVar.split('//')[1].split(':');
@@ -32,8 +33,8 @@ if(esVar){
 
 options
   .version('0.0.1')
-  .option('-h, --host <host>', 'ElasticSearch host. Defaults to localhost', esHost || 'localhost')
-  .option('-p, --port <port>', 'ElasticSearch port. Defaults to 9200', Number, esPort || 9200)
+  .option('-h, --host <host>', 'ElasticSearch host. Defaults to localhost', esHost)
+  .option('-p, --port <port>', 'ElasticSearch port. Defaults to 9200', Number, esPort)
   .option('-a, --alias <alias>', 'Elasticsearch index alias. Defaults to testindex', 'testindex')
   .option('-t, --type <type>', 'Elasticsearch type within the provided or default index. Defaults to testtype', 'testtype')
   .option('--profile', 'The aws credentials profile in ~/.aws/credentials. Will also respect AWS keys as environment variables.', 'default')

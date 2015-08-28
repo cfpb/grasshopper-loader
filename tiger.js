@@ -8,9 +8,10 @@ var async = require('async');
 var ogrChild = require('./ogrChild');
 var loader = require('./lib/loader');
 
+//If linked to an elasticsearch Docker container
 var esVar = process.env.ELASTICSEARCH_PORT;
-var esHost;
-var esPort;
+var esHost = 'localhost';
+var esPort = 9200;
 
 if(esVar){
   esVar = esVar.split('//')[1].split(':');
@@ -28,8 +29,8 @@ options
   .version('0.0.1')
   .option('-d, --directory <directory>', 'Directory where TIGER files live')
   .option('-c, --concurrency <concurrency>', 'How many loading tasks will run at once. Defaults to 4.', 4)
-  .option('-h, --host <host>', 'ElasticSearch host. Defaults to localhost', esHost || 'localhost')
-  .option('-p, --port <port>', 'ElasticSearch port. Defaults to 9200', Number, esPort || 9200)
+  .option('-h, --host <host>', 'ElasticSearch host. Defaults to localhost', esHost)
+  .option('-p, --port <port>', 'ElasticSearch port. Defaults to 9200', Number, esPort)
   .option('-a, --alias <alias>', 'Elasticsearch index alias. Defaults to census', 'census')
   .option('-t, --type <type>', 'Elasticsearch type within the provided or default index. Defaults to addrfeat', 'addrfeat')
   .option('--profile', 'The aws credentials profile in ~/.aws/credentials. Will also respect AWS keys as environment variables.', 'default')
