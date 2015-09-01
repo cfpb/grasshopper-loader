@@ -1,3 +1,7 @@
+#!/usr/bin/env node
+
+'use strict';
+
 var fs = require('fs-extra');
 var path = require('path');
 var pump = require('pump');
