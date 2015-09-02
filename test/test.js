@@ -102,7 +102,7 @@ test('formatAddress module', function(t){
 
 
 test('esLoader module', function(t){
-  t.plan(4);
+  t.plan(5);
   try{
     esLoader.connect();
   }catch(e){
@@ -113,14 +113,14 @@ test('esLoader module', function(t){
 
   t.ok(client, 'Proper connect returns an elasticsearch client');
 
-  try{
-    esLoader.load()
-  }catch(e){
-    t.pass('Loader errors without proper arguments');
-  }
+  esLoader.load({}, '', '', function(err){
+    t.ok(err, 'Loader errors without proper arguments');
+  });
 
-  var loader = esLoader.load(client, 'somename', 'thealias', 'thetype');
-  t.ok(isStream.isWritable(loader), 'esLoader.load returns a write stream');
+  esLoader.load(options, client, 'somename', function(err, loader){
+    t.notOk(err, 'Proper arguments to loader doesn\'t error');
+    t.ok(isStream.isWritable(loader), 'esLoader.load returns a write stream');
+  });
 
 });
 
