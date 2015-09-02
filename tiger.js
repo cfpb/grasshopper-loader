@@ -56,7 +56,7 @@ function worker(file, callback){
 
   unzipFile(file, record, scratchSpace, function(unzipped){
     var child = ogrChild(unzipped);
-    var stream = OgrJsonStream();
+    var stream = OgrJsonStream.stringify();
 
     child.stderr.on('data', function(data){
       logger.error('Error:', data.toString());
