@@ -22,6 +22,7 @@
     "test": "node test/test.js"
   },
   "dependencies": {
+    "async": "^1.4.2",
     "aws-auto-auth": "^0.1.1",
     "aws-sdk": "^2.1.31",
     "centroid-stream": "^0.3.0",

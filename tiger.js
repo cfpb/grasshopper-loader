@@ -9,7 +9,7 @@ var OgrJsonStream = require('ogr-json-stream');
 var winston = require('winston');
 var options = require('commander');
 var async = require('async');
-var ogrChild = require('./ogrChild');
+var ogrChild = require('./lib/ogrChild');
 var loader = require('./lib/loader');
 
 //If linked to an elasticsearch Docker container
@@ -47,7 +47,7 @@ function worker(file, callback){
   var child = ogrChild(file);
   var stream = OgrJsonStream();
 
-  pump(child, stream);
+  pump(child.stdout, stream);
 
   loader(options, stream, {name: path.basename(file, path.extname(file))}, callback);
 }
