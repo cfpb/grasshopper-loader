@@ -17,7 +17,7 @@ var logger = new winston.Logger({
 //Favor source GDAL installations for ogr transformations
 process.env.PATH = '/usr/local/bin:' + process.env.PATH
 
-//If linked to an elasticsearch Docker container
+//If linked to an elasticsearch Docker container, default to the appropriate host and port
 var esVar = process.env.ELASTICSEARCH_PORT;
 var esHost = 'localhost';
 var esPort = 9200;
