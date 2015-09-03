@@ -2,29 +2,28 @@
 [![Build Status](https://travis-ci.org/cfpb/grasshopper-loader.svg?branch=master)](https://travis-ci.org/cfpb/grasshopper-loader)
 
 **Description**: This is the data loader for [Grasshopper](https://github.com/cfpb/grasshopper), cfpb's work-in-progress geocoder.
-Data is assumed to conform to the relevant Input Data Standard for Grasshopper (*q.v.* the [Input Point Data Standard](https://github.com/cfpb/grasshopper/blob/master/docs/data_format.md).
-Data is transformed from these standard formats and loaded into Elasticsearch (the schema of which may change).
+Data is gathered from state sources listed in `data.json`, verified, transformed into GeoJSON, loaded into Elasticsearch.
 
 ## Usage
-  - [Install node](https://nodejs.org/)
-  - [Install GDAL](http://trac.osgeo.org/gdal/wiki/DownloadingGdalBinaries)
-    - On OSX, instead of using a binary or building from source, you can [download homebrew](http://brew.sh/) and `brew install gdal`.
-  - [Install elasticsearch](https://www.elastic.co/downloads/elasticsearch)
-    - You can also point the loader to elasticsearch running on another machine.
-  - Run `npm install` from the project root
+  - **Local method**
+    - [Install node](https://nodejs.org/)
+    - [Install GDAL](http://trac.osgeo.org/gdal/wiki/DownloadingGdalBinaries)
+      - On OSX, instead of using a binary or building from source, you can [download homebrew](http://brew.sh/) and `brew install gdal`.
+    - [Install elasticsearch](https://www.elastic.co/downloads/elasticsearch)
+      - You can also point the loader to elasticsearch running on another machine.
+    - Run `npm install` from the project root
 
-  - Alternatively, [install Docker](https://docs.docker.com/installation/#installation) and run the following:
-    - To build the image:
-      `docker build --rm --tag=hmda/grasshopper-loader .`
-    - To run the image:
-      `docker run -ti --rm hmda/grasshopper-loader`
-    - To run tests with dockerized Elasticsearch:
-      `docker run -d --name es elasticsearch`
-      `docker run -ti --rm --link es:elasticsearch hmda/grasshopper-loader`
-    - And to include AWS S3 credential information
-      - With a credentials file: `docker run -ti --rm --link es:elasticsearch -v ~/.aws:/root/.aws hmda/grasshopper-loader`
-      - With environment variables: `docker run -ti --rm --link es:elasticsearch -e "AWS_ACCESS_KEY_ID=<your access key>" -e "AWS_SECRET_ACCESS_KEY=<your secret key>"  hmda/grasshopper-loader`
-      
+  - **Docker method**
+    - [Install Docker](https://docs.docker.com/installation/#installation)
+    - Build an image:
+      `docker build --rm --tag=<image-name>:<tag-name> .`
+    - Test the image:
+      `./docker-test  <image-name>:<tag-name> <cli options>`
+    - Run the image:
+      `./docker-run <image-name>:<tag-name> <cli options>`
+      - These scripts assume there is an aws credentials file at `~/.aws/credentials` if using S3 to backup data.
+      - When using boot2docker, elasticsearch running on the host machine (eg, your Mac) can be accessed at 10.0.2.2 and elasticsearch running in a container with port 9200 shared can be accessed at 192.168.59.103.
+
   - The loader is a command-line application, run by invoking **grasshopper-loader.js** with the following options:
     - **-b, --bucket** An AWS S3 bucket where data resides. If no -d option is passed, will attempt to load all data in the bucket. Requires credentials from either an AWS credentials profile or environment variables. [Learn more](http://docs.aws.amazon.com/AWSJavaScriptSDK/guide/node-configuring.html#Setting_AWS_Credentials).
     - **-d, --data** *Required if no bucket is passed* The data source to load. This can be a gdb, shp, GeoJSON, zip, or a directory of any of these which gets loaded recursively. Zips and GeoJSON can also be loaded from remote sources via URL.
