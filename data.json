@@ -26,7 +26,7 @@
   {
     "name": "utah",
     "url": "ftp://ftp.agrc.utah.gov/UtahSGID_Vector/UTM12_NAD83/LOCATION/UnpackagedData/AddressPoints/_Statewide/AddressPoints_gdb.zip",
-    "hash": "cf0d50997dadcd5a028aa9ecbd50c39bb3866fca9298b96b4e812c061091b7c8",
+    "hash": "322b786a0619d1ab66c750954afc61f2adf87bf8f107e22fbe3d28f3a9ee03a5",
     "file": "AddressPoints.gdb",
     "fields": {
       "Address": {
