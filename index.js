@@ -36,7 +36,7 @@ options
   .option('-p, --port <port>', 'ElasticSearch port. Defaults to 9200 unless linked to a Docker container aliased to Elasticsearch.', Number, esPort)
   .option('-a, --alias <alias>', 'Elasticsearch index alias. Defaults to address.', 'address')
   .option('-t, --type <type>', 'Elasticsearch type within the provided or default alias. Defaults to point.', 'point')
-  .option('-l, --log <log>', 'ElasticSearch log level. Defaults to debug.', 'debug')
+  .option('-l, --log <log>', 'ElasticSearch log level. Defaults to error.', 'error')
   .option('-q, --quiet', 'Suppress logging.', false)
   .option('-b, --backup-bucket <backupBucket>', 'An S3 bucket where the data should be backed up.')
   .option('-d, --backup-directory <backupDirectory>', 'A directory where the data should be loaded, either relative to the current folder or the passed S3 bucket.')
