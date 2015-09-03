@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
-docker run --rm --link $2:elasticsearch --entrypoint='npm'\
+image="$1"
+# get rest parameters
+shift
+
+docker run --rm\
   -v "`echo $HOME`/.aws:/home/notroot/.aws"\
-  $1\
-  test
+  "$image"\
+  npm test --\
+  "$@"

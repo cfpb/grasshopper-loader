@@ -1,7 +1,7 @@
 # Docker image for grasshopper-loader
-# To build, run docker build --rm --tag=hmda/grasshopper-loader .
-# A container can be started by running docker run -ti hmda/grasshopper-parser /bin/bash
-# Then run the loader from within the container
+# To build, run docker build --rm --tag=hmda/<image-name>:<tag-name> .
+# To test, run ./docker-test.sh <image-name>:<tag-name> <cli args>
+# To run, run ./docker-run <image-name>:<tag-name> <cli args>
 
 FROM geodata/gdal:1.11.2
 MAINTAINER Wyatt Pearsall <wyatt.pearsall@cfpb.gov>
