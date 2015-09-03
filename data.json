@@ -74,7 +74,7 @@
   {
     "name": "arkansas",
     "url": "http://geostor-vectors.geostor.org/Location/SHP/SITUS_ADDRESS_PT.zip",
-    "hash": "e48a7c8a95042153de09a08ac2c2eb548b5f1667b340b164adb6ba1a8a2732e1",
+    "hash": "a00cf2ada728ea477404535a53083056a692b6f65ebb081ba8822e0640dd8239",
     "file": "STRUC_SITUS_ADDRESS_PT.shp",
     "fields": {
       "Address": {
@@ -98,7 +98,7 @@
   {
     "name": "virginia",
     "url": "https://ftp.vgingis.com/Download/VA_SiteAddress.txt.zip",
-    "hash": "cb37af0e024a78a38574834420142b6bfad8ea3b41970fa3819460db5c8eb815",
+    "hash": "90904677f379d6d381c08c4e3ac0133bc372497b777ababe772d5465d4a948e8",
     "file": "VA_SiteAddress.txt",
     "spatialReference": "NAD83",
     "fields": {
@@ -147,7 +147,7 @@
   {
     "name": "vermont",
     "url": "http://maps.vcgi.org/gisdata/vcgi/packaged_zips/EmergencyE911_ESITE.zip",
-    "hash": "32a55c7f1440d2b14f6e7e43df81366d6366e954d66b927d7fe2ce7e55b92bac",
+    "hash": "87119dde146b994dd81275e84c96065118191e93deb9b78b203db62cd44cbc7c",
     "file": "Emergency_ESITE_point.shp",
     "fields": {
       "Address": {
@@ -171,7 +171,7 @@
   {
     "name": "district_of_columbia",
     "url": "http://opendata.dc.gov/agol/arcgis/aa514416aaf74fdc94748f1e56e7cc8a/0.zip",
-    "hash": "2b116c628c64bcc21f53116ed9265dd4cd51b080f0d6bec3201fcb6c77f75d11",
+    "hash": "108c3a87e9b187f8a579be92c66871b20ebf1678d254596f0f3b34fecb7ca722",
     "file": "Address_Points.shp",
     "fields": {
       "Address": {
