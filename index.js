@@ -5,7 +5,6 @@
 var options = require('commander');
 var winston = require('winston');
 var retriever = require('./lib/retriever');
-var checkUsage = require('./lib/checkUsage');
 
 var logger = new winston.Logger({
     transports: [
@@ -50,16 +49,10 @@ if(options.quiet){
 
 options.logger = logger;
 
-
-var usage = checkUsage(options, process.env);
-if(usage.err) throw new Error(usage.messages.join(''));
-usage.messages.forEach(function(v){logger.info(v)});
-
+if(options.monitor) logger.info('Running in monitoring mode. Remote files will be checked for freshness but not loaded or backed up.');
 
 retriever(options, function(output){
-  //get streams; load each of them
-  //loader(options, stream, callback
-  //
+
   logger.info('%d error%s encountered.',
     output.errors.length,
     output.errors.length === 1 ? '' : 's'

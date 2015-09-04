@@ -15,7 +15,6 @@ var UploadStream = require('../lib/UploadStream');
 var fieldFilter = require('../lib/fieldFilter');
 var formatAddress = require('../lib/formatAddress');
 var esLoader = require('../lib/esLoader');
-var checkUsage = require('../lib/checkUsage');
 var ogrChild = require('../lib/ogrChild');
 var bulkPrefixer = require('../lib/bulkPrefixer');
 
@@ -51,21 +50,6 @@ var logger = new winston.Logger({
 
 logger.remove(winston.transports.Console);
 
-/*
-test('Check Usage', function(t){
-
-  var instances = fs.readJSONSync('test/data/loader/usage_instances.json');
-
-  instances.forEach(function(v){
-    var usage = checkUsage(v.args, v.env);
-    t.equal(usage.messages.length, v.expected.messages, v.label + ' messages.');
-    t.equal(usage.err, v.expected.err, v.label + ' err.');
-  });
-
-  t.end();
-
-});
-*/
 
 test('checkHash module', function(t){
   t.plan(3);
