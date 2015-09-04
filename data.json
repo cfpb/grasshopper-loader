@@ -171,7 +171,7 @@
   {
     "name": "district_of_columbia",
     "url": "http://opendata.dc.gov/agol/arcgis/aa514416aaf74fdc94748f1e56e7cc8a/0.zip",
-    "hash": "108c3a87e9b187f8a579be92c66871b20ebf1678d254596f0f3b34fecb7ca722",
+    "hash": "a2abe243175911dca255b9aa80e8a1711568cc569402c3ae601e9e4b4088ed6f",
     "file": "Address_Points.shp",
     "fields": {
       "Address": {
