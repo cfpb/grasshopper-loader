@@ -13,6 +13,7 @@ var async = require('async');
 var ogrChild = require('./lib/ogrChild');
 var unzipFile = require('./lib/unzipFile');
 var loader = require('./lib/loader');
+var makeLogger = require('./lib/makeLogger');
 
 //If linked to an elasticsearch Docker container
 var esVar = process.env.ELASTICSEARCH_PORT;
@@ -25,11 +26,6 @@ if(esVar){
   esPort = +esVar[1];
 }
 
-var logger = new winston.Logger({
-    transports: [
-      new (winston.transports.Console)()
-    ]
-  });
 
 var scratchSpace = 'scratch/' + crypto.pseudoRandomBytes(10).toString('hex');
 fs.mkdirsSync(scratchSpace);
@@ -48,7 +44,9 @@ options
   .option('-q, --quiet', 'Suppress logging.', false)
   .parse(process.argv);
 
-options.logger = logger;
+
+var logger = makeLogger(options);
+
 
 function worker(file, callback){
   var name = path.basename(file, path.extname(file));

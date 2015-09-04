@@ -3,14 +3,8 @@
 'use strict';
 
 var options = require('commander');
-var winston = require('winston');
 var retriever = require('./lib/retriever');
-
-var logger = new winston.Logger({
-    transports: [
-      new (winston.transports.Console)()
-    ]
-  });
+var makeLogger = require('./lib/makeLogger');
 
 
 //Favor source GDAL installations for ogr transformations
@@ -43,11 +37,9 @@ options
   .option('--monitor', 'Run the retriever in monitoring mode which only checks data source freshness and doesn\'t load or backup data.')
   .parse(process.argv);
 
-if(options.quiet){
-  logger.remove(winston.transports.Console);
-}
 
-options.logger = logger;
+var logger = makeLogger(options);
+
 
 if(options.monitor) logger.info('Running in monitoring mode. Remote files will be checked for freshness but not loaded or backed up.');
 
@@ -59,7 +51,7 @@ retriever(options, function(output){
   );
 
   output.errors.forEach(function(v, i){
-    logger.error(v);
+    logger.info(v);
     output.errors[i] = v.toString();
   });
 
