@@ -77,11 +77,7 @@ test('formatAddress module', function(t){
   t.equal(formatAddress('123 fake st.', 'San Francisco', 'CA', 12345), add1, 'Standard format')
   t.equal(formatAddress('  221B Baker St.', 'Arg  ', 'AZ', '67876'), add2, 'Trim strings');
   t.equal(formatAddress('123 Unique Way', '', null), add3, 'Gracefully handles lack of city, state, zip');
-  try{
-    formatAddress('', 'Yreka', 'CA')
-  }catch(e){
-    t.pass('Throws on no street number/name');
-  }
+  t.equal(formatAddress('', 'Yreka', 'CA'), null, 'Returns null on no street number/name');
 });
 
 
@@ -153,17 +149,17 @@ test('fieldFilter module', function(t){
 
   var cases = {
     "no_fields": {
-      stream: fieldFilter(ncmeta.fields),
+      stream: fieldFilter(ncmeta),
       collection: [],
       count: 0
     },
     "empty_fields": {
-      stream: fieldFilter(ncmeta.fields),
+      stream: fieldFilter(ncmeta),
       collection: [],
       count: 0
     },
     "spotty_fields": {
-      stream: fieldFilter(ncmeta.fields),
+      stream: fieldFilter(ncmeta),
       collection: [],
       count: 3
     }
@@ -392,7 +388,7 @@ test('Field tests', function(t){
     .forEach(function(v){fieldFiles[path.basename(v, '.json')] = fs.readJsonSync(path.join('test/data/fields', v))});
 
   data.forEach(function(source){
-    var fieldStream = fieldFilter(source.fields);
+    var fieldStream = fieldFilter(source);
 
     var rawField = fieldFiles[source.name];
 
