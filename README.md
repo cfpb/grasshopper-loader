@@ -24,7 +24,7 @@ Data is gathered from state sources, verified, transformed into GeoJSON, loaded 
     - Run the image:
       `./docker-run <image-name>:<tag-name> <CLI Options>`
       - These scripts assume there is an aws credentials file at `~/.aws/credentials` if using S3 to backup data.
-      - When using boot2docker, elasticsearch running on the host machine (eg, your Mac) can be accessed at 10.0.2.2 and elasticsearch running in a container with port 9200 shared can be accessed at 192.168.59.103.
+      - When using boot2docker, elasticsearch running on the host machine (eg, your Mac) can be accessed at 10.0.2.2 and elasticsearch running in a container with port 9200 shared can be accessed at the ip given by `boot2docker ip`.
 
 ## CLI Options
   - The loader is a command-line application, run by invoking `./index.js` with the following options:
