@@ -1,11 +1,9 @@
 #!/usr/bin/env bash
 image="$1"
-elasticsearch="$2"
 # get rest parameters
 shift
-shift
 
-docker run --rm --link "$elasticsearch":elasticsearch\ 
+docker run --rm\
   -v "`echo $HOME`/.aws:/home/notroot/.aws"\
   "$image"\
   "$@"
