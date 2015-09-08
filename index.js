@@ -3,15 +3,8 @@
 'use strict';
 
 var options = require('commander');
-var winston = require('winston');
 var retriever = require('./lib/retriever');
-var checkUsage = require('./lib/checkUsage');
-
-var logger = new winston.Logger({
-    transports: [
-      new (winston.transports.Console)()
-    ]
-  });
+var makeLogger = require('./lib/makeLogger');
 
 
 //Favor source GDAL installations for ogr transformations
@@ -36,7 +29,7 @@ options
   .option('-p, --port <port>', 'ElasticSearch port. Defaults to 9200 unless linked to a Docker container aliased to Elasticsearch.', Number, esPort)
   .option('-a, --alias <alias>', 'Elasticsearch index alias. Defaults to address.', 'address')
   .option('-t, --type <type>', 'Elasticsearch type within the provided or default alias. Defaults to point.', 'point')
-  .option('-l, --log <log>', 'ElasticSearch log level. Defaults to debug.', 'debug')
+  .option('-l, --log <log>', 'ElasticSearch log level. Defaults to error.', 'error')
   .option('-q, --quiet', 'Suppress logging.', false)
   .option('-b, --backup-bucket <backupBucket>', 'An S3 bucket where the data should be backed up.')
   .option('-d, --backup-directory <backupDirectory>', 'A directory where the data should be loaded, either relative to the current folder or the passed S3 bucket.')
@@ -44,29 +37,21 @@ options
   .option('--monitor', 'Run the retriever in monitoring mode which only checks data source freshness and doesn\'t load or backup data.')
   .parse(process.argv);
 
-if(options.quiet){
-  logger.remove(winston.transports.Console);
-}
 
-options.logger = logger;
+var logger = makeLogger(options);
 
 
-var usage = checkUsage(options, process.env);
-if(usage.err) throw new Error(usage.messages.join(''));
-usage.messages.forEach(function(v){logger.info(v)});
-
+if(options.monitor) logger.info('Running in monitoring mode. Remote files will be checked for freshness but not loaded or backed up.');
 
 retriever(options, function(output){
-  //get streams; load each of them
-  //loader(options, stream, callback
-  //
+
   logger.info('%d error%s encountered.',
     output.errors.length,
     output.errors.length === 1 ? '' : 's'
   );
 
   output.errors.forEach(function(v, i){
-    logger.error(v);
+    logger.info(v);
     output.errors[i] = v.toString();
   });
 

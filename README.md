@@ -34,7 +34,7 @@ Data is gathered from state sources, verified, transformed into GeoJSON, loaded 
     - **-p, --port** *Default: 9200* The elasticsearch port. If no argument is provided and a linked elasticsearch Docker container exists, will use its lowest exposed port.
     - **-a, --alias** *Default: address* The elasticsearch alias to an internally created index. This what queries should be run against once data is loaded.
     - **-t, --type** *Default: point* The elasticsearch type (or mapping) within the alias
-    - **-l, --log** *Default: debug* The elasticsearch log level
+    - **-l, --log** *Default: error* The elasticsearch log level
     - **-q, --quiet**, Suppress application-level logging.
     - **-b, --backup-bucket** An AWS S3 bucket where data should be backed up. 
     - **-d, --backup-directory** A directory where the data should be loaded, either relative to the current folder or the passed S3 bucket.
