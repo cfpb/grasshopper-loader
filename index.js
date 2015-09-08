@@ -17,21 +17,23 @@ var logger = new winston.Logger({
 //Favor source GDAL installations for ogr transformations
 process.env.PATH = '/usr/local/bin:' + process.env.PATH
 
+//If linked to an elasticsearch Docker container
 var esVar = process.env.ELASTICSEARCH_PORT;
-var esHost;
-var esPort;
+var esHost = 'localhost';
+var esPort = 9200;
 
 if(esVar){
   esVar = esVar.split('//')[1].split(':');
   esHost = esVar[0];
   esPort = +esVar[1];
 }
+
 options
   .version('0.0.1')
   .option('-f, --file <file>', 'The json data file that contains the collected data endpoints and field mappings.')
   .option('-m, --match <match>', 'A string or regular expression that the names from the <file> must contain or match')
-  .option('-h, --host <host>', 'ElasticSearch host. Defaults to localhost unless linked to a Docker container aliased to Elasticsearch', esHost || 'localhost')
-  .option('-p, --port <port>', 'ElasticSearch port. Defaults to 9200 unless linked to a Docker container aliased to Elasticsearch.', Number, esPort || 9200)
+  .option('-h, --host <host>', 'ElasticSearch host. Defaults to localhost unless linked to a Docker container aliased to Elasticsearch', esHost)
+  .option('-p, --port <port>', 'ElasticSearch port. Defaults to 9200 unless linked to a Docker container aliased to Elasticsearch.', Number, esPort)
   .option('-a, --alias <alias>', 'Elasticsearch index alias. Defaults to address.', 'address')
   .option('-t, --type <type>', 'Elasticsearch type within the provided or default alias. Defaults to point.', 'point')
   .option('-l, --log <log>', 'ElasticSearch log level. Defaults to debug.', 'debug')
