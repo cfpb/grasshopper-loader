@@ -1,9 +1,19 @@
+sudo: required
+
 language: node_js
-node_js: '0.12'
-services: elasticsearch
-sudo: true
+
+node_js: '0.10'
+  
+services:
+  - docker
+  - elasticsearch
+
 branches:
   only:
   - master
+
 before_install:
-  - ./build/setup_ubuntu.sh
+  - docker build -t hmda/loader .
+
+script:
+  - docker run --rm hmda/loader npm test
