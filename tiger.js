@@ -7,11 +7,11 @@ var path = require('path');
 var crypto = require('crypto');
 var pump = require('pump');
 var OgrJsonStream = require('ogr-json-stream');
-var winston = require('winston');
 var options = require('commander');
 var async = require('async');
 var ogrChild = require('./lib/ogrChild');
 var unzipFile = require('./lib/unzipFile');
+var assureRecordCount = require('./lib/assureRecordCount');
 var loader = require('./lib/loader');
 var makeLogger = require('./lib/makeLogger');
 
@@ -52,27 +52,36 @@ function worker(file, callback){
   var name = path.basename(file, path.extname(file));
   var record = {name: name, file: name + '.shp'}
 
+  function handleStreamError(record, err){
+    if(this){
+      if(this.unpipe) this.unpipe();
+      if(this.destroy) this.destroy();
+      if(this.kill) this.kill();
+    }
+
+    logger.error('Error extracting data from %s: \n', record.name, err);
+    callback(err);
+  }
+
+
   unzipFile(file, record, scratchSpace, function(unzipped){
-    var child = ogrChild(unzipped);
-    var stream = OgrJsonStream.stringify();
+    assureRecordCount(record, unzipped, function(err){
+      if(err) return handleStreamError(record, err);
+      if(record.count) logger.info('Detected %d records in %s', record.count, record.name);
 
-    child.stderr.on('data', function(data){
-      logger.error('Error:', data.toString());
+      var child = ogrChild(unzipped);
+      var stream = OgrJsonStream.stringify();
+
+      child.stderr.on('data', function(data){
+        logger.error('Error:', data.toString());
+      });
+
+      pump(child.stdout, stream);
+
+      loader(options, stream, record, callback);
     });
-
-    pump(child.stdout, stream);
-
-    loader(options, stream, record, callback);
-  }, function(record, err){
-       if(this){
-         if(this.unpipe) this.unpipe();
-         if(this.destroy) this.destroy();
-         if(this.kill) this.kill();
-       }
-
-       logger.error('Error extracting data from %s: \n', record.name, err);
-       callback(err);
-     }
+    },
+    handleStreamError
   );
 }
 
