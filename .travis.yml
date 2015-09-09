@@ -1,19 +1,9 @@
-sudo: required
-
 language: node_js
-
 node_js: '0.10'
-  
-services:
-  - docker
-  - elasticsearch
-
+services: elasticsearch
+sudo: true
 branches:
   only:
   - master
-
 before_install:
-  - docker build -t hmda/loader .
-
-script:
-  - docker run --rm -e AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY_ID" -e AWS_SECRET_ACCESS_KEY="$AWS_SECRET_ACCESS_KEY" hmda/loader node test/test.js -h `netstat -nr | grep '^0\.0\.0\.0' | awk '{print $2}'`
+  - ./build/setup_ubuntu.sh
