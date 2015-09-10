@@ -46,6 +46,7 @@ options.client = esLoader.connect(options.host, options.port, options.log);
 if(options.monitor) logger.info('Running in monitoring mode. Remote files will be checked for freshness but not loaded or backed up.');
 
 retriever(options, function(output){
+  options.client.close();
 
   logger.info('%d error%s encountered.',
     output.errors.length,

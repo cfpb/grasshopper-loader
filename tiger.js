@@ -96,6 +96,7 @@ var queue = async.queue(worker, options.concurrency);
 
 queue.drain = function(){
   esLoader.applyAlias(options, options.forcedIndex, function(err){
+    options.client.close();
     if(err) return logger.error('Unable to apply alias to %s', options.forcedIndex, err);
     logger.info('All files processed.');
   });
