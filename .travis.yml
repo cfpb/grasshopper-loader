@@ -7,3 +7,4 @@ branches:
   - master
 before_install:
   - ./build/setup_ubuntu.sh
+  - sleep 10
