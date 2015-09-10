@@ -14,7 +14,7 @@ var unzipFile = require('./lib/unzipFile');
 var assureRecordCount = require('./lib/assureRecordCount');
 var loader = require('./lib/loader');
 var esLoader = require('./lib/esLoader');
-var createIndex = require('./createIndex');
+var createIndex = require('./lib/createIndex');
 var makeLogger = require('./lib/makeLogger');
 
 //If linked to an elasticsearch Docker container
