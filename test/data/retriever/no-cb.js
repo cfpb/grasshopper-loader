@@ -3,56 +3,46 @@
 'use strict';
 
 var options = require('commander');
-var winston = require('winston');
 var retriever = require('../../../lib/retriever');
-var checkUsage = require('../../../lib/checkUsage');
-
-var logger = new winston.Logger({
-    transports: [
-      new (winston.transports.Console)()
-    ]
-  });
+var makeLogger = require('../../../lib/makeLogger');
+var esLoader = require('../../../lib/esLoader');
 
 
 //Favor source GDAL installations for ogr transformations
 process.env.PATH = '/usr/local/bin:' + process.env.PATH
 
+//If linked to an elasticsearch Docker container, default to the appropriate host and port
 var esVar = process.env.ELASTICSEARCH_PORT;
-var esHost;
-var esPort;
+var esHost = 'localhost';
+var esPort = 9200;
 
 if(esVar){
   esVar = esVar.split('//')[1].split(':');
   esHost = esVar[0];
   esPort = +esVar[1];
 }
+
 options
   .version('0.0.1')
-  .option('-f --file <file>', 'The json data file that contains the collected data endpoints and field mappings.')
-  .option('-m --match <match>', 'A string or regular expression that the names from the <file> must contain or match')
-  .option('-h, --host <host>', 'ElasticSearch host. Defaults to localhost unless linked to a Docker container aliased to Elasticsearch', esHost || 'localhost')
-  .option('-p, --port <port>', 'ElasticSearch port. Defaults to 9200 unless linked to a Docker container aliased to Elasticsearch.', Number, esPort || 9200)
+  .option('-f, --file <file>', 'The json data file that contains the collected data endpoints and field mappings.')
+  .option('-m, --match <match>', 'A string or regular expression that the names from the <file> must contain or match')
+  .option('-h, --host <host>', 'ElasticSearch host. Defaults to localhost unless linked to a Docker container aliased to Elasticsearch', esHost)
+  .option('-p, --port <port>', 'ElasticSearch port. Defaults to 9200 unless linked to a Docker container aliased to Elasticsearch.', Number, esPort)
   .option('-a, --alias <alias>', 'Elasticsearch index alias. Defaults to address.', 'address')
   .option('-t, --type <type>', 'Elasticsearch type within the provided or default alias. Defaults to point.', 'point')
-  .option('-l, --log <log>', 'ElasticSearch log level. Defaults to debug.', 'debug')
-  .option('-q --quiet', 'Suppress logging.', false)
+  .option('-l, --log <log>', 'ElasticSearch log level. Defaults to error.', 'error')
+  .option('-q, --quiet', 'Suppress logging.', false)
   .option('-b, --backup-bucket <backupBucket>', 'An S3 bucket where the data should be backed up.')
   .option('-d, --backup-directory <backupDirectory>', 'A directory where the data should be loaded, either relative to the current folder or the passed S3 bucket.')
-  .option('--profile <profile>', 'The aws profile in ~/.aws/credentials. Will also respect environmental variables.', 'default')
+  .option('--profile', 'The aws profile in ~/.aws/credentials. Will also respect environmental variables.', 'default')
   .option('--monitor', 'Run the retriever in monitoring mode which only checks data source freshness and doesn\'t load or backup data.')
   .parse(process.argv);
 
-if(options.quiet){
-  logger.remove(winston.transports.Console);
-}
 
-options.logger = logger;
+var logger = makeLogger(options);
 
+options.client = esLoader.connect(options.host, options.port, options.log);
 
-var usage = checkUsage(options, process.env);
-if(usage.err) throw new Error(usage.messages.join(''));
-usage.messages.forEach(function(v){logger.info(v)});
-
+if(options.monitor) logger.info('Running in monitoring mode. Remote files will be checked for freshness but not loaded or backed up.');
 
 retriever(options);
-

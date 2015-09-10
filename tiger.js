@@ -13,6 +13,8 @@ var ogrChild = require('./lib/ogrChild');
 var unzipFile = require('./lib/unzipFile');
 var assureRecordCount = require('./lib/assureRecordCount');
 var loader = require('./lib/loader');
+var esLoader = require('./lib/esLoader');
+var createIndex = require('./lib/createIndex');
 var makeLogger = require('./lib/makeLogger');
 
 //If linked to an elasticsearch Docker container
@@ -46,6 +48,8 @@ options
 
 
 var logger = makeLogger(options);
+
+options.client = esLoader.connect(options.host, options.port, options.log);
 
 
 function worker(file, callback){
@@ -89,17 +93,26 @@ function worker(file, callback){
 
 var queue = async.queue(worker, options.concurrency);
 
+
 queue.drain = function(){
-  logger.info('All files processed.');
+  esLoader.applyAlias(options, options.forcedIndex, function(err){
+    options.client.close();
+    if(err) return logger.error('Unable to apply alias to %s', options.forcedIndex, err);
+    logger.info('All files processed.');
+  });
 };
 
-fs.readdir(options.directory, function(err, files){
+createIndex(options, 'tiger', function(err, index){
   if(err) return logger.error(err);
-  files.forEach(function(file){
-    queue.push(path.join(options.directory, file), function(err){
-      if(err)logger.error(err);
-      logger.info(file + ' finished processing');
-    })
-  })
-});
+  options.forcedIndex = index;
 
+  fs.readdir(options.directory, function(err, files){
+    if(err) return logger.error(err);
+    files.forEach(function(file){
+      queue.push(path.join(options.directory, file), function(err){
+        if(err)logger.error(err);
+        logger.info(file + ' finished processing');
+      })
+    })
+  });
+});
