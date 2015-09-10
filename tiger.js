@@ -13,6 +13,7 @@ var ogrChild = require('./lib/ogrChild');
 var unzipFile = require('./lib/unzipFile');
 var assureRecordCount = require('./lib/assureRecordCount');
 var loader = require('./lib/loader');
+var esLoader = require('./lib/esLoader');
 var makeLogger = require('./lib/makeLogger');
 
 //If linked to an elasticsearch Docker container
@@ -46,6 +47,8 @@ options
 
 
 var logger = makeLogger(options);
+
+options.client = esLoader.connect(options.host, options.port, options.log);
 
 
 function worker(file, callback){
@@ -89,9 +92,14 @@ function worker(file, callback){
 
 var queue = async.queue(worker, options.concurrency);
 
+
 queue.drain = function(){
-  logger.info('All files processed.');
+  esLoader.applyAlias(options, function(err){
+    if(err) return logger.error('Unable to apply alias to %s', options.forcedIndex, err);
+    logger.info('All files processed.');
+  });
 };
+
 
 fs.readdir(options.directory, function(err, files){
   if(err) return logger.error(err);

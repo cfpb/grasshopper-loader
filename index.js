@@ -5,6 +5,7 @@
 var options = require('commander');
 var retriever = require('./lib/retriever');
 var makeLogger = require('./lib/makeLogger');
+var esLoader = require('./lib/esLoader');
 
 
 //Favor source GDAL installations for ogr transformations
@@ -40,6 +41,7 @@ options
 
 var logger = makeLogger(options);
 
+options.client = esLoader.connect(options.host, options.port, options.log);
 
 if(options.monitor) logger.info('Running in monitoring mode. Remote files will be checked for freshness but not loaded or backed up.');
 
