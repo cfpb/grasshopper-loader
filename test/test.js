@@ -108,6 +108,27 @@ test('esLoader module', function(t){
 
 });
 
+test('bulk Prefixer', function(t){
+  t.plan(3);
+
+  t.ok(isStream.isDuplex(bulkPrefixer()), 'bulkPrefixer returns a stream');
+
+  var pref = bulkPrefixer();
+  var pref2 = bulkPrefixer();
+  var prefixed = '{"index":{}}\nsomedata\n';
+
+  pref.end('somedata\n');
+  pref2.end('somedata');
+
+  pref.on('data', function(data){
+    t.equal(data.toString(), prefixed, 'Properly prefixes newline-delimited data');
+  });
+
+  pref2.on('data', function(data){
+    t.equal(data.toString(), prefixed, 'Properly prefixes data with missing newline');
+  });
+});
+
 
 test('uploadStream module', function(t){
   t.plan(7);
