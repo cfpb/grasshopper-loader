@@ -27,9 +27,9 @@
   {
     "name": "utah",
     "url": "ftp://ftp.agrc.utah.gov/UtahSGID_Vector/UTM12_NAD83/LOCATION/UnpackagedData/AddressPoints/_Statewide/AddressPoints_gdb.zip",
-    "hash": "322b786a0619d1ab66c750954afc61f2adf87bf8f107e22fbe3d28f3a9ee03a5",
+    "hash": "e2848b362960173226e0d0066988748571a0ddbe9b38ce387d460a4ee1d48654",
     "file": "AddressPoints.gdb",
-    "count": 1048172,
+    "count": 1052722,
     "fields": {
       "Address": {
         "type": "static",
@@ -79,7 +79,7 @@
     "url": "http://geostor-vectors.geostor.org/Location/SHP/SITUS_ADDRESS_PT.zip",
     "hash": "a00cf2ada728ea477404535a53083056a692b6f65ebb081ba8822e0640dd8239",
     "file": "SITUS_ADDRESS_PT.shp",
-    "count": 1431644,
+    "count": 1431636,
     "fields": {
       "Address": {
         "type": "static",
@@ -178,7 +178,7 @@
   {
     "name": "district_of_columbia",
     "url": "http://opendata.dc.gov/agol/arcgis/aa514416aaf74fdc94748f1e56e7cc8a/0.zip",
-    "hash": "4be0b89b1f9bbac458c7d9bcc651b6cfdd257b32cdc8735760ca2b8186ad2f35",
+    "hash": "171ee9a1fba2876b9ead818fd54ad139e08aa3cb415c10bd8b74820c103ae051",
     "file": "Address_Points.shp",
     "fields": {
       "Address": {
