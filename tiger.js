@@ -9,12 +9,14 @@ var pump = require('pump');
 var OgrJsonStream = require('ogr-json-stream');
 var options = require('commander');
 var async = require('async');
+var addProps = require('add-props-stream');
 var ogrChild = require('./lib/ogrChild');
 var unzipFile = require('./lib/unzipFile');
 var assureRecordCount = require('./lib/assureRecordCount');
 var loader = require('./lib/loader');
 var esLoader = require('./lib/esLoader');
 var createIndex = require('./lib/createIndex');
+var getTigerState = require('./lib/getTigerState');
 var makeLogger = require('./lib/makeLogger');
 
 //If linked to an elasticsearch Docker container
@@ -74,13 +76,12 @@ function worker(file, callback){
       if(record.count) logger.info('Detected %d records in %s', record.count, record.name);
 
       var child = ogrChild(unzipped);
-      var stream = OgrJsonStream.stringify();
-
+      var stream = addProps.stringify('properties.STATE', getTigerState(record.file));
       child.stderr.on('data', function(data){
         logger.error('Error:', data.toString());
       });
 
-      pump(child.stdout, stream);
+      pump(child.stdout, OgrJsonStream(), stream);
 
       loader(options, stream, record, callback);
     });
