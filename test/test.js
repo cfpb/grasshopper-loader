@@ -1,5 +1,6 @@
 var test = require('tape');
 var fs = require('fs-extra');
+var crypto = require('crypto');
 var path = require('path');
 var util = require('util');
 var pump = require('pump');
@@ -40,7 +41,10 @@ options
   .parse(process.argv);
 
 
-var maine = 'test/data/retriever/maine.json';
+var maine = 'test/data/metadata/maine.json';
+
+var scratchSpace = 'scratch/' + crypto.pseudoRandomBytes(10).toString('hex');
+fs.mkdirsSync(scratchSpace);
 
 var logger = new winston.Logger({
     transports: [
@@ -128,7 +132,13 @@ test('bulk Prefixer', function(t){
     t.equal(data.toString(), prefixed, 'Properly prefixes data with missing newline');
   });
 });
-
+/*
+test('handleCsv', function(t){
+  t.plan(4);
+  
+  
+});
+*/
 
 test('uploadStream module', function(t){
   t.plan(7);
@@ -169,7 +179,7 @@ test('fieldFilter module', function(t){
 
   fieldFilter.setLogger(logger);
 
-  var ncmeta = fs.readJsonSync('test/data/retriever/ncmeta.json');
+  var ncmeta = fs.readJsonSync('test/data/metadata/ncmeta.json');
   var count = 0;
 
   var cases = {
@@ -190,8 +200,8 @@ test('fieldFilter module', function(t){
     }
   }
 
-  var noFields = fs.readJsonSync('test/data/retriever/no_fields.json');
-  var emptyFields = fs.readJsonSync('test/data/retriever/empty_fields.json');
+  var noFields = fs.readJsonSync('test/data/fields/test_fields/no_fields.json');
+  var emptyFields = fs.readJsonSync('test/data/fields/test_fields/empty_fields.json');
   var nc = fs.readJsonSync('test/data/fields/north_carolina.json');
 
   Object.keys(cases).forEach(function(v){
@@ -226,9 +236,9 @@ test('fieldFilter module', function(t){
 test('ogrChild module', function(t){
   t.plan(6);
 
-  var shp= 'test/data/loader/t.shp';
+  var shp= 'test/data/arkansas/arkansas.shp';
   var shpChild = ogrChild(shp);
-  var json = 'test/data/loader/new_york.json';
+  var json = 'test/data/arkansas.json';
   var jsonChild = ogrChild(json, fs.createReadStream(json));
   var errInShp = 0;
   var errInJson = 0;
@@ -287,11 +297,11 @@ test('retriever', function(t){
     t.equal(output.errors.length, 1, 'Errors on bad file and good bucket.');
   });
 
-  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, backupBucket: 'wyatt-test', profile: 'default', backupDirectory: '.', file: 'test/data/retriever/parent_dir.json'}, function(output){
+  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, backupBucket: 'wyatt-test', profile: 'default', backupDirectory: '.', file: 'test/data/metadata/parent_dir.json'}, function(output){
     t.equal(output.errors.length, 1, 'Errors on parent dir in record name.');
   });
 
-  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, backupBucket: 'wyatt-test', profile: 'default', backupDirectory: '.', file: 'test/data/retriever/slash.json'}, function(output){
+  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, backupBucket: 'wyatt-test', profile: 'default', backupDirectory: '.', file: 'test/data/metadata/slash.json'}, function(output){
     t.equal(output.errors.length, 1, 'Errors on forward slash in record name.');
   });
 
@@ -319,22 +329,22 @@ test('retriever', function(t){
     t.equal(output.processed.length, 0, 'Loads nothing when no data matched.');
   });
 
-  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: 'default', backupDirectory: 'test/output', file: 'test/data/retriever/mainejson.json'}, function(output){
+  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: 'default', backupDirectory: 'test/output', file: 'test/data/metadata/mainejson.json'}, function(output){
     t.equal(output.errors.length, 0, 'No error on good json file.');
     t.equal(output.processed.length, 1, 'Loads data from json file.');
   });
 
-  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: 'default', backupDirectory: 'test/output', file: 'test/data/retriever/mainecsv.json'}, function(output){
+  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: 'default', backupDirectory: 'test/output', file: 'test/data/metadata/mainecsv.json'}, function(output){
     t.equal(output.errors.length, 0, 'No error on csv.');
     t.equal(output.processed.length, 1, 'Loads data from csv.');
   });
 
-  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: 'default', backupDirectory: 'test/output', file: 'test/data/retriever/mainezipcsv.json'}, function(output){
+  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: 'default', backupDirectory: 'test/output', file: 'test/data/metadata/mainezipcsv.json'}, function(output){
     t.equal(output.errors.length, 0, 'No error on zipped csv.');
     t.equal(output.processed.length, 1, 'Loads data from zipped csv.');
   });
 
-  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: 'default', backupDirectory: 'test/output', file: 'test/data/retriever/maineandarkanderr.json'}, function(output){
+  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: 'default', backupDirectory: 'test/output', file: 'test/data/metadata/maineandarkanderr.json'}, function(output){
     t.equal(output.errors.length, 1, 'Hash error from file with hash error.')
     t.equal(output.processed.length, 3, 'Processes errors and successes alike.');
     t.equal(output.loaded.length, 2, 'Loads data after hash error.');
@@ -342,7 +352,7 @@ test('retriever', function(t){
     t.equal(output.fresh.length, 2, 'Gets fresh data');
   });
 
-  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: 'default', backupDirectory: 'test/output', file: 'test/data/retriever/maineandarkandparenterr.json'}, function(output){
+  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: 'default', backupDirectory: 'test/output', file: 'test/data/metadata/maineandarkandparenterr.json'}, function(output){
     t.equal(output.errors.length, 1, 'Parent dir error');
     t.equal(output.processed.length, 3, 'Processes errors and successes alike.');
     t.equal(output.loaded.length, 2, 'Loads data after parent dir error.');
@@ -354,7 +364,7 @@ test('retriever', function(t){
       t.equal(code, 0, 'Loads via cli');
     });
 
-  spawn('./test/data/retriever/no-cb.js', ['-l', 'error', '-h', options.host, '-p', options.port, '-a', options.alias, '-t', options.type, '-b', 'wyatt-test', '--profile', 'default', '-d', '.', '-f', maine])
+  spawn('./test/no-cb.js', ['-l', 'error', '-h', options.host, '-p', options.port, '-a', options.alias, '-t', options.type, '-b', 'wyatt-test', '--profile', 'default', '-d', '.', '-f', maine])
     .on('exit', function(code){
       t.equal(code, 0, 'Works without a callback.');
     });
@@ -367,13 +377,13 @@ test('Ensure output', function(t){
   t.plan(10);
   var count = 0;
 
- retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: 'default', backupDirectory: 'test/output', file: 'test/data/retriever/parcelsjson.json'}, function(output){
+ retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: 'default', backupDirectory: 'test/output', file: 'test/data/metadata/parcelsjson.json'}, function(output){
     t.equal(output.errors.length, 0, 'No error on converted parcels.')
     t.equal(output.processed.length, 1, 'Loads data from parcels');
     ensure(++count);
   });
 
-  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, match: 'maine, arkansas', quiet: true, logger: logger, profile: 'default', backupDirectory: 'test/output', file: 'test/data/retriever/maineandarkanderr.json'}, function(output){
+  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, match: 'maine, arkansas', quiet: true, logger: logger, profile: 'default', backupDirectory: 'test/output', file: 'test/data/metadata/maineandarkanderr.json'}, function(output){
     t.equal(output.errors.length, 0, 'No error on filtered file.')
     t.equal(output.processed.length, 2, 'Loads data after filter.');
     ensure(++count);
@@ -409,7 +419,7 @@ test('Field tests', function(t){
   t.plan(data.length*3);
 
   fs.readdirSync('test/data/fields')
-    .filter(function(v){return v[0] !== '.'})
+    .filter(function(v){return v[0] !== '.' && v.indexOf('.') !== -1})
     .forEach(function(v){fieldFiles[path.basename(v, '.json')] = fs.readJsonSync(path.join('test/data/fields', v))});
 
   data.forEach(function(source){
@@ -431,7 +441,9 @@ test('Field tests', function(t){
 });
 
 test('Cleanup', function(t){
-  t.plan(1);
+  t.plan(2);
   client.close();
   t.pass('Elasticsearch client closed');
+  fs.removeSync(scratchSpace);
+  t.pass('scratchSpace removed');
 })

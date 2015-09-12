@@ -3,9 +3,9 @@
 'use strict';
 
 var options = require('commander');
-var retriever = require('../../../lib/retriever');
-var makeLogger = require('../../../lib/makeLogger');
-var esLoader = require('../../../lib/esLoader');
+var retriever = require('../lib/retriever');
+var makeLogger = require('../lib/makeLogger');
+var esLoader = require('../lib/esLoader');
 
 
 //Favor source GDAL installations for ogr transformations
