@@ -17,6 +17,7 @@ var fieldFilter = require('../lib/fieldFilter');
 var formatAddress = require('../lib/formatAddress');
 var esLoader = require('../lib/esLoader');
 var ogrChild = require('../lib/ogrChild');
+var handleCsv = require('../lib/handleCsv');
 var bulkPrefixer = require('../lib/bulkPrefixer');
 
 
@@ -112,6 +113,7 @@ test('esLoader module', function(t){
 
 });
 
+
 test('bulk Prefixer', function(t){
   t.plan(3);
 
@@ -132,13 +134,59 @@ test('bulk Prefixer', function(t){
     t.equal(data.toString(), prefixed, 'Properly prefixes data with missing newline');
   });
 });
-/*
+
+
 test('handleCsv', function(t){
-  t.plan(4);
-  
-  
+  t.plan(6);
+  var csvFile = 'test/data/virginia.csv';
+  var txtFile = 'test/data/virginia.txt';
+  var csvStream = fs.createReadStream(csvFile);
+  var txtStream = fs.createReadStream(txtFile);
+  var txtRecord = {name: 'virginia', file: 'virginia.txt', spatialReference: 'NAD83'}
+  var csvRecord = {name: 'virginia', file: 'virginia.csv', spatialReference: 'NAD83'}
+  var badTxtRecord = {name: 'virginia', file: 'virginia.txt'};
+
+  handleCsv(csvFile, csvRecord, scratchSpace, function(record, vrt){
+    t.ok(vrt, 'Creates a valid vrt file from a csv file and good record.');
+  },
+  function(record, err){
+   if(err) t.fail('Unexpected error.');
+  });
+
+  handleCsv(csvStream, csvRecord, scratchSpace, function(record, vrt){
+    t.ok(vrt, 'Creates a valid vrt file from a csv stream and good record.');
+  },
+  function(record, err){
+   if(err) t.fail('Unexpected error.');
+  });
+
+  handleCsv(txtFile, txtRecord, scratchSpace, function(record, vrt){
+    t.ok(vrt, 'Creates a valid vrt file from a text file and good record.');
+  },
+  function(record, err){
+   if(err) console.log(err);
+  });
+
+  handleCsv(txtStream, txtRecord, scratchSpace, function(record, vrt){
+    t.ok(vrt, 'Creates a valid vrt file from a text stream and good record.');
+  },
+  function(record, err){
+   if(err) console.log(err);
+  });
+
+  handleCsv(txtFile, badTxtRecord, scratchSpace, function(){
+  },
+  function(record, err){
+    t.ok(err, 'Errors without a spatial reference.');
+  });
+
+  handleCsv('fake', csvRecord, scratchSpace, function(){
+  },
+  function(record, err){
+    t.ok(err, 'Fails with bad filename.');
+  });
 });
-*/
+
 
 test('uploadStream module', function(t){
   t.plan(7);
@@ -441,9 +489,11 @@ test('Field tests', function(t){
 });
 
 test('Cleanup', function(t){
-  t.plan(2);
+  t.plan(3);
   client.close();
   t.pass('Elasticsearch client closed');
   fs.removeSync(scratchSpace);
   t.pass('scratchSpace removed');
+  fs.copy('test/data/virginia.csv', 'test/data/virginia.txt');
+  t.pass('remake virginia test file');
 })
