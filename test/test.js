@@ -494,6 +494,7 @@ test('Cleanup', function(t){
   t.pass('Elasticsearch client closed');
   fs.removeSync(scratchSpace);
   t.pass('scratchSpace removed');
-  fs.copy('test/data/virginia.csv', 'test/data/virginia.txt');
+  fs.copySync('test/data/virginia.csv', 'test/data/virginia.txt');
+  fs.removeSync('test/data/virginia.vrt');
   t.pass('remake virginia test file');
 })
