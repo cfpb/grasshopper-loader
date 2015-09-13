@@ -164,6 +164,7 @@ test('handleCsv module', function(t){
 
   handleCsv(txtFile, txtRecord, scratchSpace, function(record, vrt){
     t.ok(vrt, 'Creates a valid vrt file from a text file and good record.');
+    fs.copySync('test/data/virginia.csv', 'test/data/virginia.txt');
   },
   function(record, err){
    if(err) console.log(err);
@@ -223,11 +224,31 @@ test('unzipFile module', function(t){
  });
 });
 
-/*
+
 test('handleZip module', function(t){
-  
+  t.plan(5);
+
+  var arkRecord = {name: 'arkansas', file: 'arkansas.zip'};
+  var virgRecord = {name: 'virg', file: 'virg.csv', spatialReference: 'NAD83'};
+
+  handleZip(fs.createReadStream('test/data/arkansas.zip'), arkRecord, scratchSpace,
+    function(record, file){
+      t.ok(file, 'handleZip works on zipped shapefile.');
+      t.equal(record, arkRecord, 'Passes through correct record.');
+    }, function(record, err){t.notOk(err)});
+
+  handleZip(fs.createReadStream('test/data/virg.zip'), virgRecord, scratchSpace,
+    function(record, file){
+      t.ok(file, 'handleZip works on zipped csv.');
+      t.equal(record, virgRecord, 'Passes through correct record.');
+    }, function(record, err){t.notOk(err)})
+
+  handleZip(fs.createReadStream('test/data/virginia.csv'), virgRecord, scratchSpace,
+    function(record, file){
+      t.notOk(file);
+    }, function(record, err){t.ok(err, 'Errors on bad file.')})
 });
-*/
+
 
 test('uploadStream module', function(t){
   t.plan(7);
@@ -535,7 +556,6 @@ test('Cleanup', function(t){
   t.pass('Elasticsearch client closed');
   fs.removeSync(scratchSpace);
   t.pass('scratchSpace removed');
-  fs.copySync('test/data/virginia.csv', 'test/data/virginia.txt');
   fs.removeSync('test/data/virginia.vrt');
-  t.pass('remake virginia test file');
+  t.pass('Remove generated vrt');
 })
