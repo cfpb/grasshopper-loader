@@ -18,6 +18,8 @@ var formatAddress = require('../lib/formatAddress');
 var esLoader = require('../lib/esLoader');
 var ogrChild = require('../lib/ogrChild');
 var handleCsv = require('../lib/handleCsv');
+var unzipFile = require('../lib/unzipFile');
+var handleZip = require('../lib/handleZip');
 var bulkPrefixer = require('../lib/bulkPrefixer');
 
 
@@ -136,7 +138,7 @@ test('bulk Prefixer', function(t){
 });
 
 
-test('handleCsv', function(t){
+test('handleCsv module', function(t){
   t.plan(6);
   var csvFile = 'test/data/virginia.csv';
   var txtFile = 'test/data/virginia.txt';
@@ -187,6 +189,45 @@ test('handleCsv', function(t){
   });
 });
 
+
+test('unzipFile module', function(t){
+ t.plan(3);
+ var zipfile = 'test/data/arkansas.zip';
+ var badfile = 'test/data/nofilehere.notzip';
+ var record = {name: 'arkansas', file: 'arkansas.zip'};
+ var badRecord = {name: 'arkansas'};
+
+ var dir1 = path.join(scratchSpace, crypto.pseudoRandomBytes(10).toString('hex'));
+ var dir2 = path.join(scratchSpace, crypto.pseudoRandomBytes(10).toString('hex'));
+ var dir3 = path.join(scratchSpace, crypto.pseudoRandomBytes(10).toString('hex'));
+
+ unzipFile(zipfile, record, dir1, function(file){
+   t.ok(file, 'Successfully unzips file.');
+ },
+ function(record, err){
+   t.notOk(err);
+ });
+
+ unzipFile(badfile, record, dir2, function(file){
+   t.notOk(file);
+ },
+ function(record, err){
+   t.ok(err, 'Error on bad file.');
+ });
+
+ unzipFile(zipfile, badRecord, dir3, function(file){
+   t.notOk(file);
+ },
+ function(record, err){
+   t.ok(err, 'Error without complete record.');
+ });
+});
+
+/*
+test('handleZip module', function(t){
+  
+});
+*/
 
 test('uploadStream module', function(t){
   t.plan(7);
