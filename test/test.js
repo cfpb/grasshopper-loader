@@ -21,6 +21,7 @@ var handleCsv = require('../lib/handleCsv');
 var unzipFile = require('../lib/unzipFile');
 var handleZip = require('../lib/handleZip');
 var bulkPrefixer = require('../lib/bulkPrefixer');
+var assureRecordCount = require('../lib/assureRecordCount');
 
 
 //If linked to an elasticsearch Docker container
@@ -247,6 +248,28 @@ test('handleZip module', function(t){
     function(record, file){
       t.notOk(file);
     }, function(record, err){t.ok(err, 'Errors on bad file.')})
+});
+
+
+test('assureRecordCount module', function(t){
+  t.plan(5);
+
+  var countOnly = {count: 123};
+  var deriveCount = {};
+
+  assureRecordCount(deriveCount, 'test/data/arkansas.json', function(err){
+    t.notOk(err, 'Doesn\'t err on good file and args.');
+    t.equal(deriveCount.count, 19, 'Gets the appropriate count.');
+  });
+
+  assureRecordCount(countOnly, 'doesn\'t matter', function(err){
+    t.notOk(err, 'Doesn\'t err on good args and count present.');
+    t.equal(countOnly.count, 123, 'Count remains the same.');
+  });
+
+  assureRecordCount({}, 'test/data/fakebadfile', function(err){
+    t.ok(err, 'Errs on bad file if no count provided.');
+  });
 });
 
 
