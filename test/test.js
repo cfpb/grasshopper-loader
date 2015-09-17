@@ -22,7 +22,7 @@ var unzipFile = require('../lib/unzipFile');
 var handleZip = require('../lib/handleZip');
 var bulkPrefixer = require('../lib/bulkPrefixer');
 var assureRecordCount = require('../lib/assureRecordCount');
-
+var connectToFtp = require('../lib/connectToFtp');
 
 //If linked to an elasticsearch Docker container
 var esVar = process.env.ELASTICSEARCH_PORT;
@@ -269,6 +269,22 @@ test('assureRecordCount module', function(t){
 
   assureRecordCount({}, 'test/data/fakebadfile', function(err){
     t.ok(err, 'Errs on bad file if no count provided.');
+  });
+});
+
+
+test('connectToFtp module', function(t){
+  t.plan(3);
+  connectToFtp({hostname: 'hn'}, {name: 'connect'}, function(){}, function(err){
+    t.ok(err, 'Errors without path');
+  });
+
+  connectToFtp({path: 'pa'}, {name: 'connect'}, function(){}, function(err){
+    t.ok(err, 'Errors without hostname');
+  });
+
+  connectToFtp({hostname: 'hn', path: 'pa'}, {name: 'connect'}, function(){}, function(err){
+    t.ok(err, 'Errors with bad FTP.');
   });
 });
 
