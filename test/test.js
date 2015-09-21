@@ -25,6 +25,7 @@ var bulkPrefixer = require('../lib/bulkPrefixer');
 var assureRecordCount = require('../lib/assureRecordCount');
 var connectToFtp = require('../lib/connectToFtp');
 var makeLogger = require('../lib/makeLogger');
+var getTigerState = require('../lib/getTigerState');
 
 //If linked to an elasticsearch Docker container
 var esVar = process.env.ELASTICSEARCH_PORT;
@@ -410,6 +411,18 @@ test('fieldFilter module', function(t){
     }
   }
 
+});
+
+
+test('getTigerState module', function(t){
+  t.plan(3);
+  var CA = getTigerState('tl_2014_06071_addrfeat.zip');
+  var nomatch = getTigerState('somefile');
+  var badmatch = getTigerState('tl_2014_99071_addrfeat.zip');
+
+  t.equal(CA, 'CA', 'Gets state for a valid TIGER file');
+  t.equal(nomatch, undefined, 'Returns undefined when FIPS isn\'t matched');
+  t.equal(badmatch, undefined, 'Returns undefined when FIPS isn\'t valid');
 });
 
 
