@@ -24,6 +24,7 @@ var handleZip = require('../lib/handleZip');
 var bulkPrefixer = require('../lib/bulkPrefixer');
 var assureRecordCount = require('../lib/assureRecordCount');
 var connectToFtp = require('../lib/connectToFtp');
+var makeLogger = require('../lib/makeLogger');
 
 //If linked to an elasticsearch Docker container
 var esVar = process.env.ELASTICSEARCH_PORT;
@@ -90,6 +91,15 @@ test('formatAddress module', function(t){
   t.equal(formatAddress('  221B Baker St.', 'Arg  ', 'AZ', '67876'), add2, 'Trim strings');
   t.equal(formatAddress('123 Unique Way', '', null), add3, 'Gracefully handles lack of city, state, zip');
   t.equal(formatAddress('', 'Yreka', 'CA'), null, 'Returns null on no street number/name');
+});
+
+
+test('makeLogger module', function(t){
+  t.plan(2);
+  var l1 = makeLogger({});
+  var l2 = makeLogger({quiet: 1});
+  t.ok(l1.transports.info, 'Logs at info level if not set to quiet.');
+  t.ok(l2.transports.error, 'Logs at error level if set to quiet.');
 });
 
 
