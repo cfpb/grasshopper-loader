@@ -15,6 +15,7 @@ var checkHash = require('../lib/checkHash');
 var UploadStream = require('../lib/UploadStream');
 var fieldFilter = require('../lib/fieldFilter');
 var formatAddress = require('../lib/formatAddress');
+var createIndex = require('../lib/createIndex');
 var esLoader = require('../lib/esLoader');
 var ogrChild = require('../lib/ogrChild');
 var handleCsv = require('../lib/handleCsv');
@@ -114,6 +115,26 @@ test('esLoader module', function(t){
     t.ok(isStream.isWritable(loader), 'esLoader.load returns a write stream');
   });
 
+});
+
+
+test('createIndex module', function(t){
+  t.plan(3);
+
+  var client = options.client;
+
+  createIndex({alias: 'testalias', client: client}, 'testname', function(err, index){
+    if(err) t.fail();
+    t.ok(index, 'Assigns index for arbitrary alias.');
+  });
+
+  createIndex({alias: 'census', client: client}, 'testname', function(err, index){
+    if(err) t.fail();
+    t.ok(index, 'Creates index for census.');
+    client.indices.delete({index: index}, function(err){
+      t.notOk(err, 'Deletes test index');
+    });
+  });
 });
 
 
