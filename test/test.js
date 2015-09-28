@@ -26,6 +26,10 @@ var assureRecordCount = require('../lib/assureRecordCount');
 var connectToFtp = require('../lib/connectToFtp');
 var makeLogger = require('../lib/makeLogger');
 var getTigerState = require('../lib/getTigerState');
+var jsonToCsv = require('../lib/jsonToCsv');
+
+
+
 
 //If linked to an elasticsearch Docker container
 var esVar = process.env.ELASTICSEARCH_PORT;
@@ -38,6 +42,9 @@ if(esVar){
   esPort = +esVar[1];
 }
 
+
+
+
 options
   .version('0.0.1')
   .option('-h, --host <host>', 'ElasticSearch host. Defaults to localhost', esHost)
@@ -48,10 +55,13 @@ options
   .parse(process.argv);
 
 
+
+
 var maine = 'test/data/metadata/maine.json';
 
 var scratchSpace = 'scratch/' + crypto.pseudoRandomBytes(10).toString('hex');
 fs.mkdirsSync(scratchSpace);
+
 
 var logger = new winston.Logger({
     transports: [
@@ -63,6 +73,8 @@ logger.remove(winston.transports.Console);
 
 
 var client = esLoader.connect(options.host, options.port, []);
+
+
 
 
 test('checkHash module', function(t){
@@ -81,6 +93,8 @@ test('checkHash module', function(t){
 });
 
 
+
+
 test('formatAddress module', function(t){
   t.plan(4);
 
@@ -95,6 +109,8 @@ test('formatAddress module', function(t){
 });
 
 
+
+
 test('makeLogger module', function(t){
   t.plan(2);
   var l1 = makeLogger({});
@@ -104,6 +120,8 @@ test('makeLogger module', function(t){
 });
 
 
+
+
 test('esLoader module', function(t){
   t.plan(5);
   try{
@@ -111,6 +129,8 @@ test('esLoader module', function(t){
   }catch(e){
     t.pass('Connect fails without host/port')
   }
+
+
 
 
   options.client = client;
@@ -127,6 +147,8 @@ test('esLoader module', function(t){
   });
 
 });
+
+
 
 
 test('createIndex module', function(t){
@@ -149,6 +171,8 @@ test('createIndex module', function(t){
 });
 
 
+
+
 test('bulk Prefixer', function(t){
   t.plan(3);
 
@@ -169,6 +193,8 @@ test('bulk Prefixer', function(t){
     t.equal(data.toString(), prefixed, 'Properly prefixes data with missing newline');
   });
 });
+
+
 
 
 test('handleCsv module', function(t){
@@ -224,6 +250,8 @@ test('handleCsv module', function(t){
 });
 
 
+
+
 test('unzipFile module', function(t){
  t.plan(3);
  var zipfile = 'test/data/arkansas.zip';
@@ -258,6 +286,8 @@ test('unzipFile module', function(t){
 });
 
 
+
+
 test('handleZip module', function(t){
   t.plan(5);
 
@@ -283,6 +313,8 @@ test('handleZip module', function(t){
 });
 
 
+
+
 test('assureRecordCount module', function(t){
   t.plan(5);
 
@@ -305,6 +337,8 @@ test('assureRecordCount module', function(t){
 });
 
 
+
+
 test('connectToFtp module', function(t){
   t.plan(3);
   connectToFtp({hostname: 'hn'}, {name: 'connect'}, function(){}, function(err){
@@ -319,6 +353,8 @@ test('connectToFtp module', function(t){
     t.ok(err, 'Errors with bad FTP.');
   });
 });
+
+
 
 
 test('uploadStream module', function(t){
@@ -352,6 +388,7 @@ test('uploadStream module', function(t){
   });
 
 });
+
 
 
 
@@ -414,6 +451,8 @@ test('fieldFilter module', function(t){
 });
 
 
+
+
 test('getTigerState module', function(t){
   t.plan(3);
   var CA = getTigerState('tl_2014_06071_addrfeat.zip');
@@ -424,6 +463,8 @@ test('getTigerState module', function(t){
   t.equal(nomatch, undefined, 'Returns undefined when FIPS isn\'t matched');
   t.equal(badmatch, undefined, 'Returns undefined when FIPS isn\'t valid');
 });
+
+
 
 
 test('ogrChild module', function(t){
@@ -466,6 +507,8 @@ test('ogrChild module', function(t){
   pump(jsonChild.stdout, jsonStats, jsonStats.sink());
 
 });
+
+
 
 
 test('retriever', function(t){
@@ -568,6 +611,7 @@ test('retriever', function(t){
     t.equal(output.fresh.length, 2, 'Gets fresh data');
   });
 
+
   spawn('./index.js', ['-l', 'error', '-h', options.host, '-p', options.port, '-a', options.alias, '-t', options.type, '-b', 'wyatt-test', '--profile', 'default', '-d', '.', '-f', maine])
     .on('exit', function(code){
       t.equal(code, 0, 'Loads via cli');
@@ -586,6 +630,7 @@ test('retriever', function(t){
     });
 
 });
+
 
 
 
@@ -628,6 +673,7 @@ test('Ensure output', function(t){
 
 
 
+
 test('Field tests', function(t){
   var data = fs.readJsonSync('data.json');
   var fieldFiles = {};
@@ -653,8 +699,10 @@ test('Field tests', function(t){
 
     fieldStream.end(fieldFiles[source.name]);
   });
-
 });
+
+
+
 
 test('Cleanup', function(t){
   t.plan(3);
