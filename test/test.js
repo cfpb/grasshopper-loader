@@ -27,7 +27,7 @@ var connectToFtp = require('../lib/connectToFtp');
 var makeLogger = require('../lib/makeLogger');
 var getTigerState = require('../lib/getTigerState');
 var jsonToCsv = require('../lib/jsonToCsv');
-
+var backup = require('../lib/backup');
 
 
 
@@ -51,6 +51,8 @@ options
   .option('-p, --port <port>', 'ElasticSearch port. Defaults to 9200', Number, esPort)
   .option('-a, --alias <alias>', 'Elasticsearch index alias. Defaults to testindex', 'testindex')
   .option('-t, --type <type>', 'Elasticsearch type within the provided or default index. Defaults to testtype', 'testtype')
+  .option('-b, --backup-bucket <backupBucket>', 'An S3 bucket where the data should be backed up.', 'wyatt-test')
+  .option('-d, --backup-directory <backupDirectory>', 'A directory where the data should be loaded, either relative to the current folder or the passed S3 bucket.', '.')
   .option('--profile', 'The aws credentials profile in ~/.aws/credentials. Will also respect AWS keys as environment variables.', 'default')
   .parse(process.argv);
 
@@ -360,10 +362,10 @@ test('connectToFtp module', function(t){
 test('uploadStream module', function(t){
   t.plan(7);
 
-  var uploadStream = new UploadStream('wyatt-test', 'default');
+  var uploadStream = new UploadStream(options.backupBucket, 'default');
   t.ok(uploadStream.S3, 'Creates and returns an S3 instance.');
   t.ok(uploadStream.credentials, 'Creates credentials object.');
-  t.equal(uploadStream.bucket, 'wyatt-test', 'Saves reference to bucket.');
+  t.equal(uploadStream.bucket, options.backupBucket, 'Saves reference to bucket.');
 
   try{
     new UploadStream();
@@ -389,6 +391,18 @@ test('uploadStream module', function(t){
 
 });
 
+
+/*
+test('backup module', function(t){
+  t.plan(5);
+
+  var op1 = {backupBucket: options.backupBucket,}
+
+  backup(op1, stream, rec1, function(err){});
+  backup(op2, stream, rec2, function(err){});
+  backup(op3, stream, rec3, function(err){});
+});
+*/
 
 
 
@@ -467,6 +481,34 @@ test('getTigerState module', function(t){
 
 
 
+test('jsonToCsv module', function(t){
+  t.plan(3);
+  var stream = jsonToCsv();
+
+  stream.once('error', function(err){
+    t.ok(err, 'Fails on bad json');
+    stream.once('error', function(err){
+      t.ok(err, 'Fails without required props');
+    });
+    stream.write('{}');
+  });
+
+  var i=0;
+
+  stream.on('data', function(d){
+    if(i===1){
+      t.ok(d, '2,3,add,alt\n', 'Returns proper csv address');
+    }
+    i++;
+  });
+
+  stream.write(new Buffer('qwe'));
+  stream.end(new Buffer('{"geometry":{"coordinates":[2,3]},"properties":{"address":"add","alt_address":"alt"}}'));
+});
+
+
+
+
 test('ogrChild module', function(t){
   t.plan(6);
 
@@ -515,44 +557,44 @@ test('retriever', function(t){
 
   t.plan(32);
 
-  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: 'default', backupDirectory: '.', file: 'nofile'}, function(output){
+  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: 'default', backupDirectory: options.backupDirectory, file: 'nofile'}, function(output){
     if(output.errors.length !== 1) console.log(output.errors);
     t.equal(output.errors.length, 1, 'Errors on bad file and no bucket.');
   });
 
-  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: 'noprofilepresentfakeprofile', backupBucket: 'wyatt-test', file: maine}, function(output){
+  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: 'noprofilepresentfakeprofile', backupBucket: options.backupBucket, file: maine}, function(output){
     var errLen = 1;
     if(process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) errLen = 0;
     if(output.errors.length !== errLen) console.log(output.errors);
     t.equal(output.errors.length, errLen, 'Errors on bad profile, only without environment variables set.');
   });
 
-  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: 'default', backupDirectory: '.', file: ''}, function(output){
+  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: 'default', backupDirectory: options.backupDirectory, file: ''}, function(output){
     if(output.errors.length !== 1) console.log(output.errors);
     t.equal(output.errors.length, 1, 'Errors with no file passed.');
   });
 
-  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, backupBucket: 'wyatt-test', profile: 'default', backupDirectory: '.', file: 'nofile'}, function(output){
+  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, backupBucket: options.backupBucket, profile: 'default', backupDirectory: options.backupDirectory, file: 'nofile'}, function(output){
     if(output.errors.length !== 1) console.log(output.errors);
     t.equal(output.errors.length, 1, 'Errors on bad file and good bucket.');
   });
 
-  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, backupBucket: 'wyatt-test', profile: 'default', backupDirectory: '.', file: 'test/data/metadata/parent_dir.json'}, function(output){
+  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, backupBucket: options.backupBucket, profile: 'default', backupDirectory: options.backupDirectory, file: 'test/data/metadata/parent_dir.json'}, function(output){
     if(output.errors.length !== 1) console.log(output.errors);
     t.equal(output.errors.length, 1, 'Errors on parent dir in record name.');
   });
 
-  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, backupBucket: 'wyatt-test', profile: 'default', backupDirectory: '.', file: 'test/data/metadata/slash.json'}, function(output){
+  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, backupBucket: options.backupBucket, profile: 'default', backupDirectory: options.backupDirectory, file: 'test/data/metadata/slash.json'}, function(output){
     if(output.errors.length !== 1) console.log(output.errors);
     t.equal(output.errors.length, 1, 'Errors on forward slash in record name.');
   });
 
-  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, backupBucket: 'fakebucketskjhqblwjdqwobdjabmznmbxbcbcnnbmcioqwOws', profile: 'default', backupDirectory: '.', file: maine}, function(output){
+  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, backupBucket: 'fakebucketskjhqblwjdqwobdjabmznmbxbcbcnnbmcioqwOws', profile: 'default', backupDirectory: options.backupDirectory, file: maine}, function(output){
     if(output.errors.length !== 1) console.log(output.errors);
     t.equal(output.errors.length, 1, 'Error on bad bucket.');
   });
 
-  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, backupBucket: 'wyatt-test', profile: 'default', backupDirectory: '.', file: maine}, function(output){
+  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, backupBucket: options.backupBucket, profile: 'default', backupDirectory: options.backupDirectory, file: maine}, function(output){
     if(output.errors.length !== 0) console.log(output.errors);
     t.equal(output.errors.length, 0, 'No error on good file and bucket.');
     t.equal(output.processed.length, 1, 'Loads data from the test dataset to bucket.');
@@ -564,13 +606,13 @@ test('retriever', function(t){
     t.equal(output.processed.length, 1, 'Loads data from test data locally.');
   });
 
-  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, backupBucket: 'wyatt-test', profile: 'default', backupDirectory: '.', file: maine, match: 'maine'}, function(output){
+  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, backupBucket: options.backupBucket, profile: 'default', backupDirectory: options.backupDirectory, file: maine, match: 'maine'}, function(output){
     if(output.errors.length !== 0) console.log(output.errors);
     t.equal(output.errors.length, 0, 'No error with match.');
     t.equal(output.processed.length, 1, 'Loads matched data.');
   });
 
-  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, backupBucket: 'wyatt-test', profile: 'default', backupDirectory: '.', file: maine, match: 'nomatch'}, function(output){
+  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, backupBucket: options.backupBucket, profile: 'default', backupDirectory: options.backupDirectory, file: maine, match: 'nomatch'}, function(output){
     if(output.errors.length !== 0) console.log(output.errors);
     t.equal(output.errors.length, 0, 'No error with no match.');
     t.equal(output.processed.length, 0, 'Loads nothing when no data matched.');
@@ -612,7 +654,7 @@ test('retriever', function(t){
   });
 
 
-  spawn('./index.js', ['-l', 'error', '-h', options.host, '-p', options.port, '-a', options.alias, '-t', options.type, '-b', 'wyatt-test', '--profile', 'default', '-d', '.', '-f', maine])
+  spawn('./index.js', ['-l', 'error', '-h', options.host, '-p', options.port, '-a', options.alias, '-t', options.type, '-b', options.backupBucket, '--profile', 'default', '-d', '.', '-f', maine])
     .on('exit', function(code){
       t.equal(code, 0, 'Loads via cli');
     })
@@ -621,7 +663,7 @@ test('retriever', function(t){
     });
 
 
-  spawn('./test/no-cb.js', ['-l', 'error', '-h', options.host, '-p', options.port, '-a', options.alias, '-t', options.type, '-b', 'wyatt-test', '--profile', 'default', '-d', '.', '-f', maine])
+  spawn('./test/no-cb.js', ['-l', 'error', '-h', options.host, '-p', options.port, '-a', options.alias, '-t', options.type, '-b', options.backupBucket, '--profile', 'default', '-d', '.', '-f', maine])
     .on('exit', function(code){
       t.equal(code, 0, 'Works without a callback.');
     })
