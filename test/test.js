@@ -9,6 +9,7 @@ var winston = require('winston');
 var options = require('commander');
 var isStream = require('isstream');
 var streamStats = require('stream-stats');
+var split = require('split2');
 
 var retriever = require('../lib/retriever');
 var checkHash = require('../lib/checkHash');
@@ -392,21 +393,62 @@ test('uploadStream module', function(t){
 });
 
 
-/*
+
+
 test('backup module', function(t){
-  t.plan(5);
+  t.plan(8);
+
+  var fileStream = fs.createReadStream('test/data/ndjson');
+  var stream = split();
+
+  fileStream.pipe(stream);
 
   var op1 = {
     backupBucket: options.backupBucket,
-    backupDiretory: options.backupDirectory,
-    
-  }
+    backupDirectory: options.backupDirectory,
+    profile: options.profile
+  };
 
-  backup(op1, stream, rec1, function(err){});
-  backup(op2, stream, rec2, function(err){});
-  backup(op3, stream, rec3, function(err){});
+  var op2 = {
+    backupBucket: options.backupBucket,
+    profile: options.profile
+  };
+
+  var op3 = {
+    backupDirectory: options.backupDirectory,
+    profile: options.profile
+  };
+
+  var op4 = {
+    profile: options.profile
+  };
+
+  var rec1 = {name: 'backup'};
+  var rec2 = {name: 'root_backup'};
+  var rec3 = {name: 'backup'};
+  var rec4 = {name: 'backup'};
+
+  backup(op1, stream, rec1, function(err){
+    t.ok(isStream(rec1._retrieverOutput), 'Creates streaming output');
+    t.notOk(err, 'Uploads without error.');
+  });
+
+  backup(op2, stream, rec2, function(err){
+    t.ok(isStream(rec2._retrieverOutput), 'Creates streaming output');
+    t.equal(op2.backupDirectory, '.', 'backupDiretory defaults to current');
+    t.notOk(err, 'Uploads without error.');
+  });
+
+  backup(op3, stream, rec3, function(err){
+    t.equal(rec3._retrieverOutput, path.join(options.backupDirectory, rec3.name + '.csv.gz'), 'Creates local backup');
+    t.notOk(err, 'Backs up without error.');
+  });
+
+  backup(op4, stream, rec4, function(err){
+   t.ok(err, 'Errors without backupBucket and backupDirectory');
+  });
 });
-*/
+
 
 
 
@@ -493,6 +535,7 @@ test('jsonToCsv module', function(t){
     t.ok(err, 'Fails on bad json');
     stream.once('error', function(err){
       t.ok(err, 'Fails without required props');
+      stream.end(new Buffer('{"geometry":{"coordinates":[2,3]},"properties":{"address":"add","alt_address":"alt"}}'));
     });
     stream.write('{}');
   });
@@ -501,13 +544,12 @@ test('jsonToCsv module', function(t){
 
   stream.on('data', function(d){
     if(i===1){
-      t.ok(d, '2,3,add,alt\n', 'Returns proper csv address');
+      t.equal(d.toString(), '2,3,add,alt\n', 'Returns proper csv address');
     }
     i++;
   });
 
   stream.write(new Buffer('qwe'));
-  stream.end(new Buffer('{"geometry":{"coordinates":[2,3]},"properties":{"address":"add","alt_address":"alt"}}'));
 });
 
 
