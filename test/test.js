@@ -12,6 +12,7 @@ var streamStats = require('stream-stats');
 var split = require('split2');
 
 var retriever = require('../lib/retriever');
+var retrieverPipeline = require('../lib/retriever-pipeline');
 var checkHash = require('../lib/checkHash');
 var UploadStream = require('../lib/UploadStream');
 var resolveFields = require('../lib/resolveFields');
@@ -621,6 +622,40 @@ test('ogrChild module', function(t){
 
   pump(shpChild.stdout, shpStats, shpStats.sink());
   pump(jsonChild.stdout, jsonStats, jsonStats.sink());
+
+});
+
+
+
+
+test('retriever-pipeline module', function(t){
+  t.plan(8);
+  var record = fs.readJsonSync('test/data/metadata/ncmeta.json');
+  var ncjson = '{"type":"Feature","geometry":{"type":"Point","coordinates":[-80.23539368650603,36.07191230088742]},"properties":{"address":"191 CENTER STAGE COURT WINSTON SALEM NC 27127","alt_address":""}}'
+
+  var pipeline = retrieverPipeline(record, 'test/data/fields/north_carolina.json');
+  var pipeStats = streamStats('pipeline', {store: 1});
+  var pipe2= retrieverPipeline(record, null, fs.createReadStream('test/data/fields/north_carolina.json'));
+  var pipeStats2 = streamStats('pipe2', {store: 1});
+  var badPipeline = retrieverPipeline(record, 'qweqgjwegvhqxhgbjqkwq');
+
+  t.ok(isStream(pipeline), 'Returns a stream');
+  t.ok(isStream(pipe2), 'Returns a stream when handed a stream');
+  t.ok(isStream(badPipeline), 'Bad pipeline still returns stream');
+
+  pump(pipeline, pipeStats, pipeStats.sink(), function(err){
+    t.notOk(err, 'Doesn\'t err in a correct pipeline');
+    t.equal(pipeStats.stats.store.toString(), ncjson, 'Transforms properly in retriever pipeline');
+  });
+
+  pump(pipe2, pipeStats2, pipeStats2.sink(), function(err){
+    t.notOk(err, 'Doesn\'t err in a correct pipeline');
+    t.equal(pipeStats2.stats.store.toString(), ncjson, 'Transforms properly in retriever pipeline when file is streamed');
+  });
+
+  badPipeline.once('error', function(err){
+    t.ok(err, 'Passes through error when encountered in the pipeline');
+  });
 
 });
 
