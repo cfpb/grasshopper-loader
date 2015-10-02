@@ -14,6 +14,7 @@ var split = require('split2');
 var retriever = require('../lib/retriever');
 var checkHash = require('../lib/checkHash');
 var UploadStream = require('../lib/UploadStream');
+var resolveFields = require('../lib/resolveFields');
 var fieldFilter = require('../lib/fieldFilter');
 var formatAddress = require('../lib/formatAddress');
 var createIndex = require('../lib/createIndex');
@@ -447,6 +448,33 @@ test('backup module', function(t){
   backup(op4, stream, rec4, function(err){
    t.ok(err, 'Errors without backupBucket and backupDirectory');
   });
+});
+
+
+
+
+test('resolveFields module', function(t){
+  t.plan(4);
+
+  var ncmeta = fs.readJsonSync('test/data/metadata/ncmeta.json');
+  var nc = fs.readJsonSync('test/data/fields/north_carolina.json');
+
+  var resolved = resolveFields(nc.properties, ncmeta.fields);
+
+  t.equal(resolved.State, 'NC', 'Resolves state');
+  t.equal(resolved.Zip, '27127', 'Resolves zip');
+
+  try{
+    resolveFields(nc.properties, {});
+  }catch(e){
+    t.ok(e, 'Throws with bad fields.');
+  }
+
+  try{
+    resolveFields(nc.properties, {'Address': {type: 'dynamic', value: 'garbage string'}});
+  }catch(e){
+    t.ok(e, 'Throws on bad dynamic value');
+  }
 });
 
 
