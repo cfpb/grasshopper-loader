@@ -13,6 +13,7 @@ var split = require('split2');
 
 var retriever = require('../lib/retriever');
 var retrieverPipeline = require('../lib/retriever-pipeline');
+var loaderPipeline = require('../lib/loader-pipeline');
 var checkHash = require('../lib/checkHash');
 var UploadStream = require('../lib/UploadStream');
 var resolveFields = require('../lib/resolveFields');
@@ -128,15 +129,13 @@ test('makeLogger module', function(t){
 
 
 test('esLoader module', function(t){
-  t.plan(5);
+  t.plan(8);
+
   try{
     esLoader.connect();
   }catch(e){
     t.pass('Connect fails without host/port')
   }
-
-
-
 
   options.client = client;
 
@@ -147,6 +146,18 @@ test('esLoader module', function(t){
   });
 
   esLoader.load(options, 'somename', function(err, loader){
+    t.notOk(err, 'Proper arguments to loader doesn\'t error');
+    t.ok(isStream.isWritable(loader), 'esLoader.load returns a write stream');
+  });
+
+  esLoader.loadIntoIndex({client: ''}, function(err){
+    t.ok(err, 'Loader errors without proper arguments');
+  });
+
+  var op2 = JSON.parse(JSON.stringify(options));
+  op2.forcedIndex = 'testforcedindex';
+
+  esLoader.loadIntoIndex(op2, function(err, loader){
     t.notOk(err, 'Proper arguments to loader doesn\'t error');
     t.ok(isStream.isWritable(loader), 'esLoader.load returns a write stream');
   });
@@ -659,6 +670,14 @@ test('retriever-pipeline module', function(t){
 
 });
 
+
+
+/*
+test('loader-pipeline module', function(t){
+  t.plan(3);
+
+});
+*/
 
 
 
