@@ -155,6 +155,7 @@ test('esLoader module', function(t){
   });
 
   var op2 = JSON.parse(JSON.stringify(options));
+  op2.client = client;
   op2.forcedIndex = 'testforcedindex';
 
   esLoader.loadIntoIndex(op2, function(err, loader){
@@ -672,12 +673,42 @@ test('retriever-pipeline module', function(t){
 
 
 
-/*
+
 test('loader-pipeline module', function(t){
-  t.plan(3);
+  t.plan(5);
+
+  var record = fs.readJsonSync('test/data/metadata/ncmeta.json');
+
+  var client = options.client;
+  var op1 = options;
+  op1.client = null;
+  var op2 = JSON.parse(JSON.stringify(options));
+  op1.client = client;
+  op2.client = client;
+  op2.forcedIndex = 'testforcedindex';
+
+  var str1 = retrieverPipeline(record, 'test/data/fields/north_carolina.json');
+  var str2 = retrieverPipeline(record, 'test/data/fields/north_carolina.json');
+  var str3 = retrieverPipeline(record, 'test/data/fields/north_carolina.json');
+
+  loaderPipeline(op1, str1, record, function(err, loader){
+    t.notOk(err, 'No error on valid loader pipeline with derived index.');
+    t.ok(loader, 'Returns loader stream');
+    loader.on('error', function(err){t.fail(err)});
+  });
+
+  loaderPipeline(op2, str2, record, function(err, loader){
+    t.notOk(err, 'No error on valid loader pipeline with forced index.');
+    t.ok(loader, 'Returns loader stream');
+    loader.on('error', function(err){t.fail(err)});
+  });
+
+  loaderPipeline({}, str3, record, function(err){
+    t.ok(err, 'Error propagated on bad options.');
+  });
 
 });
-*/
+
 
 
 
