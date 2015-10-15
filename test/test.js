@@ -711,10 +711,16 @@ test('loader-pipeline module', function(t){
 
 
 
+/*
+test('loader', function(t){
+
+});
+*/
+
+
 
 test('retriever', function(t){
-
-  t.plan(32);
+  t.plan(30);
 
   retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: options.profile, backupDirectory: options.backupDirectory, file: 'nofile'}, function(output){
     if(output.errors.length !== 1) console.log(output.errors);
@@ -812,6 +818,13 @@ test('retriever', function(t){
     t.equal(output.fresh.length, 2, 'Gets fresh data');
   });
 
+});
+
+
+
+
+test('Cli tests', function(t){
+  t.plan(2);
 
   spawn('./index.js', ['-l', 'error', '-h', options.host, '-p', options.port, '-a', options.alias, '-t', options.type, '-b', options.backupBucket, '--profile', options.profile, '-d', options.backupDirectory, '-f', maine])
     .on('exit', function(code){
@@ -829,7 +842,6 @@ test('retriever', function(t){
     .stderr.once('data', function(data){
       console.log(data.toString());
     });
-
 });
 
 
