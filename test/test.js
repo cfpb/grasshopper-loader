@@ -12,6 +12,7 @@ var streamStats = require('stream-stats');
 var split = require('split2');
 
 var retriever = require('../lib/retriever');
+var loader = require('../lib/loader');
 var retrieverPipeline = require('../lib/retriever-pipeline');
 var loaderPipeline = require('../lib/loader-pipeline');
 var checkHash = require('../lib/checkHash');
@@ -76,7 +77,7 @@ var logger = new winston.Logger({
   });
 
 logger.remove(winston.transports.Console);
-
+options.logger = logger;
 
 var client = esLoader.connect(options.host, options.port, []);
 
@@ -711,11 +712,44 @@ test('loader-pipeline module', function(t){
 
 
 
-/*
+
 test('loader', function(t){
+  t.plan(4);
+
+  var record = fs.readJsonSync('test/data/metadata/ncmeta.json');
+
+  var client = options.client;
+  var op1 = options;
+  op1.client = null;
+  var op2 = JSON.parse(JSON.stringify(options));
+  op1.client = client;
+  op2.client = client;
+  op2.logger = logger;
+  op2.forcedIndex = 'testforcedindex';
+
+  var str1 = retrieverPipeline(record, 'test/data/fields/north_carolina.json');
+  var str2 = retrieverPipeline(record, 'test/data/fields/north_carolina.json');
+  var str3 = retrieverPipeline(record, 'test/data/fields/north_carolina.json');
+  var str4 = retrieverPipeline(record, 'test/data/fields/north_carolina.json');
+
+  loader(op1, str1, record, function(err){
+    t.notOk(err, 'Loads without error');
+  });
+
+  loader(op2, str2, record, function(err){
+    t.notOk(err, 'Loads without error');
+  });
+
+  loader({logger: logger}, str3, record, function(err){
+    t.ok(err, 'Errors on bad options');
+  });
+
+  loader(op1, str4, {}, function(err){
+    t.ok(err, 'Errors on bad record');
+  });
 
 });
-*/
+
 
 
 
