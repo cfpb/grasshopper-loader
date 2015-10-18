@@ -4,6 +4,7 @@
 
 var fs = require('fs-extra');
 var path = require('path');
+var url = require('url');
 var crypto = require('crypto');
 var pump = require('pump');
 var OgrJsonStream = require('ogr-json-stream');
@@ -11,6 +12,7 @@ var options = require('commander');
 var async = require('async');
 var addProps = require('add-props-stream');
 var ogrChild = require('./lib/ogrChild');
+var ftp = require('./lib/ftpWrapper');
 var unzipFile = require('./lib/unzipFile');
 var assureRecordCount = require('./lib/assureRecordCount');
 var loader = require('./lib/loader');
@@ -37,7 +39,7 @@ fs.mkdirsSync(scratchSpace);
 
 options
   .version('0.0.1')
-  .option('-d, --directory <directory>', 'Directory where TIGER files live')
+  .option('-d, --directory <directory>', 'Directory where TIGER files live. Can be a remote FTP directory.')
   .option('-c, --concurrency <concurrency>', 'How many loading tasks will run at once. Defaults to 4.', 4)
   .option('-h, --host <host>', 'ElasticSearch host. Defaults to localhost', esHost)
   .option('-p, --port <port>', 'ElasticSearch port. Defaults to 9200', Number, esPort)
@@ -103,17 +105,65 @@ queue.drain = function(){
   });
 };
 
+
+function enqueueFtp(urlObj){
+
+  ftp.connect(urlObj, function(err){
+    if(err) return logger.error(err);
+
+    ftp.list(urlObj, function(err, ftpListings){
+      if(err) return logger.error(err);
+
+      ftpListings.forEach(function(listing){
+        var fileUrl = path.join(urlObj.href, listing.name);
+        var fileObj = url.parse(fileUrl);
+
+        ftp.request(fileObj, function(err, stream){
+          if(err) return logger.error(err);
+
+          var zipfile = path.join(scratchSpace, listing.name);
+          pump(stream, fs.createOutputStream(zipfile), function(err){
+            if(err) return logger.error(err);
+
+            enqueueFile(zipfile);
+          });
+        });
+      });
+    });
+  },
+  function(err){
+    logger.error('Ftp error:', err)
+  });
+}
+
+
+function enqueueDirectory(){
+  fs.readdir(options.directory, function(err, files){
+    if(err) return logger.error(err);
+    files.forEach(function(file){
+      enqueueFile(path.join(options.directory, file));
+    })
+  });
+}
+
+
+function enqueueFile(file){
+  queue.push(file, function(err){
+    if(err) logger.error(err);
+    logger.info(path.basename(file) + ' finished processing');
+  });
+}
+
+
 createIndex(options, 'tiger', function(err, index){
   if(err) return logger.error(err);
   options.forcedIndex = index;
 
-  fs.readdir(options.directory, function(err, files){
-    if(err) return logger.error(err);
-    files.forEach(function(file){
-      queue.push(path.join(options.directory, file), function(err){
-        if(err)logger.error(err);
-        logger.info(file + ' finished processing');
-      })
-    })
-  });
+  var urlObj = url.parse(options.directory);
+
+  if(urlObj.hostname){
+    enqueueFtp(urlObj);
+  }else{
+    enqueueDirectory();
+  }
 });
