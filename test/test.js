@@ -858,7 +858,7 @@ test('retriever', function(t){
 
 
 test('Cli tests', function(t){
-  t.plan(2);
+  t.plan(4);
 
   spawn('./index.js', ['-l', 'error', '-h', options.host, '-p', options.port, '-a', options.alias, '-t', options.type, '-b', options.backupBucket, '--profile', options.profile, '-d', options.backupDirectory, '-f', maine])
     .on('exit', function(code){
@@ -876,6 +876,23 @@ test('Cli tests', function(t){
     .stderr.once('data', function(data){
       console.log(data.toString());
     });
+
+  spawn('./tiger.js', ['-l', 'error', '-h', options.host, '-p', options.port, '-a', options.alias, '-t', options.type, '-d', './test/data/tiger'])
+    .on('exit', function(code){
+      t.equal(code, 0, 'Tiger works via cli');
+    })
+    .stderr.once('data', function(data){
+      console.log(data.toString());
+    });
+
+  spawn('./tiger.js', ['-c', '1', '-l', 'error', '-h', options.host, '-p', options.port, '-a', options.alias, '-t', options.type, '-d', './test/data/tiger'])
+    .on('exit', function(code){
+      t.equal(code, 0, 'Tiger works with bounded concurrency');
+    })
+    .stderr.once('data', function(data){
+      console.log(data.toString());
+    });
+
 });
 
 
