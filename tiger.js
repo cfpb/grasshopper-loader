@@ -39,7 +39,7 @@ fs.mkdirsSync(scratchSpace);
 
 options
   .version('0.0.1')
-  .option('-d, --directory <directory>', 'Directory where TIGER files live. Can be a remote FTP directory.')
+  .option('-d, --directory <directory>', 'Directory where TIGER files live. Can be a remote FTP directory.', 'ftp://ftp2.census.gov/geo/tiger/TIGER2015/ADDRFEAT/')
   .option('-c, --concurrency <concurrency>', 'How many loading tasks will run at once. Defaults to 4.', 4)
   .option('-h, --host <host>', 'ElasticSearch host. Defaults to localhost', esHost)
   .option('-p, --port <port>', 'ElasticSearch port. Defaults to 9200', Number, esPort)
@@ -57,6 +57,26 @@ options.client = esLoader.connect(options.host, options.port, options.log);
 
 
 function worker(file, callback){
+
+  //ftp url object
+  if(file.href){
+    ftp.request(file, function(err, stream){
+      if(err) return logger.error(err);
+
+      var zipfile = path.join(scratchSpace, path.basename(file.path));
+      pump(stream, fs.createOutputStream(zipfile), function(err){
+        if(err) return logger.error(err);
+
+        processFile(zipfile, callback);
+      });
+    });
+  }else{
+    processFile(file, callback);
+  }
+}
+
+
+function processFile(file, callback){
   var name = path.basename(file, path.extname(file));
   var record = {name: name, file: name + '.shp'}
 
@@ -93,13 +113,13 @@ function worker(file, callback){
 }
 
 
-
 var queue = async.queue(worker, options.concurrency);
 
 
 queue.drain = function(){
   esLoader.applyAlias(options, options.forcedIndex, function(err){
     options.client.close();
+    ftp.closeClients();
     if(err) return logger.error('Unable to apply alias to %s', options.forcedIndex, err);
     logger.info('All files processed.');
   });
@@ -115,19 +135,9 @@ function enqueueFtp(urlObj){
       if(err) return logger.error(err);
 
       ftpListings.forEach(function(listing){
-        var fileUrl = path.join(urlObj.href, listing.name);
+        var fileUrl = urlObj.href + listing.name;
         var fileObj = url.parse(fileUrl);
-
-        ftp.request(fileObj, function(err, stream){
-          if(err) return logger.error(err);
-
-          var zipfile = path.join(scratchSpace, listing.name);
-          pump(stream, fs.createOutputStream(zipfile), function(err){
-            if(err) return logger.error(err);
-
-            enqueueFile(zipfile);
-          });
-        });
+        enqueueFile(fileObj);
       });
     });
   },
@@ -150,6 +160,7 @@ function enqueueDirectory(){
 function enqueueFile(file){
   queue.push(file, function(err){
     if(err) logger.error(err);
+    if(file.href) file = file.href;
     logger.info(path.basename(file) + ' finished processing');
   });
 }
