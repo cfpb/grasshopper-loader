@@ -2,6 +2,7 @@ var test = require('tape');
 var fs = require('fs-extra');
 var crypto = require('crypto');
 var path = require('path');
+var url = require('url');
 var util = require('util');
 var pump = require('pump');
 var spawn = require('child_process').spawn;
@@ -28,7 +29,7 @@ var unzipFile = require('../lib/unzipFile');
 var handleZip = require('../lib/handleZip');
 var bulkPrefixer = require('../lib/bulkPrefixer');
 var assureRecordCount = require('../lib/assureRecordCount');
-var connectToFtp = require('../lib/connectToFtp');
+var ftp = require('../lib/ftpWrapper');
 var makeLogger = require('../lib/makeLogger');
 var getTigerState = require('../lib/getTigerState');
 var jsonToCsv = require('../lib/jsonToCsv');
@@ -357,19 +358,40 @@ test('assureRecordCount module', function(t){
 
 
 
-test('connectToFtp module', function(t){
-  t.plan(3);
-  connectToFtp({hostname: 'hn'}, {name: 'connect'}, function(){}, function(err){
-    t.ok(err, 'Errors without path');
+test('ftpWrapper module', function(t){
+  t.plan(6);
+  var globalClient;
+
+  ftp.connect(url.parse('ftp://ftp2.census.gov/geo/tiger/TIGER2015/ADDRFEAT/'), function(err, client){
+      t.notOk(err, 'No error on valid ftp');
+      t.ok(client.get, 'Returns a valid client');
+      globalClient = client;
+
+      ftp.connect(url.parse('ftp://ftp2.census.gov/geo/tiger/TIGER2015/ADDRFEAT/'), function(err, client){
+        t.notOk(err, 'Can connect multiple times to the same ftp');
+        t.deepEqual(client, globalClient, 'Reuses client if it exists');
+      },
+      function(err){
+        t.fail(err);
+      });
+    },
+    function(err){
+      t.fail(err);
   });
 
-  connectToFtp({path: 'pa'}, {name: 'connect'}, function(){}, function(err){
-    t.ok(err, 'Errors without hostname');
+  ftp.connect(url.parse('ftp://ftp2.cenFAKE.gov/geo/tiger/TIGER2015/ADDRFEAT/'), function(err){
+      t.ok(err, 'Passes through client error to callback');
+    },
+    function(err){
+      t.ok(err, 'Client error on invalid ftp');
   });
 
-  connectToFtp({hostname: 'hn', path: 'pa'}, {name: 'connect'}, function(){}, function(err){
-    t.ok(err, 'Errors with bad FTP.');
+/*
+  ftp.connect(url.parse('ftp://ftp2.census.gov/geo/tiger/TIGER2015/ADDRFEAT/'), function(err, client){
+    },
+    function(err){
   });
+*/
 });
 
 
