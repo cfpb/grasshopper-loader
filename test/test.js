@@ -692,7 +692,7 @@ test('ogrChild module', function(t){
 test('retriever-pipeline module', function(t){
   t.plan(8);
   var record = fs.readJsonSync('test/data/metadata/ncmeta.json');
-  var ncjson = '{"type":"Feature","geometry":{"type":"Point","coordinates":[-80.23539368650603,36.07191230088742]},"properties":{"address":"191 CENTER STAGE COURT WINSTON SALEM NC 27127","alt_address":""}}'
+  var ncjson = '{"type":"Feature","geometry":{"type":"Point","coordinates":[-80.23539,36.07191]},"properties":{"address":"191 CENTER STAGE COURT WINSTON SALEM NC 27127","alt_address":""}}'
 
   var pipeline = retrieverPipeline(record, 'test/data/fields/north_carolina.json');
   var pipeStats = streamStats('pipeline', {store: 1});
@@ -704,15 +704,27 @@ test('retriever-pipeline module', function(t){
   t.ok(isStream(pipe2), 'Returns a stream when handed a stream');
   t.ok(isStream(badPipeline), 'Bad pipeline still returns stream');
 
-  pump(pipeline, pipeStats, pipeStats.sink(), function(err){
-    t.notOk(err, 'Doesn\'t err in a correct pipeline');
-    t.equal(pipeStats.stats.store.toString(), ncjson, 'Transforms properly in retriever pipeline');
-  });
+  function trunc(n, digits){
+    var shift = Math.pow(10, digits);
+    var func = n < 0 ? Math.ceil : Math.floor;
+    return func(n * shift)/shift;
+  }
 
-  pump(pipe2, pipeStats2, pipeStats2.sink(), function(err){
-    t.notOk(err, 'Doesn\'t err in a correct pipeline');
-    t.equal(pipeStats2.stats.store.toString(), ncjson, 'Transforms properly in retriever pipeline when file is streamed');
-  });
+  function checkPipes(pipeline, stats){
+    pump(pipeline, stats, stats.sink(), function(err){
+      t.notOk(err, 'Doesn\'t err in a correct pipeline');
+
+      var store = JSON.parse(stats.stats.store.toString());
+      store.geometry.coordinates[0] = trunc(store.geometry.coordinates[0], 5)
+      store.geometry.coordinates[1] = trunc(store.geometry.coordinates[1], 5)
+      store = JSON.stringify(store);
+
+      t.equal(store, ncjson, 'Transforms properly in retriever pipeline when file is streamed');
+    });
+  }
+
+  checkPipes(pipeline, pipeStats);
+  checkPipes(pipe2, pipeStats2);
 
   badPipeline.once('error', function(err){
     t.ok(err, 'Passes through error when encountered in the pipeline');
