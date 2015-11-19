@@ -6,9 +6,13 @@
     "hash":"7e047fa12e048ebed7e0b7cbd80621a39996666396e685a092ae30f5ea2ee79e",
     "file":"maine.shp",
     "fields": {
-      "Address": {
+      "Number": {
         "type": "static",
-        "value": "ADDRESS"
+        "value": "ADDRESS_NU"
+      },
+      "Street": {
+        "type": "static",
+        "value": "RDNAME"
       },
       "City": {
         "type": "static",
@@ -30,9 +34,13 @@
     "hash":"ae631ff68108423f9877f8012ce46577f973ba2eef895db6a4b8f40ea901283d",
     "file":"arkansas.json",
     "fields": {
-      "Address": {
+      "Number": {
+        "type": "multi",
+        "value": ["adr_num", "adr_num_su"]
+      },
+      "Street": {
         "type": "static",
-        "value": "adr_label"
+        "value": "pstr_fulna"
       },
       "City": {
         "type": "static",
@@ -54,13 +62,17 @@
     "hash":"4a0929b355b4250412b9652c758733e19df43aea4e6fcba33c69c4b86148d3c0",
     "file":"north_carolina.json",
     "fields": {
-      "Address": {
+      "Number": {
         "type": "static",
-        "value": "FULL_ADDRESS"
+        "value": "ADDR_HN"
+      },
+      "Street": {
+        "type": "multi",
+        "value": ["ADDR_SN", "ADDR_ST"]
       },
       "City": {
         "type": "static",
-        "value": ""
+        "value": "PO_NAME"
       },
       "State": {
         "type": "static",

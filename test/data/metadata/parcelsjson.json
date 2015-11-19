@@ -5,9 +5,13 @@
     "hash":"65637abd5a01a235467cfea2e1eb859cee5facf1b900604321d2b1e74d4f861b",
     "file":"parcels.json",
     "fields": {
-      "Address": {
-        "type": "dynamic",
-        "value": "if(props.STREET_NBR && props.STREET_NAM){return props.STREET_NBR + ' ' + props.STREET_NAM }else{ throw new Error('Empty fields.')}"
+      "Number": {
+        "type": "static",
+        "value": "STREET_NBR"
+      },
+      "Street": {
+        "type": "static",
+        "value": "STREET_NAM"
       },
       "City": {
         "type": "static",
