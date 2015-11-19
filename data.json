@@ -7,9 +7,13 @@
     "spatialReference": "EPSG:2264",
     "count": 4922453,
     "fields": {
-      "Address": {
+      "Number": {
         "type": "static",
-        "value": "FULL_ADDRESS"
+        "value": "ADDR_HN"
+      },
+      "Street": {
+        "type": "multi",
+        "value": ["ADDR_SN", "ADDR_ST"]
       },
       "City": {
         "type": "static",
@@ -32,9 +36,13 @@
     "file": "AddressPoints.gdb",
     "count": 1055640,
     "fields": {
-      "Address": {
+      "Number": {
         "type": "static",
-        "value": "FullAdd"
+        "value": "AddNum"
+      },
+      "Street": {
+        "type": "multi",
+        "value": ["PrefixDir", "StreetName", "StreetType", "SuffixDir"]
       },
       "City": {
         "type": "static",
@@ -57,9 +65,13 @@
     "file": "SAM_Master_Statewide_Database.gdb",
     "count": 4761260,
     "fields": {
-      "Address": {
-        "type": "static",
-        "value": "AddressLabel"
+      "Number": {
+        "type": "multi",
+        "value": ["PrefixAddressNumber", "AddressNumber", "SuffixAddressNumber"]
+      },
+      "Street": {
+        "type": "multi",
+        "value": ["PreModifier", "PreDirectional", "PreType", "StreetName", "PostType", "PostDirectional", "PostModifier"]
       },
       "City": {
         "type": "static",
@@ -82,9 +94,13 @@
     "file": "SITUS_ADDRESS_PT.shp",
     "count": 1431636,
     "fields": {
-      "Address": {
+      "Number": {
+        "type": "multi",
+        "value": ["adr_num", "adr_num_su"]
+      },
+      "Street": {
         "type": "static",
-        "value": "adr_label"
+        "value": "pstr_fulna"
       },
       "City": {
         "type": "static",
@@ -108,9 +124,13 @@
     "count": 3521238,
     "spatialReference": "NAD83",
     "fields": {
-      "Address": {
+      "Number": {
+        "type": "multi",
+        "value": ["PREADDRNUM", "ADDRNUM", "ADDRNUMSUF"]
+      },
+      "Street": {
         "type": "static",
-        "value": "FULLADDR"
+        "value": "FULLNAME"
       },
       "City": {
         "type": "static",
@@ -133,9 +153,13 @@
     "file": "NGAddresses.shp",
     "count": 467536,
     "fields": {
-      "Address": {
+      "Number": {
         "type": "static",
-        "value": "ADDRESS"
+        "value": "ADDRESS_NU"
+      },
+      "Street": {
+        "type": "static",
+        "value": "RDNAME"
       },
       "City": {
         "type": "static",
@@ -158,9 +182,13 @@
     "file": "Emergency_ESITE_point.shp",
     "count": 321687,
     "fields": {
-      "Address": {
-        "type": "dynamic",
-        "value": "if(props.PRIMARYADD) return props.PRIMARYADD; var number = props.HOUSENUMBE, name = props.SN, street = props.ST; if(!number || !name) return null; if(street) name = name + ' ' + street; return number + ' ' + name;"
+      "Number": {
+        "type": "static",
+        "value": "HOUSENUMBE"
+      },
+      "Street": {
+        "type": "static",
+        "value": "PRIMARYNAM"
       },
       "City": {
         "type": "static",
@@ -182,9 +210,13 @@
     "hash": "171ee9a1fba2876b9ead818fd54ad139e08aa3cb415c10bd8b74820c103ae051",
     "file": "Address_Points.shp",
     "fields": {
-      "Address": {
-        "type": "static",
-        "value": "FULLADDRES"
+      "Number": {
+        "type": "multi",
+        "value": ["ADDRNUM", "ADDRNUMSUF"]
+      },
+      "Street": {
+        "type": "multi",
+        "value": ["STNAME", "STREET_TYP", "QUADRANT"]
       },
       "City": {
         "type": "static",
@@ -207,9 +239,13 @@
     "file": "e911Sites15r1.shp",
     "count": 405634,
     "fields": {
-      "Address": {
+      "Number": {
         "type": "static",
-        "value": "PrimaryAdd"
+        "value": "HouseNumbe"
+      },
+      "Street": {
+        "type": "static",
+        "value": "PrimaryNam"
       },
       "City": {
         "type": "static",
