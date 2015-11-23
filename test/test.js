@@ -130,7 +130,7 @@ test('makeLogger module', function(t){
 
 
 
-
+/*
 test('esLoader module', function(t){
   t.plan(8);
 
@@ -140,7 +140,11 @@ test('esLoader module', function(t){
     t.pass('Connect fails without host/port')
   }
 
+  var op2 = JSON.parse(JSON.stringify(options));
+
   options.client = client;
+  op2.client = client;
+  op2.forcedIndex = 'testforcedindex';
 
   t.ok(client, 'Proper connect returns an elasticsearch client');
 
@@ -157,9 +161,6 @@ test('esLoader module', function(t){
     t.ok(err, 'Loader errors without proper arguments');
   });
 
-  var op2 = JSON.parse(JSON.stringify(options));
-  op2.client = client;
-  op2.forcedIndex = 'testforcedindex';
 
   esLoader.loadIntoIndex(op2, function(err, loader){
     t.notOk(err, 'Proper arguments to loader doesn\'t error');
@@ -168,8 +169,8 @@ test('esLoader module', function(t){
 
 });
 
-
-
+*/
+options.client = client;
 
 test('createIndex module', function(t){
   t.plan(3);
@@ -693,7 +694,7 @@ test('ogrChild module', function(t){
 test('retriever-pipeline module', function(t){
   t.plan(8);
   var record = fs.readJsonSync('test/data/metadata/ncmeta.json');
-  var ncjson = '{"type":"Feature","geometry":{"type":"Point","coordinates":[-80.23539,36.07191]},"properties":{"address":"191 CENTER STAGE COURT WINSTON SALEM NC 27127","number":"191","street":"CENTER STAGE COURT","city":"WINSTON SALEM","state":"NC","alt_address":""}}'
+  var ncjson = '{"type":"Feature","geometry":{"type":"Point","coordinates":[-80.23539,36.07191]},"properties":{"address":"191 CENTER STAGE COURT WINSTON SALEM NC 27127","city":"WINSTON SALEM","number":"191","state":"NC","street":"CENTER STAGE COURT"}}'
 
   var pipeline = retrieverPipeline(record, 'test/data/fields/north_carolina.json');
   var pipeStats = streamStats('pipeline', {store: 1});
@@ -1003,7 +1004,7 @@ test('Field tests', function(t){
   var data = fs.readJsonSync('data.json');
   var fieldFiles = {};
 
-  t.plan(data.length*3);
+  t.plan(data.length*2);
 
   fs.readdirSync('test/data/fields')
     .filter(function(v){return v[0] !== '.' && v.indexOf('.') !== -1})
@@ -1019,7 +1020,6 @@ test('Field tests', function(t){
     fieldStream.on('data', function(data){
       var props = data.properties;
       t.ok(props.address, util.format('%s generates address', source.name));
-      t.equal(props.alt_address, '', util.format('%s generates alt_address', source.name));
     });
 
     fieldStream.end(fieldFiles[source.name]);
