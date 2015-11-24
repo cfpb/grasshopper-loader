@@ -710,7 +710,7 @@ test('ogrChild module', function(t){
 test('retriever-pipeline module', function(t){
   t.plan(8);
   var record = fs.readJsonSync('test/data/metadata/ncmeta.json');
-  var ncjson = '{"type":"Feature","geometry":{"type":"Point","coordinates":[-80.23539,36.07191]},"properties":{"address":"191 CENTER STAGE COURT WINSTON SALEM NC 27127","city":"WINSTON SALEM","number":"191","state":"NC","street":"CENTER STAGE COURT"}}'
+  var ncjson = '{"type":"Feature","geometry":{"type":"Point","coordinates":[-80.23539,36.07191]},"properties":{"address":"191 CENTER STAGE COURT WINSTON SALEM NC 27127","city":"WINSTON SALEM","number":"191","state":"NC","street":"CENTER STAGE COURT","zip":"27127"}}'
 
   var pipeline = retrieverPipeline(record, 'test/data/fields/north_carolina.json');
   var pipeStats = streamStats('pipeline', {store: 1});
@@ -996,9 +996,9 @@ test('Ensure output', function(t){
     if(count < 2) return;
 
     var outfiles = [
-      {file: 'test/output/arkansas.csv.gz', hash: '4a68ad11b6907207614caa36fb9a33daed14f676dda4f9734183c4c31e9c3656'},
-      {file: 'test/output/maine.csv.gz', hash: 'e18e059777f14ce2aae153ae99e9baa823eebef00f6c9cf1b850244eb3261595'},
-      {file: 'test/output/sacramento.csv.gz', hash: '9e8e82c88aa8c2163bb26b8ba250db14df5e317101dbaa45e97386d73a14aacc'}
+      {file: 'test/output/arkansas.csv.gz', hash: '0d080f15cbc88fab20725c12fd0bd9048880521de7f7529a61b3dd163d00c5a3'},
+      {file: 'test/output/maine.csv.gz', hash: '5997fe4f809ef7fc4c5300f334afe88ccf35b3ec6104c594847bd7ca4cf90503'},
+      {file: 'test/output/sacramento.csv.gz', hash: '8e1318548eb644653a0f0565d46c6956f17f8916fbacbfa3e1abcf4066c90d4c'}
     ];
 
     outfiles.forEach(function(obj){
