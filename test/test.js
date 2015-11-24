@@ -193,7 +193,7 @@ test('createIndex module', function(t){
 
 
 
-test('bulk Prefixer', function(t){
+test('bulk Prefixer module', function(t){
   t.plan(3);
 
   t.ok(isStream.isDuplex(bulkPrefixer()), 'bulkPrefixer returns a stream');
@@ -231,14 +231,14 @@ test('handleCsv module', function(t){
     t.ok(vrt, 'Creates a valid vrt file from a csv file and good record.');
   },
   function(record, err){
-   if(err) t.fail('Unexpected error.');
+   if(err) t.fail(err);
   });
 
   handleCsv(csvStream, csvRecord, scratchSpace, function(record, vrt){
     t.ok(vrt, 'Creates a valid vrt file from a csv stream and good record.');
   },
   function(record, err){
-   if(err) t.fail('Unexpected error.');
+   if(err) t.fail(err);
   });
 
   handleCsv(txtFile, txtRecord, scratchSpace, function(record, vrt){
@@ -246,14 +246,14 @@ test('handleCsv module', function(t){
     fs.copySync('test/data/virginia.csv', 'test/data/virginia.txt');
   },
   function(record, err){
-   if(err) console.log(err);
+   if(err) t.fail(err);
   });
 
   handleCsv(txtStream, txtRecord, scratchSpace, function(record, vrt){
     t.ok(vrt, 'Creates a valid vrt file from a text stream and good record.');
   },
   function(record, err){
-   if(err) console.log(err);
+   if(err) t.fail(err);
   });
 
   handleCsv(txtFile, badTxtRecord, scratchSpace, function(){
@@ -359,35 +359,52 @@ test('assureRecordCount module', function(t){
 
 
 
+//These tests will pass even if the ftp server isn't reachable
 test('ftpWrapper module', function(t){
-  t.plan(12);
+  t.plan(7);
   var globalClient;
 
   ftp.connect(url.parse('ftp://ftp2.census.gov/geo/tiger/TIGER2015/ADDRFEAT/'), function(err, client){
-    t.notOk(err, 'No error on valid ftp');
-    t.ok(client.get, 'Returns a valid client');
-    globalClient = client;
+    if(err){
+      console.warn('Could not connect to ftp test server');
+      t.pass();
+    }else{
+      t.ok(client.get, 'Returns a valid client');
+      globalClient = client;
+    }
 
     ftp.connect(url.parse('ftp://ftp2.census.gov/geo/tiger/TIGER2015/ADDRFEAT/'), function(err, client){
-      t.notOk(err, 'Can connect multiple times to the same ftp');
-      t.deepEqual(client, globalClient, 'Reuses client if it exists');
+      if(err){
+        console.warn('Could not connect to ftp test server when trying to connect multiple times');
+        t.pass();
+      }else{
+        t.deepEqual(client, globalClient, 'Reuses client if it exists');
+      }
     },
     function(err){
       t.fail(err);
     });
 
     ftp.list(url.parse('ftp://ftp2.census.gov/geo/tiger/TIGER2015/ADDRFEAT/'), function(err, endpoints){
-      t.notOk(err, 'No error when requesting valid list');
-      t.ok(endpoints.length > 3000, 'Lists all files at endpoint');
+      if(err){
+        console.warn('Could not connect to ftp test server when listing');
+        t.pass();
+      }else{
+        t.ok(endpoints.length > 3000, 'Lists all files at endpoint');
+      }
     });
 
     ftp.list(url.parse('ftp://ftp2.cenFAKE.gov/geo/tiger/TIGER2015/ADDRFEAT/'), function(err){
-      t.ok(err, 'Error when requesting from invalid client');
+      t.ok(err, 'Error when listing from invalid client');
     });
 
     ftp.request(url.parse('ftp://ftp2.census.gov/geo/tiger/TIGER2015/ADDRFEAT/tl_2015_01011_addrfeat.zip'), function(err, stream){
-      t.notOk(err, 'No error requesting a valid file');
-      t.ok(isStream(stream), 'Returns file stream');
+      if(err){
+        console.warn('Could not connect to ftp test server on specific file request');
+        t.pass();
+      }else{
+        t.ok(isStream(stream), 'Returns file stream');
+      }
     });
 
     ftp.request(url.parse('ftp://ftp2.cenFAKE.gov/geo/tiger/TIGER2015/ADDRFEAT/'), function(err){
@@ -794,19 +811,19 @@ test('loader', function(t){
   var str4 = retrieverPipeline(record, 'test/data/fields/north_carolina.json');
 
   loader(op1, str1, record, function(err){
-    t.notOk(err, 'Loads without error');
+    t.notOk(err, 'Pipeline 1 loads without error');
   });
 
   loader(op2, str2, record, function(err){
-    t.notOk(err, 'Loads without error');
+    t.notOk(err, 'Pipeline 2 loads without error');
   });
 
   loader({logger: logger}, str3, record, function(err){
-    t.ok(err, 'Errors on bad options');
+    t.ok(err, 'Pipeline 3 errors on bad options');
   });
 
   loader(op1, str4, {}, function(err){
-    t.ok(err, 'Errors on bad record');
+    t.ok(err, 'Pipeline 4 errors on bad record');
   });
 
 });
