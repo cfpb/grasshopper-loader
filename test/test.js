@@ -242,7 +242,7 @@ test('handleCsv module', function(t){
 
   handleCsv(txtFile, txtRecord, scratchSpace, function(record, vrt){
     t.ok(vrt, 'Creates a valid vrt file from a text file and good record.');
-    //fs.copySync('test/data/virginia.csv', 'test/data/virginia.txt');
+    fs.copySync('test/data/virginia.csv', 'test/data/virginia.txt');
   },
   function(record, err){
    if(err) t.fail(err);
@@ -360,7 +360,7 @@ test('assureRecordCount module', function(t){
 
 //These tests will pass even if the ftp server isn't reachable
 test('ftpWrapper module', function(t){
-  t.plan(6);
+  t.plan(7);
   var globalClient;
 
   ftp.connect(url.parse('ftp://ftp2.census.gov/geo/tiger/TIGER2015/ADDRFEAT/'), function(err, client){
