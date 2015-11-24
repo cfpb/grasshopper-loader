@@ -4,6 +4,7 @@
     "url": "http://data.nconemap.gov/downloads/vector/mastadd14.zip",
     "hash": "1b927688a387275c6b7767a94b46a3467731564c0265c6d3747ae7e80ea65257",
     "file": "AddressNC_2014.gdb",
+    "spatialReference": "EPSG:2264",
     "count": 4922453,
     "fields": {
       "Address": {
@@ -27,9 +28,9 @@
   {
     "name": "utah",
     "url": "ftp://ftp.agrc.utah.gov/UtahSGID_Vector/UTM12_NAD83/LOCATION/UnpackagedData/AddressPoints/_Statewide/AddressPoints_gdb.zip",
-    "hash": "e2848b362960173226e0d0066988748571a0ddbe9b38ce387d460a4ee1d48654",
+    "hash": "dc05ceaaa7f327770e79cef60d0193af04d5dd6dfa6da7ba975e9ea0ea8a38ef",
     "file": "AddressPoints.gdb",
-    "count": 1052722,
+    "count": 1055640,
     "fields": {
       "Address": {
         "type": "static",

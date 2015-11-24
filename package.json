@@ -28,7 +28,7 @@
     "aws-sdk": "^2.1.31",
     "centroid-stream": "^0.3.0",
     "commander": "^2.8.1",
-    "csv-to-vrt": "0.1.0",
+    "csv-to-vrt": "0.2.4",
     "elasticsearch": "^3.1.1",
     "end-of-stream": "^1.1.0",
     "fs-extra": "^0.23.1",
