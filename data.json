@@ -5,11 +5,15 @@
     "hash": "1b927688a387275c6b7767a94b46a3467731564c0265c6d3747ae7e80ea65257",
     "file": "AddressNC_2014.gdb",
     "spatialReference": "EPSG:2264",
-    "count": 4922453,
+    "count": 4916623,
     "fields": {
-      "Address": {
+      "Number": {
         "type": "static",
-        "value": "FULL_ADDRESS"
+        "value": "ADDR_HN"
+      },
+      "Street": {
+        "type": "multi",
+        "value": ["ADDR_SN", "ADDR_ST"]
       },
       "City": {
         "type": "static",
@@ -28,13 +32,17 @@
   {
     "name": "utah",
     "url": "ftp://ftp.agrc.utah.gov/UtahSGID_Vector/UTM12_NAD83/LOCATION/UnpackagedData/AddressPoints/_Statewide/AddressPoints_gdb.zip",
-    "hash": "dc05ceaaa7f327770e79cef60d0193af04d5dd6dfa6da7ba975e9ea0ea8a38ef",
+    "hash": "d2dafd098cdf61422fa4bd7b1fd7e524e761afc7607b629d0d6befbf2da53807",
     "file": "AddressPoints.gdb",
-    "count": 1055640,
+    "count": 1067432,
     "fields": {
-      "Address": {
+      "Number": {
         "type": "static",
-        "value": "FullAdd"
+        "value": "AddNum"
+      },
+      "Street": {
+        "type": "multi",
+        "value": ["PrefixDir", "StreetName", "StreetType", "SuffixDir"]
       },
       "City": {
         "type": "static",
@@ -53,13 +61,17 @@
   {
     "name": "new_york",
     "url": "http://gis.ny.gov/gisdata/data/ds_921/SAM_Master_Statewide.gdb.zip",
-    "hash": "9a52775995af73fe5e6cd1aeaa9b52fbe9c35389c8657dbd75f99149caa10fd9",
+    "hash": "dda07a26bb25b5c900d0d1464ade072e3aa769372bf4d9bca75fa05ddae96122",
     "file": "SAM_Master_Statewide_Database.gdb",
     "count": 4761260,
     "fields": {
-      "Address": {
-        "type": "static",
-        "value": "AddressLabel"
+      "Number": {
+        "type": "multi",
+        "value": ["PrefixAddressNumber", "AddressNumber", "SuffixAddressNumber"]
+      },
+      "Street": {
+        "type": "multi",
+        "value": ["PreModifier", "PreDirectional", "PreType", "StreetName", "PostType", "PostDirectional", "PostModifier"]
       },
       "City": {
         "type": "static",
@@ -80,11 +92,15 @@
     "url": "http://geostor-vectors.geostor.org/Location/SHP/SITUS_ADDRESS_PT.zip",
     "hash": "a00cf2ada728ea477404535a53083056a692b6f65ebb081ba8822e0640dd8239",
     "file": "SITUS_ADDRESS_PT.shp",
-    "count": 1431636,
+    "count": 1431644,
     "fields": {
-      "Address": {
+      "Number": {
+        "type": "multi",
+        "value": ["adr_num", "adr_num_su"]
+      },
+      "Street": {
         "type": "static",
-        "value": "adr_label"
+        "value": "pstr_fulna"
       },
       "City": {
         "type": "static",
@@ -103,14 +119,18 @@
   {
     "name": "virginia",
     "url": "https://ftp.vgingis.com/Download/VA_SiteAddress.txt.zip",
-    "hash": "90904677f379d6d381c08c4e3ac0133bc372497b777ababe772d5465d4a948e8",
+    "hash": "3612012b94b92c003f105aafef2ea01c736b7bd68e88365e1f42485a80b6921e",
     "file": "VA_SiteAddress.txt",
     "count": 3521238,
     "spatialReference": "NAD83",
     "fields": {
-      "Address": {
+      "Number": {
+        "type": "multi",
+        "value": ["PREADDRNUM", "ADDRNUM", "ADDRNUMSUF"]
+      },
+      "Street": {
         "type": "static",
-        "value": "FULLADDR"
+        "value": "FULLNAME"
       },
       "City": {
         "type": "static",
@@ -129,13 +149,17 @@
   {
     "name": "maine",
     "url": "http://www.maine.gov/megis/catalog/shps/state/ng911pts.zip",
-    "hash": "91522b4beb2c9e9c3888cb6bedabae009dbc2b254a8534fc0c9ee391d698f1ed",
+    "hash": "81f0ca73065e0a6db87d510b15ff88bec512221b8499ebd8c77d7e1da1863eb8",
     "file": "NGAddresses.shp",
-    "count": 467536,
+    "count": 474802,
     "fields": {
-      "Address": {
+      "Number": {
         "type": "static",
-        "value": "ADDRESS"
+        "value": "ADDRESS_NU"
+      },
+      "Street": {
+        "type": "static",
+        "value": "RDNAME"
       },
       "City": {
         "type": "static",
@@ -156,11 +180,15 @@
     "url": "http://maps.vcgi.org/gisdata/vcgi/packaged_zips/EmergencyE911_ESITE.zip",
     "hash": "87119dde146b994dd81275e84c96065118191e93deb9b78b203db62cd44cbc7c",
     "file": "Emergency_ESITE_point.shp",
-    "count": 321687,
+    "count": 321692,
     "fields": {
-      "Address": {
-        "type": "dynamic",
-        "value": "if(props.PRIMARYADD) return props.PRIMARYADD; var number = props.HOUSENUMBE, name = props.SN, street = props.ST; if(!number || !name) return null; if(street) name = name + ' ' + street; return number + ' ' + name;"
+      "Number": {
+        "type": "static",
+        "value": "HOUSENUMBE"
+      },
+      "Street": {
+        "type": "static",
+        "value": "PRIMARYNAM"
       },
       "City": {
         "type": "static",
@@ -182,9 +210,13 @@
     "hash": "171ee9a1fba2876b9ead818fd54ad139e08aa3cb415c10bd8b74820c103ae051",
     "file": "Address_Points.shp",
     "fields": {
-      "Address": {
-        "type": "static",
-        "value": "FULLADDRES"
+      "Number": {
+        "type": "multi",
+        "value": ["ADDRNUM", "ADDRNUMSUF"]
+      },
+      "Street": {
+        "type": "multi",
+        "value": ["STNAME", "STREET_TYP", "QUADRANT"]
       },
       "City": {
         "type": "static",
@@ -207,9 +239,13 @@
     "file": "e911Sites15r1.shp",
     "count": 405634,
     "fields": {
-      "Address": {
+      "Number": {
         "type": "static",
-        "value": "PrimaryAdd"
+        "value": "HouseNumbe"
+      },
+      "Street": {
+        "type": "static",
+        "value": "PrimaryNam"
       },
       "City": {
         "type": "static",

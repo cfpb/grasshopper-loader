@@ -5,9 +5,13 @@
     "hash":"d2b16e30013d168681e6cb8cf831cb133caff8388aa7275430e35ea4268daf4d",
     "file":"maine.json",
     "fields": {
-      "Address": {
+      "Number": {
         "type": "static",
-        "value": "ADDRESS"
+        "value": "ADDRESS_NU"
+      },
+      "Street": {
+        "type": "static",
+        "value": "RDNAME"
       },
       "City": {
         "type": "static",

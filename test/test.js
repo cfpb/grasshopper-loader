@@ -88,7 +88,7 @@ var client = esLoader.connect(options.host, options.port, []);
 test('checkHash module', function(t){
   t.plan(3);
   var stream = fs.createReadStream(maine);
-  var hash = 'c7f2afb44fc9c2fbedd4ee32e67a8d0f31335461a29d44e67e537cece0120c18';
+  var hash = 'ebd39e608303745b6e9e818d971345956511dc6a287cb5efccd9bcf37173c6b8';
 
   checkHash(stream, hash, function(hashIsEqual, computedHash){
     t.ok(hashIsEqual, 'Computes proper hash');
@@ -104,16 +104,17 @@ test('checkHash module', function(t){
 
 
 test('formatAddress module', function(t){
-  t.plan(4);
+  t.plan(5);
 
   var add1 = '123 fake st. San Francisco CA 12345';
   var add2 = '221B Baker St. Arg AZ 67876';
   var add3 = '123 Unique Way';
 
-  t.equal(formatAddress('123 fake st.', 'San Francisco', 'CA', 12345), add1, 'Standard format')
-  t.equal(formatAddress('  221B Baker St.', 'Arg  ', 'AZ', '67876'), add2, 'Trim strings');
-  t.equal(formatAddress('123 Unique Way', '', null), add3, 'Gracefully handles lack of city, state, zip');
-  t.equal(formatAddress('', 'Yreka', 'CA'), null, 'Returns null on no street number/name');
+  t.equal(formatAddress('123', 'fake st.', 'San Francisco', 'CA', '12345'), add1, 'Standard format')
+  t.equal(formatAddress(123, 'fake st.', 'San Francisco', 'CA', 12345), add1, 'Numbers instead of strings')
+  t.equal(formatAddress('221B', 'Baker St.', 'Arg', 'AZ', '67876'), add2, 'Non-number number');
+  t.equal(formatAddress('123', 'Unique Way', '', null), add3, 'Gracefully handles lack of city, state, zip');
+  t.equal(formatAddress('123', '', 'Yreka', 'CA'), null, 'Returns null on no street name');
 });
 
 
@@ -642,7 +643,7 @@ test('jsonToCsv module', function(t){
     t.ok(err, 'Fails on bad json');
     stream.once('error', function(err){
       t.ok(err, 'Fails without required props');
-      stream.end(new Buffer('{"geometry":{"coordinates":[2,3]},"properties":{"address":"add","alt_address":"alt"}}'));
+      stream.end(new Buffer('{"geometry":{"coordinates":[2,3]},"properties":{"address":"123 fake st middle tx 90210", "number": "123", "street": "fake st", "city": "middle", "state": "tx", "zip": "90210"}}'));
     });
     stream.write('{}');
   });
@@ -651,7 +652,7 @@ test('jsonToCsv module', function(t){
 
   stream.on('data', function(d){
     if(i===1){
-      t.equal(d.toString(), '2,3,add,alt\n', 'Returns proper csv address');
+      t.equal(d.toString(), '2,3,123 fake st middle tx 90210,123,fake st,middle,tx,90210\n', 'Returns proper csv address');
     }
     i++;
   });
@@ -709,7 +710,7 @@ test('ogrChild module', function(t){
 test('retriever-pipeline module', function(t){
   t.plan(8);
   var record = fs.readJsonSync('test/data/metadata/ncmeta.json');
-  var ncjson = '{"type":"Feature","geometry":{"type":"Point","coordinates":[-80.23539,36.07191]},"properties":{"address":"191 CENTER STAGE COURT WINSTON SALEM NC 27127","alt_address":""}}'
+  var ncjson = '{"type":"Feature","geometry":{"type":"Point","coordinates":[-80.23539,36.07191]},"properties":{"address":"191 CENTER STAGE COURT WINSTON SALEM NC 27127","city":"WINSTON SALEM","number":"191","state":"NC","street":"CENTER STAGE COURT","zip":"27127"}}'
 
   var pipeline = retrieverPipeline(record, 'test/data/fields/north_carolina.json');
   var pipeStats = streamStats('pipeline', {store: 1});
@@ -736,7 +737,7 @@ test('retriever-pipeline module', function(t){
       store.geometry.coordinates[1] = trunc(store.geometry.coordinates[1], 5)
       store = JSON.stringify(store);
 
-      t.equal(store, ncjson, 'Transforms properly in retriever pipeline when file is streamed');
+      t.deepEqual(JSON.parse(store), JSON.parse(ncjson), 'Transforms properly in retriever pipeline when file is streamed');
     });
   }
 
@@ -995,9 +996,9 @@ test('Ensure output', function(t){
     if(count < 2) return;
 
     var outfiles = [
-      {file: 'test/output/arkansas.csv.gz', hash: '4a68ad11b6907207614caa36fb9a33daed14f676dda4f9734183c4c31e9c3656'},
-      {file: 'test/output/maine.csv.gz', hash: 'e18e059777f14ce2aae153ae99e9baa823eebef00f6c9cf1b850244eb3261595'},
-      {file: 'test/output/sacramento.csv.gz', hash: '4b5006779c13d199232b9ad4a5831c4e83f08abbc43ae56d28837dd7cb334388'}
+      {file: 'test/output/arkansas.csv.gz', hash: '0d080f15cbc88fab20725c12fd0bd9048880521de7f7529a61b3dd163d00c5a3'},
+      {file: 'test/output/maine.csv.gz', hash: '5997fe4f809ef7fc4c5300f334afe88ccf35b3ec6104c594847bd7ca4cf90503'},
+      {file: 'test/output/sacramento.csv.gz', hash: '8e1318548eb644653a0f0565d46c6956f17f8916fbacbfa3e1abcf4066c90d4c'}
     ];
 
     outfiles.forEach(function(obj){
@@ -1019,7 +1020,7 @@ test('Field tests', function(t){
   var data = fs.readJsonSync('data.json');
   var fieldFiles = {};
 
-  t.plan(data.length*3);
+  t.plan(data.length*2);
 
   fs.readdirSync('test/data/fields')
     .filter(function(v){return v[0] !== '.' && v.indexOf('.') !== -1})
@@ -1035,7 +1036,6 @@ test('Field tests', function(t){
     fieldStream.on('data', function(data){
       var props = data.properties;
       t.ok(props.address, util.format('%s generates address', source.name));
-      t.equal(props.alt_address, '', util.format('%s generates alt_address', source.name));
     });
 
     fieldStream.end(fieldFiles[source.name]);

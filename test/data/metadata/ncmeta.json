@@ -5,9 +5,13 @@
     "file": "AddressNC_2014.gdb",
     "spatialReference": "EPSG:2264",
     "fields": {
-      "Address": {
+      "Number": {
         "type": "static",
-        "value": "FULL_ADDRESS"
+        "value": "ADDR_HN"
+      },
+      "Street": {
+        "type": "multi",
+        "value": ["ADDR_SN", "ADDR_ST"]
       },
       "City": {
         "type": "static",

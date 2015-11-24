@@ -6,9 +6,13 @@
     "spatialReference":"WGS84",
     "file":"maine.csv",
     "fields": {
-      "Address": {
+      "Number": {
         "type": "static",
-        "value": "ADDRESS"
+        "value": "ADDRESS_NU"
+      },
+      "Street": {
+        "type": "static",
+        "value": "RDNAME"
       },
       "City": {
         "type": "static",
