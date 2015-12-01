@@ -130,7 +130,6 @@ test('makeLogger module', function(t){
 
 
 
-
 test('esLoader module', function(t){
   t.plan(8);
 
@@ -140,7 +139,11 @@ test('esLoader module', function(t){
     t.pass('Connect fails without host/port')
   }
 
+  var op2 = JSON.parse(JSON.stringify(options));
+
   options.client = client;
+  op2.client = client;
+  op2.forcedIndex = 'testforcedindex';
 
   t.ok(client, 'Proper connect returns an elasticsearch client');
 
@@ -157,9 +160,6 @@ test('esLoader module', function(t){
     t.ok(err, 'Loader errors without proper arguments');
   });
 
-  var op2 = JSON.parse(JSON.stringify(options));
-  op2.client = client;
-  op2.forcedIndex = 'testforcedindex';
 
   esLoader.loadIntoIndex(op2, function(err, loader){
     t.notOk(err, 'Proper arguments to loader doesn\'t error');
@@ -929,7 +929,6 @@ test('retriever', function(t){
     t.equal(output.loaded.length, 2, 'Loads data after parent dir error.');
     t.equal(output.fresh.length, 2, 'Gets fresh data');
   });
-
 });
 
 
@@ -947,7 +946,7 @@ test('Cli tests', function(t){
     });
 
 
-  spawn('./test/no-cb.js', ['-l', 'error', '-h', options.host, '-p', options.port, '-a', options.alias, '-t', options.type, '-b', options.backupBucket, '--profile', options.profile, '-d', options.backupDirectory, '-f', maine])
+  spawn('./test/no-cb.js', ['-l', 'debug', '-h', options.host, '-p', options.port, '-a', options.alias, '-t', options.type, '-b', options.backupBucket, '--profile', options.profile, '-d', options.backupDirectory, '-f', maine])
     .on('exit', function(code){
       t.equal(code, 0, 'Works without a callback.');
     })
@@ -981,12 +980,14 @@ test('Ensure output', function(t){
   var count = 0;
 
  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: options.profile, backupDirectory: options.backupDirectory, file: 'test/data/metadata/parcelsjson.json'}, function(output){
+    if(output.errors.length) console.log(output.errors);
     t.equal(output.errors.length, 0, 'No error on converted parcels.')
     t.equal(output.processed.length, 1, 'Loads data from parcels');
     ensure(++count);
   });
 
   retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, match: 'maine, arkansas', quiet: true, logger: logger, profile: options.profile, backupDirectory: options.backupDirectory, file: 'test/data/metadata/maineandarkanderr.json'}, function(output){
+    if(output.errors.length) console.log(output.errors);
     t.equal(output.errors.length, 0, 'No error on filtered file.')
     t.equal(output.processed.length, 2, 'Loads data after filter.');
     ensure(++count);
