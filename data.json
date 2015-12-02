@@ -91,8 +91,8 @@
     "name": "arkansas",
     "url": "http://geostor-vectors.geostor.org/Location/SHP/SITUS_ADDRESS_PT.zip",
     "hash": "304fb038ede2da4a5e388e2f8c0bb54ca722dec9422ed173f044b79800810448",
-    "file": "SITUS_ADDRESS_PT.shp",
-    "count": 1431644,
+    "file": "location_SITUS_ADDRESS_PT.shp",
+    "count": 1407700,
     "fields": {
       "Number": {
         "type": "multi",
