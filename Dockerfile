@@ -10,6 +10,7 @@ USER root
 RUN apt-get update && apt-get install -y curl git && \
     curl -sL https://deb.nodesource.com/setup_0.10 | sudo bash - && \
     apt-get install -y nodejs &&\
+    npm update -g npm &&\
     mkdir -p /usr/src/app
 
 WORKDIR /usr/src/app
