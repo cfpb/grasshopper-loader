@@ -26,7 +26,7 @@
     "async": "^1.4.2",
     "aws-auto-auth": "^0.1.1",
     "aws-sdk": "^2.1.31",
-    "centroid-stream": "^0.3.0",
+    "centroid-stream": "^0.3.1",
     "commander": "^2.8.1",
     "csv-to-vrt": "0.2.4",
     "elasticsearch": "^3.1.1",

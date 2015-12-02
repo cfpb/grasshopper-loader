@@ -34,7 +34,7 @@
     "url": "ftp://ftp.agrc.utah.gov/UtahSGID_Vector/UTM12_NAD83/LOCATION/UnpackagedData/AddressPoints/_Statewide/AddressPoints_gdb.zip",
     "hash": "66e88a697adc7b5ddf5c409782694a9684e2c1c6eeab55834eec3fb68435fd96",
     "file": "AddressPoints.gdb",
-    "count": 1067432,
+    "count": 1084127,
     "fields": {
       "Number": {
         "type": "static",
