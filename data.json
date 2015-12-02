@@ -96,11 +96,11 @@
     "fields": {
       "Number": {
         "type": "multi",
-        "value": ["adr_num", "adr_num_su"]
+        "value": ["adr_num", "adr_numsuf"]
       },
       "Street": {
         "type": "static",
-        "value": "pstr_fulna"
+        "value": "pstrfulnam"
       },
       "City": {
         "type": "static",
