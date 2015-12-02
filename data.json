@@ -32,7 +32,7 @@
   {
     "name": "utah",
     "url": "ftp://ftp.agrc.utah.gov/UtahSGID_Vector/UTM12_NAD83/LOCATION/UnpackagedData/AddressPoints/_Statewide/AddressPoints_gdb.zip",
-    "hash": "d2dafd098cdf61422fa4bd7b1fd7e524e761afc7607b629d0d6befbf2da53807",
+    "hash": "66e88a697adc7b5ddf5c409782694a9684e2c1c6eeab55834eec3fb68435fd96",
     "file": "AddressPoints.gdb",
     "count": 1067432,
     "fields": {
@@ -63,7 +63,7 @@
     "url": "http://gis.ny.gov/gisdata/data/ds_921/SAM_Master_Statewide.gdb.zip",
     "hash": "dda07a26bb25b5c900d0d1464ade072e3aa769372bf4d9bca75fa05ddae96122",
     "file": "SAM_Master_Statewide_Database.gdb",
-    "count": 4761260,
+    "count": 4766632,
     "fields": {
       "Number": {
         "type": "multi",
@@ -90,7 +90,7 @@
   {
     "name": "arkansas",
     "url": "http://geostor-vectors.geostor.org/Location/SHP/SITUS_ADDRESS_PT.zip",
-    "hash": "a00cf2ada728ea477404535a53083056a692b6f65ebb081ba8822e0640dd8239",
+    "hash": "304fb038ede2da4a5e388e2f8c0bb54ca722dec9422ed173f044b79800810448",
     "file": "SITUS_ADDRESS_PT.shp",
     "count": 1431644,
     "fields": {
@@ -121,7 +121,7 @@
     "url": "https://ftp.vgingis.com/Download/VA_SiteAddress.txt.zip",
     "hash": "3612012b94b92c003f105aafef2ea01c736b7bd68e88365e1f42485a80b6921e",
     "file": "VA_SiteAddress.txt",
-    "count": 3521238,
+    "count": 3654477,
     "spatialReference": "NAD83",
     "fields": {
       "Number": {
