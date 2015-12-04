@@ -10,7 +10,6 @@ var winston = require('winston');
 var options = require('commander');
 var isStream = require('isstream');
 var streamStats = require('stream-stats');
-var split = require('split2');
 
 var retriever = require('../lib/retriever');
 var loader = require('../lib/loader');
@@ -32,8 +31,6 @@ var assureRecordCount = require('../lib/assureRecordCount');
 var ftp = require('../lib/ftpWrapper');
 var makeLogger = require('../lib/makeLogger');
 var getTigerState = require('../lib/getTigerState');
-var jsonToCsv = require('../lib/jsonToCsv');
-var backup = require('../lib/backup');
 
 
 
@@ -476,63 +473,6 @@ test('uploadStream module', function(t){
 
 
 
-test('backup module', function(t){
-  t.plan(8);
-
-  var fileStream = fs.createReadStream('test/data/ndjson');
-  var stream = split();
-
-  fileStream.pipe(stream);
-
-  var op1 = {
-    backupBucket: options.backupBucket,
-    backupDirectory: options.backupDirectory,
-    profile: options.profile
-  };
-
-  var op2 = {
-    backupBucket: options.backupBucket,
-    profile: options.profile
-  };
-
-  var op3 = {
-    backupDirectory: options.backupDirectory,
-    profile: options.profile
-  };
-
-  var op4 = {
-    profile: options.profile
-  };
-
-  var rec1 = {name: 'backup'};
-  var rec2 = {name: 'root_backup'};
-  var rec3 = {name: 'backup'};
-  var rec4 = {name: 'backup'};
-
-  backup(op1, stream, rec1, function(err){
-    t.ok(isStream(rec1._retrieverOutput), 'Creates streaming output');
-    t.notOk(err, 'Uploads without error.');
-  });
-
-  backup(op2, stream, rec2, function(err){
-    t.ok(isStream(rec2._retrieverOutput), 'Creates streaming output');
-    t.equal(op2.backupDirectory, '.', 'backupDiretory defaults to current');
-    t.notOk(err, 'Uploads without error.');
-  });
-
-  backup(op3, stream, rec3, function(err){
-    t.equal(rec3._retrieverOutput, path.join(options.backupDirectory, rec3.name + '.csv.gz'), 'Creates local backup');
-    t.notOk(err, 'Backs up without error.');
-  });
-
-  backup(op4, stream, rec4, function(err){
-   t.ok(err, 'Errors without backupBucket and backupDirectory');
-  });
-});
-
-
-
-
 test('resolveFields module', function(t){
   t.plan(4);
 
@@ -631,35 +571,6 @@ test('getTigerState module', function(t){
   t.equal(nomatch, undefined, 'Returns undefined when FIPS isn\'t matched');
   t.equal(badmatch, undefined, 'Returns undefined when FIPS isn\'t valid');
 });
-
-
-
-
-test('jsonToCsv module', function(t){
-  t.plan(3);
-  var stream = jsonToCsv();
-
-  stream.once('error', function(err){
-    t.ok(err, 'Fails on bad json');
-    stream.once('error', function(err){
-      t.ok(err, 'Fails without required props');
-      stream.end(new Buffer('{"geometry":{"coordinates":[2,3]},"properties":{"address":"123 fake st middle tx 90210", "number": "123", "street": "fake st", "city": "middle", "state": "tx", "zip": "90210"}}'));
-    });
-    stream.write('{}');
-  });
-
-  var i=0;
-
-  stream.on('data', function(d){
-    if(i===1){
-      t.equal(d.toString(), '2,3,123 fake st middle tx 90210,123,fake st,middle,tx,90210\n', 'Returns proper csv address');
-    }
-    i++;
-  });
-
-  stream.write(new Buffer('qwe'));
-});
-
 
 
 
