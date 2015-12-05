@@ -32,10 +32,10 @@ options
   .option('-t, --type <type>', 'Elasticsearch type within the provided or default alias. Defaults to point.', 'point')
   .option('-l, --log <log>', 'ElasticSearch log level. Defaults to error.', 'error')
   .option('-q, --quiet', 'Suppress logging.', false)
-  .option('-b, --backup-bucket <backupBucket>', 'An S3 bucket where the data should be backed up.')
-  .option('-d, --backup-directory <backupDirectory>', 'A directory where the data should be loaded, either relative to the current folder or the passed S3 bucket.')
-  .option('--profile', 'The aws profile in ~/.aws/credentials. Will also respect environmental variables.', 'default')
-  .option('--monitor', 'Run the retriever in monitoring mode which only checks data source freshness and doesn\'t load or backup data.')
+  .option('-b, --bucket <bucket>', 'An S3 bucket where the data resides.')
+  .option('-d, --directory <directory>', 'A directory where data sources reside, either relative to the current folder or the passed S3 bucket.')
+  .option('--profile', 'The aws profile in ~/.aws/credentials. Only needed if loading data from a bucket. AWS environment variables will override this value.', 'default')
+  .option('--monitor', 'Run the retriever in monitoring mode which only checks data source freshness and doesn\'t load data.')
   .parse(process.argv);
 
 
@@ -43,7 +43,7 @@ var logger = makeLogger(options);
 
 options.client = esLoader.connect(options.host, options.port, options.log);
 
-if(options.monitor) logger.info('Running in monitoring mode. Remote files will be checked for freshness but not loaded or backed up.');
+if(options.monitor) logger.info('Running in monitoring mode. Remote files will be checked for freshness but not loaded.');
 
 retriever(options, function(output){
   options.client.close();
@@ -58,21 +58,14 @@ retriever(options, function(output){
     output.errors[i] = v.toString();
   });
 
-  if(!options.bucket && !options.directory){
-    logger.info('%d source%s still fresh, %d source%s need updates.',
-      output.fresh.length,
-      output.fresh.length === 1 ? '' : 's',
-      output.stale.length,
-      output.stale.length === 1 ? '' : 's'
-    );
-  }else{
-    logger.info('Fetched %d source%s and placed %s in %s.',
-      output.retrieved.length,
-      output.retrieved.length === 1 ? '' : 's',
-      output.retrieved.length === 1 ? 'it' : 'them',
-      output.location
-    );
-  }
+  logger.info('%d source%s still fresh, %d source%s need updates, %d source%s loaded from known files.',
+    output.fresh.length,
+    output.fresh.length === 1 ? '' : 's',
+    output.stale.length,
+    output.stale.length === 1 ? '' : 's',
+    output.known.length,
+    output.known.length === 1 ? '' : 's'
+  );
 
   logger.info(JSON.stringify(output));
 });
