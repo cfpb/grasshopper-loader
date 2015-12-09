@@ -41,6 +41,8 @@ options
 
 var logger = makeLogger(options);
 
+if(options.bucket && !options.directory) options.directory = '.';
+
 options.client = esLoader.connect(options.host, options.port, options.log);
 
 if(options.monitor) logger.info('Running in monitoring mode. Remote files will be checked for freshness but not loaded.');
@@ -58,13 +60,13 @@ retriever(options, function(output){
     output.errors[i] = v.toString();
   });
 
-  logger.info('%d source%s still fresh, %d source%s need updates, %d source%s loaded from known files.',
+  logger.info('%d source%s still fresh, %d source%s need updates, %d source%s overridden from known files.',
     output.fresh.length,
     output.fresh.length === 1 ? '' : 's',
     output.stale.length,
     output.stale.length === 1 ? '' : 's',
-    output.known.length,
-    output.known.length === 1 ? '' : 's'
+    output.overridden.length,
+    output.overridden.length === 1 ? '' : 's'
   );
 
   logger.info(JSON.stringify(output));
