@@ -15,8 +15,8 @@ var retriever = require('../lib/retriever');
 var loader = require('../lib/loader');
 var retrieverPipeline = require('../lib/retriever-pipeline');
 var loaderPipeline = require('../lib/loader-pipeline');
+var resolveOverrides = require('./lib/resolveOverrides');
 var checkHash = require('../lib/checkHash');
-var UploadStream = require('../lib/UploadStream');
 var resolveFields = require('../lib/resolveFields');
 var fieldFilter = require('../lib/fieldFilter');
 var formatAddress = require('../lib/formatAddress');
@@ -54,8 +54,8 @@ options
   .option('-p, --port <port>', 'ElasticSearch port. Defaults to 9200', Number, esPort)
   .option('-a, --alias <alias>', 'Elasticsearch index alias. Defaults to testindex', 'testindex')
   .option('-t, --type <type>', 'Elasticsearch type within the provided or default index. Defaults to testtype', 'testtype')
-  .option('-b, --backup-bucket <backupBucket>', 'An S3 bucket where the data should be backed up.', 'wyatt-test')
-  .option('-d, --backup-directory <backupDirectory>', 'A directory where the data should be loaded, either relative to the current folder or the passed S3 bucket.', 'test/output')
+  .option('-b, --bucket <bucket>', 'An S3 bucket where the data overrides may be found.', 'wyatt-test')
+  .option('-d, --directory <directory>', 'A directory where data overrides may be found, either relative to the current folder or the passed S3 bucket.', 'test/output')
   .option('--profile', 'The aws credentials profile in ~/.aws/credentials. Will also respect AWS keys as environment variables.', 'default')
   .parse(process.argv);
 
@@ -79,6 +79,24 @@ options.logger = logger;
 
 var client = esLoader.connect(options.host, options.port, []);
 
+
+
+test('resolveOverrides module', function(t){
+ t.plan(8);
+
+ resolveOverrides(options, function(err, overrides){
+   t.ok(overrides.list, 'Returns instance of overrides');
+ });
+
+ var op2 = JSON.parse(JSON.stringify(options));
+ delete op2.bucket;
+ op2.directory = 'falsedirdoesntexist';
+
+ resolveOverrides(op2, function(err, overrides){
+   t.ok(overrides.list, 'Returns instance of overrides');
+ });
+
+});
 
 
 
@@ -433,41 +451,6 @@ test('ftpWrapper addendum', function(t){
   }catch(e){
     t.fail('Error closing clients');
   }
-});
-
-
-
-
-test('uploadStream module', function(t){
-  t.plan(7);
-
-  var uploadStream = new UploadStream(options.backupBucket, options.profile);
-  t.ok(uploadStream.S3, 'Creates and returns an S3 instance.');
-  t.ok(uploadStream.credentials, 'Creates credentials object.');
-  t.equal(uploadStream.bucket, options.backupBucket, 'Saves reference to bucket.');
-
-  try{
-    new UploadStream();
-  }catch(e){
-    t.pass('Errors without a bucket passed in.');
-  }
-
-  var upload = uploadStream.stream( 'test/output/upload.json');
-
-  pump(fs.createReadStream(maine), upload, function(err){
-    t.notOk(err, 'No error on okay upload.');
-  })
-  .on('uploaded', function(details){
-    t.ok(details, 'Returns upload details.');
-  });
-
-  var up = new UploadStream('fakebucketqwkMljeqhwegqw');
-  var errStream = up.stream('qwdqqqqs/up.csv.gz');
-
-  pump(fs.createReadStream(maine), errStream, function(){
-    t.pass('Errors on uploading to bad bucket.');
-  });
-
 });
 
 
