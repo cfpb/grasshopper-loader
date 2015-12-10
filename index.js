@@ -41,7 +41,6 @@ options
 
 var logger = makeLogger(options);
 
-if(options.bucket && !options.directory) options.directory = '.';
 
 options.client = esLoader.connect(options.host, options.port, options.log);
 
