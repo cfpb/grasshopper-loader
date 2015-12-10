@@ -39,7 +39,6 @@
     "pump": "^1.0.0",
     "readable-stream": "2.0.x",
     "request": "^2.60.0",
-    "s3-upload-stream": "git://github.com/wpears/s3-upload-stream.git#end-override",
     "split2": "^1.0.0",
     "through2": "^2.0.0",
     "us": "^1.1.1",
