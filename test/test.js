@@ -15,7 +15,7 @@ var retriever = require('../lib/retriever');
 var loader = require('../lib/loader');
 var retrieverPipeline = require('../lib/retriever-pipeline');
 var loaderPipeline = require('../lib/loader-pipeline');
-var resolveOverrides = require('./lib/resolveOverrides');
+var resolveOverrides = require('../lib/resolveOverrides');
 var checkHash = require('../lib/checkHash');
 var resolveFields = require('../lib/resolveFields');
 var fieldFilter = require('../lib/fieldFilter');
@@ -82,7 +82,7 @@ var client = esLoader.connect(options.host, options.port, []);
 
 
 test('resolveOverrides module', function(t){
- t.plan(8);
+ t.plan(7);
 
  resolveOverrides(options, function(err, overrides){
    t.notOk(err, 'No error on good override location');
