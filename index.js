@@ -44,6 +44,8 @@ var logger = makeLogger(options);
 
 options.client = esLoader.connect(options.host, options.port, options.log);
 
+if(options.directory && options.directory[options.directory.length - 1] === '/') options.directory = options.directory.slice(0, -1);
+
 if(options.monitor) logger.info('Running in monitoring mode. Remote files will be checked for freshness but not loaded.');
 
 retriever(options, function(output){
