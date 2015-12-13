@@ -738,7 +738,7 @@ test('loader', function(t){
 
 
 test('retriever', function(t){
-  t.plan(30);
+  t.plan(32);
 
   retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: options.profile, directory: options.directory, file: 'nofile'}, function(output){
     if(output.errors.length !== 1) console.log(output.errors);
@@ -784,6 +784,12 @@ test('retriever', function(t){
     if(output.errors.length !== 0) console.log(output.errors);
     t.equal(output.errors.length, 0, 'No error on good file.');
     t.equal(output.processed.length, 1, 'Loads data from test data locally.');
+  });
+
+  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: options.profile, directory: options.directory, file: 'test/data/metadata/private_maine.json'}, function(output){
+    if(output.errors.length !== 0) console.log(output.errors);
+    t.equal(output.errors.length, 0, 'No error when no source is provided with a proper override.');
+    t.equal(output.processed.length, 1, 'Data correctly processed.');
   });
 
   retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, bucket: options.bucket, profile: options.profile, directory: options.directory, file: maine, match: 'maine'}, function(output){
