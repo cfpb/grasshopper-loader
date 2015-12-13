@@ -82,17 +82,17 @@ var client = esLoader.connect(options.host, options.port, []);
 
 
 test('resolveOverrides module', function(t){
- t.plan(7);
+ t.plan(15);
 
  resolveOverrides(options, function(err, overrides){
-   t.notOk(err, 'No error on good override location');
+   t.notOk(err, 'No error on good override location in bucket');
    t.ok(overrides.list, 'Returns instance of overrides');
 
    var resolvedMaine = overrides.resolve('maine');
    var overrideStream = overrides.get('maine');
 
    t.equal(resolvedMaine, 'test/overrides/maine.zip');
-   t.ok(isStream(overrideStream), 'override streams from bucket');
+   t.ok(isStream(overrideStream), 'Override streams from bucket');
  });
 
  var op2 = JSON.parse(JSON.stringify(options));
@@ -108,6 +108,32 @@ test('resolveOverrides module', function(t){
   t.notOk(resolvedMaine, 'Can\'t resolve overrides from invalid directory');
  });
 
+ var op3 = JSON.parse(JSON.stringify(options));
+
+ resolveOverrides(op3, function(err, overrides){
+   t.notOk(err, 'No error on good override local location');
+   t.ok(overrides.list, 'Returns instance of overrides');
+
+   var resolvedMaine = overrides.resolve('maine');
+   var overrideStream = overrides.get('maine');
+
+   t.equal(resolvedMaine, 'test/overrides/maine.zip');
+   t.ok(isStream(overrideStream), 'Override streams locally');
+ });
+
+ var op4 = JSON.parse(JSON.stringify(options));
+ delete op4.directory;
+
+ resolveOverrides(op4, function(err, overrides){
+   t.notOk(err, 'No error on good override with bucket but no directory');
+   t.ok(overrides.list, 'Returns instance of overrides');
+
+   var resolvedMaine = overrides.resolve('maine');
+   var overrideStream = overrides.get('maine');
+
+   t.equal(resolvedMaine, 'maine.zip');
+   t.ok(isStream(overrideStream), 'Override streams locally');
+ });
 });
 
 
