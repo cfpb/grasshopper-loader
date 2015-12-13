@@ -34,8 +34,8 @@ options
   .option('-q, --quiet', 'Suppress logging.', false)
   .option('-b, --bucket <bucket>', 'An S3 bucket where the data resides.')
   .option('-d, --directory <directory>', 'A directory where data sources reside, either relative to the current folder or the passed S3 bucket.')
-  .option('--profile', 'The aws profile in ~/.aws/credentials. Only needed if loading data from a bucket. AWS environment variables will override this value.', 'default')
-  .option('--monitor', 'Run the retriever in monitoring mode which only checks data source freshness and doesn\'t load data.')
+  .option('-P, --profile <profile>', 'The aws profile in ~/.aws/credentials. Only needed if loading data from a bucket. AWS environment variables will override this value.', 'default')
+  .option('-M, --monitor', 'Run the retriever in monitoring mode which only checks data source freshness and doesn\'t load data.')
   .parse(process.argv);
 
 
