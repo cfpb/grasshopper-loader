@@ -447,7 +447,7 @@ test('ftpWrapper module', function(t){
       }
     });
 
-    ftp.list(url.parse('ftp://ftp2.cenFAKE.gov/geo/tiger/TIGER2015/ADDRFEAT/'), function(err){
+    ftp.list(url.parse('ftp://ftp2.fakeaddr.gov/geo/tiger/TIGER2015/ADDRFEAT/'), function(err){
       t.ok(err, 'Error when listing from invalid client');
     });
 
@@ -460,7 +460,7 @@ test('ftpWrapper module', function(t){
       }
     });
 
-    ftp.request(url.parse('ftp://ftp2.cenFAKE.gov/geo/tiger/TIGER2015/ADDRFEAT/'), function(err){
+    ftp.request(url.parse('ftp://ftp2.fake.gov/geo/tiger/TIGER2015/ADDRFEAT/'), function(err){
       t.ok(err, 'Error when requesting from invalid client');
     });
 
@@ -469,7 +469,7 @@ test('ftpWrapper module', function(t){
     t.fail(err);
   });
 
-  ftp.connect(url.parse('ftp://ftp2.cenFAKE.gov/geo/tiger/TIGER2015/ADDRFEAT/'), function(err){
+  ftp.connect(url.parse('ftp://ftp2.alsofake.gov/geo/tiger/TIGER2015/ADDRFEAT/'), function(err){
       t.ok(err, 'Passes through client error to callback');
     },
     function(err){
