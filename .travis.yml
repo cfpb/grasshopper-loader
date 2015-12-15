@@ -3,8 +3,8 @@ language: node_js
 node_js: '0.10'
 
 services:
-  - elasticsearch
   - docker
+  - elasticsearch
 
 branches:
   only:
@@ -12,4 +12,9 @@ branches:
 
 before_install:
   - docker build --rm --tag=hmda/loader .
-  - docker run --rm hmda/loader npm test -- -h 10.0.2.2
+
+before_script:
+  - sleep 10
+
+script:
+  - docker run --rm -e "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" -e "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" hmda/loader npm test -- -h 10.0.2.2
