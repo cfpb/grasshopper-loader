@@ -803,13 +803,13 @@ test('retriever', function(t){
   retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, bucket: options.bucket, profile: options.profile, directory: options.directory, file: maine}, function(output){
     if(output.errors.length !== 0) console.log(output.errors);
     t.equal(output.errors.length, 0, 'No error on good file and bucket.');
-    t.equal(output.processed.length, 1, 'Loads data from the test dataset to bucket.');
+    t.equal(output.processed.length, 1, 'Loads data with backups.');
   });
 
   retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: options.profile, directory: options.directory, file: maine}, function(output){
     if(output.errors.length !== 0) console.log(output.errors);
     t.equal(output.errors.length, 0, 'No error on good file.');
-    t.equal(output.processed.length, 1, 'Loads data from test data locally.');
+    t.equal(output.processed.length, 1, 'Loads data from test data with local backups.');
   });
 
   retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: options.profile, directory: options.directory, file: 'test/data/metadata/private_maine.json'}, function(output){
