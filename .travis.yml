@@ -13,4 +13,4 @@ script:
   - docker build --rm --tag=hmda/loader .
   - ./build/start_elasticsearch.sh
   - sleep 10
-  - docker run --rm -e "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" -e "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" hmda/loader npm test -- -h $("$ES_HOST")
+  - docker run --rm -e "ES_HOST=$ES_HOST" -e "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" -e "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" hmda/loader npm test -- -h "$ES_HOST"
