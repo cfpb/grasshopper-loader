@@ -5,6 +5,7 @@ sudo apt-get -y install python-software-properties
 sudo apt-add-repository ppa:chris-lea/node.js -y
 sudo apt-get update -q
 sudo apt-get -y install nodejs g++ build-essential git curl
+sudo npm update -g npm
 
 curl http://download.osgeo.org/gdal/1.11.2/gdal-1.11.2.tar.gz | tar xz 
 cd gdal-1.11.2

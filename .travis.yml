@@ -1,10 +1,18 @@
-language: node_js
-node_js: '0.10'
-services: elasticsearch
-sudo: true
+sudo: required
+
+services:
+  - docker
+
 branches:
   only:
   - master
-before_install:
-  - ./build/setup_ubuntu.sh
+
+install: true
+
+script:
+  - docker build --rm --tag=hmda/loader .
+  - CONTAINER_ID=$(docker run -d -p 9200:9200 -p 9300:9300 elasticsearch:1.7.3)
   - sleep 10
+  - ES_HOST=$(docker inspect "$CONTAINER_ID" | grep IPAddress | cut -d '"' -f 4)
+  - echo "$ES_HOST"
+  - docker run --rm -e "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" -e "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" hmda/loader npm test -- -h $(echo "$ES_HOST")

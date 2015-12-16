@@ -10,14 +10,13 @@ var winston = require('winston');
 var options = require('commander');
 var isStream = require('isstream');
 var streamStats = require('stream-stats');
-var split = require('split2');
 
 var retriever = require('../lib/retriever');
 var loader = require('../lib/loader');
 var retrieverPipeline = require('../lib/retriever-pipeline');
 var loaderPipeline = require('../lib/loader-pipeline');
+var resolveOverrides = require('../lib/resolveOverrides');
 var checkHash = require('../lib/checkHash');
-var UploadStream = require('../lib/UploadStream');
 var resolveFields = require('../lib/resolveFields');
 var fieldFilter = require('../lib/fieldFilter');
 var formatAddress = require('../lib/formatAddress');
@@ -32,8 +31,6 @@ var assureRecordCount = require('../lib/assureRecordCount');
 var ftp = require('../lib/ftpWrapper');
 var makeLogger = require('../lib/makeLogger');
 var getTigerState = require('../lib/getTigerState');
-var jsonToCsv = require('../lib/jsonToCsv');
-var backup = require('../lib/backup');
 
 
 
@@ -57,9 +54,9 @@ options
   .option('-p, --port <port>', 'ElasticSearch port. Defaults to 9200', Number, esPort)
   .option('-a, --alias <alias>', 'Elasticsearch index alias. Defaults to testindex', 'testindex')
   .option('-t, --type <type>', 'Elasticsearch type within the provided or default index. Defaults to testtype', 'testtype')
-  .option('-b, --backup-bucket <backupBucket>', 'An S3 bucket where the data should be backed up.', 'wyatt-test')
-  .option('-d, --backup-directory <backupDirectory>', 'A directory where the data should be loaded, either relative to the current folder or the passed S3 bucket.', 'test/output')
-  .option('--profile', 'The aws credentials profile in ~/.aws/credentials. Will also respect AWS keys as environment variables.', 'default')
+  .option('-b, --bucket <bucket>', 'An S3 bucket where the data overrides may be found.', 'wyatt-test')
+  .option('-d, --directory <directory>', 'A directory where data overrides may be found, either relative to the current folder or the passed S3 bucket.', 'test/overrides')
+  .option('-P, --profile <profile>', 'The aws credentials profile in ~/.aws/credentials. Will also respect AWS keys as environment variables.', 'default')
   .parse(process.argv);
 
 
@@ -82,6 +79,62 @@ options.logger = logger;
 
 var client = esLoader.connect(options.host, options.port, []);
 
+
+
+test('resolveOverrides module', function(t){
+ t.plan(15);
+
+ resolveOverrides(options, function(err, overrides){
+   t.notOk(err, 'No error on good override location in bucket');
+   t.ok(overrides.list, 'Returns instance of overrides');
+
+   var resolvedMaine = overrides.resolve('maine');
+   var overrideStream = overrides.get('maine');
+
+   t.equal(resolvedMaine, 'test/overrides/maine.zip');
+   t.ok(isStream(overrideStream), 'Override streams from bucket');
+ });
+
+ var op2 = JSON.parse(JSON.stringify(options));
+ delete op2.bucket;
+ op2.directory = 'falsedirdoesntexist';
+
+ resolveOverrides(op2, function(err, overrides){
+   t.ok(err, 'Can\'t resolve overrides from invalid directory');
+   t.ok(overrides.list, 'Returns instance of overrides even when an error exists');
+
+   var resolvedMaine = overrides.resolve('maine');
+
+  t.notOk(resolvedMaine, 'Can\'t resolve overrides from invalid directory');
+ });
+
+ var op3 = JSON.parse(JSON.stringify(options));
+
+ resolveOverrides(op3, function(err, overrides){
+   t.notOk(err, 'No error on good override local location');
+   t.ok(overrides.list, 'Returns instance of overrides');
+
+   var resolvedMaine = overrides.resolve('maine');
+   var overrideStream = overrides.get('maine');
+
+   t.equal(resolvedMaine, 'test/overrides/maine.zip');
+   t.ok(isStream(overrideStream), 'Override streams locally');
+ });
+
+ var op4 = JSON.parse(JSON.stringify(options));
+ delete op4.directory;
+
+ resolveOverrides(op4, function(err, overrides){
+   t.notOk(err, 'No error on good override with bucket but no directory');
+   t.ok(overrides.list, 'Returns instance of overrides');
+
+   var resolvedMaine = overrides.resolve('maine');
+   var overrideStream = overrides.get('maine');
+
+   t.equal(resolvedMaine, 'maine.zip');
+   t.ok(isStream(overrideStream), 'Override streams locally');
+ });
+});
 
 
 
@@ -394,7 +447,7 @@ test('ftpWrapper module', function(t){
       }
     });
 
-    ftp.list(url.parse('ftp://ftp2.cenFAKE.gov/geo/tiger/TIGER2015/ADDRFEAT/'), function(err){
+    ftp.list(url.parse('ftp://ftp2.fakeaddr.gov/geo/tiger/TIGER2015/ADDRFEAT/'), function(err){
       t.ok(err, 'Error when listing from invalid client');
     });
 
@@ -407,7 +460,7 @@ test('ftpWrapper module', function(t){
       }
     });
 
-    ftp.request(url.parse('ftp://ftp2.cenFAKE.gov/geo/tiger/TIGER2015/ADDRFEAT/'), function(err){
+    ftp.request(url.parse('ftp://ftp2.fake.gov/geo/tiger/TIGER2015/ADDRFEAT/'), function(err){
       t.ok(err, 'Error when requesting from invalid client');
     });
 
@@ -416,7 +469,7 @@ test('ftpWrapper module', function(t){
     t.fail(err);
   });
 
-  ftp.connect(url.parse('ftp://ftp2.cenFAKE.gov/geo/tiger/TIGER2015/ADDRFEAT/'), function(err){
+  ftp.connect(url.parse('ftp://ftp2.alsofake.gov/geo/tiger/TIGER2015/ADDRFEAT/'), function(err){
       t.ok(err, 'Passes through client error to callback');
     },
     function(err){
@@ -436,98 +489,6 @@ test('ftpWrapper addendum', function(t){
   }catch(e){
     t.fail('Error closing clients');
   }
-});
-
-
-
-
-test('uploadStream module', function(t){
-  t.plan(7);
-
-  var uploadStream = new UploadStream(options.backupBucket, options.profile);
-  t.ok(uploadStream.S3, 'Creates and returns an S3 instance.');
-  t.ok(uploadStream.credentials, 'Creates credentials object.');
-  t.equal(uploadStream.bucket, options.backupBucket, 'Saves reference to bucket.');
-
-  try{
-    new UploadStream();
-  }catch(e){
-    t.pass('Errors without a bucket passed in.');
-  }
-
-  var upload = uploadStream.stream( 'test/output/upload.json');
-
-  pump(fs.createReadStream(maine), upload, function(err){
-    t.notOk(err, 'No error on okay upload.');
-  })
-  .on('uploaded', function(details){
-    t.ok(details, 'Returns upload details.');
-  });
-
-  var up = new UploadStream('fakebucketqwkMljeqhwegqw');
-  var errStream = up.stream('qwdqqqqs/up.csv.gz');
-
-  pump(fs.createReadStream(maine), errStream, function(){
-    t.pass('Errors on uploading to bad bucket.');
-  });
-
-});
-
-
-
-
-test('backup module', function(t){
-  t.plan(8);
-
-  var fileStream = fs.createReadStream('test/data/ndjson');
-  var stream = split();
-
-  fileStream.pipe(stream);
-
-  var op1 = {
-    backupBucket: options.backupBucket,
-    backupDirectory: options.backupDirectory,
-    profile: options.profile
-  };
-
-  var op2 = {
-    backupBucket: options.backupBucket,
-    profile: options.profile
-  };
-
-  var op3 = {
-    backupDirectory: options.backupDirectory,
-    profile: options.profile
-  };
-
-  var op4 = {
-    profile: options.profile
-  };
-
-  var rec1 = {name: 'backup'};
-  var rec2 = {name: 'root_backup'};
-  var rec3 = {name: 'backup'};
-  var rec4 = {name: 'backup'};
-
-  backup(op1, stream, rec1, function(err){
-    t.ok(isStream(rec1._retrieverOutput), 'Creates streaming output');
-    t.notOk(err, 'Uploads without error.');
-  });
-
-  backup(op2, stream, rec2, function(err){
-    t.ok(isStream(rec2._retrieverOutput), 'Creates streaming output');
-    t.equal(op2.backupDirectory, '.', 'backupDiretory defaults to current');
-    t.notOk(err, 'Uploads without error.');
-  });
-
-  backup(op3, stream, rec3, function(err){
-    t.equal(rec3._retrieverOutput, path.join(options.backupDirectory, rec3.name + '.csv.gz'), 'Creates local backup');
-    t.notOk(err, 'Backs up without error.');
-  });
-
-  backup(op4, stream, rec4, function(err){
-   t.ok(err, 'Errors without backupBucket and backupDirectory');
-  });
 });
 
 
@@ -631,35 +592,6 @@ test('getTigerState module', function(t){
   t.equal(nomatch, undefined, 'Returns undefined when FIPS isn\'t matched');
   t.equal(badmatch, undefined, 'Returns undefined when FIPS isn\'t valid');
 });
-
-
-
-
-test('jsonToCsv module', function(t){
-  t.plan(3);
-  var stream = jsonToCsv();
-
-  stream.once('error', function(err){
-    t.ok(err, 'Fails on bad json');
-    stream.once('error', function(err){
-      t.ok(err, 'Fails without required props');
-      stream.end(new Buffer('{"geometry":{"coordinates":[2,3]},"properties":{"address":"123 fake st middle tx 90210", "number": "123", "street": "fake st", "city": "middle", "state": "tx", "zip": "90210"}}'));
-    });
-    stream.write('{}');
-  });
-
-  var i=0;
-
-  stream.on('data', function(d){
-    if(i===1){
-      t.equal(d.toString(), '2,3,123 fake st middle tx 90210,123,fake st,middle,tx,90210\n', 'Returns proper csv address');
-    }
-    i++;
-  });
-
-  stream.write(new Buffer('qwe'));
-});
-
 
 
 
@@ -832,88 +764,91 @@ test('loader', function(t){
 
 
 test('retriever', function(t){
-  t.plan(30);
+  t.plan(32);
 
-  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: options.profile, backupDirectory: options.backupDirectory, file: 'nofile'}, function(output){
+  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: options.profile, directory: options.directory, file: 'nofile'}, function(output){
     if(output.errors.length !== 1) console.log(output.errors);
     t.equal(output.errors.length, 1, 'Errors on bad file and no bucket.');
   });
 
-  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: 'noprofilepresentfakeprofile', backupBucket: options.backupBucket, file: maine}, function(output){
-    var errLen = 1;
-    if(process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) errLen = 0;
-    if(output.errors.length !== errLen) console.log(output.errors);
-    t.equal(output.errors.length, errLen, 'Errors on bad profile, only without environment variables set.');
+  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: 'noprofilepresentfakeprofile', bucket: options.bucket, file: maine}, function(output){
+    t.equal(output.errors.length, 0, 'No hard errors on bad profile.');
   });
 
-  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: options.profile, backupDirectory: options.backupDirectory, file: ''}, function(output){
+  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: options.profile, directory: options.directory, file: ''}, function(output){
     if(output.errors.length !== 1) console.log(output.errors);
     t.equal(output.errors.length, 1, 'Errors with no file passed.');
   });
 
-  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, backupBucket: options.backupBucket, profile: options.profile, backupDirectory: options.backupDirectory, file: 'nofile'}, function(output){
+  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, bucket: options.bucket, profile: options.profile, directory: options.directory, file: 'nofile'}, function(output){
     if(output.errors.length !== 1) console.log(output.errors);
     t.equal(output.errors.length, 1, 'Errors on bad file and good bucket.');
   });
 
-  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, backupBucket: options.backupBucket, profile: options.profile, backupDirectory: options.backupDirectory, file: 'test/data/metadata/parent_dir.json'}, function(output){
+  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, bucket: options.bucket, profile: options.profile, directory: options.directory, file: 'test/data/metadata/parent_dir.json'}, function(output){
     if(output.errors.length !== 1) console.log(output.errors);
     t.equal(output.errors.length, 1, 'Errors on parent dir in record name.');
   });
 
-  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, backupBucket: options.backupBucket, profile: options.profile, backupDirectory: options.backupDirectory, file: 'test/data/metadata/slash.json'}, function(output){
+  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, bucket: options.bucket, profile: options.profile, directory: options.directory, file: 'test/data/metadata/slash.json'}, function(output){
     if(output.errors.length !== 1) console.log(output.errors);
     t.equal(output.errors.length, 1, 'Errors on forward slash in record name.');
   });
 
-  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, backupBucket: 'fakebucketskjhqblwjdqwobdjabmznmbxbcbcnnbmcioqwOws', profile: options.profile, backupDirectory: options.backupDirectory, file: maine}, function(output){
-    if(output.errors.length !== 1) console.log(output.errors);
-    t.equal(output.errors.length, 1, 'Error on bad bucket.');
+  retriever({client: client, host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, bucket: 'fakebucketskjhqblwjdqwobdjabmznmbxbcbcnnbmcioqwOws', profile: options.profile, directory: options.directory, file: maine}, function(output){
+    if(output.errors.length) console.log(output.errors);
+    t.equal(output.errors.length, 0, 'No hard error on bad bucket.');
   });
 
-  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, backupBucket: options.backupBucket, profile: options.profile, backupDirectory: options.backupDirectory, file: maine}, function(output){
+  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, bucket: options.bucket, profile: options.profile, directory: options.directory, file: maine}, function(output){
     if(output.errors.length !== 0) console.log(output.errors);
     t.equal(output.errors.length, 0, 'No error on good file and bucket.');
-    t.equal(output.processed.length, 1, 'Loads data from the test dataset to bucket.');
+    t.equal(output.processed.length, 1, 'Loads data with backups.');
   });
 
-  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: options.profile, backupDirectory: options.backupDirectory, file: maine}, function(output){
+  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: options.profile, directory: options.directory, file: maine}, function(output){
     if(output.errors.length !== 0) console.log(output.errors);
     t.equal(output.errors.length, 0, 'No error on good file.');
-    t.equal(output.processed.length, 1, 'Loads data from test data locally.');
+    t.equal(output.processed.length, 1, 'Loads data from test data with local backups.');
   });
 
-  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, backupBucket: options.backupBucket, profile: options.profile, backupDirectory: options.backupDirectory, file: maine, match: 'maine'}, function(output){
+  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: options.profile, directory: options.directory, file: 'test/data/metadata/private_maine.json'}, function(output){
+    if(output.errors.length !== 0) console.log(output.errors);
+    t.equal(output.errors.length, 0, 'No error when no source is provided with a proper override.');
+    t.equal(output.processed.length, 1, 'Data correctly processed.');
+  });
+
+  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, bucket: options.bucket, profile: options.profile, directory: options.directory, file: maine, match: 'maine'}, function(output){
     if(output.errors.length !== 0) console.log(output.errors);
     t.equal(output.errors.length, 0, 'No error with match.');
     t.equal(output.processed.length, 1, 'Loads matched data.');
   });
 
-  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, backupBucket: options.backupBucket, profile: options.profile, backupDirectory: options.backupDirectory, file: maine, match: 'nomatch'}, function(output){
+  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, bucket: options.bucket, profile: options.profile, directory: options.directory, file: maine, match: 'nomatch'}, function(output){
     if(output.errors.length !== 0) console.log(output.errors);
     t.equal(output.errors.length, 0, 'No error with no match.');
     t.equal(output.processed.length, 0, 'Loads nothing when no data matched.');
   });
 
-  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: options.profile, backupDirectory: options.backupDirectory, file: 'test/data/metadata/mainejson.json'}, function(output){
+  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: options.profile, directory: options.directory, file: 'test/data/metadata/mainejson.json'}, function(output){
     if(output.errors.length !== 0) console.log(output.errors);
     t.equal(output.errors.length, 0, 'No error on good json file.');
     t.equal(output.processed.length, 1, 'Loads data from json file.');
   });
 
-  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: options.profile, backupDirectory: options.backupDirectory, file: 'test/data/metadata/mainecsv.json'}, function(output){
+  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: options.profile, file: 'test/data/metadata/mainecsv.json'}, function(output){
     if(output.errors.length !== 0) console.log(output.errors);
     t.equal(output.errors.length, 0, 'No error on csv.');
     t.equal(output.processed.length, 1, 'Loads data from csv.');
   });
 
-  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: options.profile, backupDirectory: options.backupDirectory, file: 'test/data/metadata/mainezipcsv.json'}, function(output){
+  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: options.profile, file: 'test/data/metadata/mainezipcsv.json'}, function(output){
     if(output.errors.length !== 0) console.log(output.errors);
     t.equal(output.errors.length, 0, 'No error on zipped csv.');
     t.equal(output.processed.length, 1, 'Loads data from zipped csv.');
   });
 
-  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: options.profile, backupDirectory: options.backupDirectory, file: 'test/data/metadata/maineandarkanderr.json'}, function(output){
+  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: options.profile, file: 'test/data/metadata/maineandarkanderr.json'}, function(output){
     if(output.errors.length !== 1) console.log(output.errors);
     t.equal(output.errors.length, 1, 'Hash error from file with hash error.')
     t.equal(output.processed.length, 3, 'Processes errors and successes alike.');
@@ -922,7 +857,7 @@ test('retriever', function(t){
     t.equal(output.fresh.length, 2, 'Gets fresh data');
   });
 
-  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: options.profile, backupDirectory: options.backupDirectory, file: 'test/data/metadata/maineandarkandparenterr.json'}, function(output){
+  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: options.profile, file: 'test/data/metadata/maineandarkandparenterr.json'}, function(output){
     if(output.errors.length !== 1) console.log(output.errors);
     t.equal(output.errors.length, 1, 'Parent dir error');
     t.equal(output.processed.length, 3, 'Processes errors and successes alike.');
@@ -937,7 +872,7 @@ test('retriever', function(t){
 test('Cli tests', function(t){
   t.plan(4);
 
-  spawn('./index.js', ['-l', 'error', '-h', options.host, '-p', options.port, '-a', options.alias, '-t', options.type, '-b', options.backupBucket, '--profile', options.profile, '-d', options.backupDirectory, '-f', maine])
+  spawn('./index.js', ['-l', 'error', '-h', options.host, '-p', options.port, '-a', options.alias, '-t', options.type, '-b', options.bucket, '--profile', options.profile, '-d', options.directory, '-f', maine])
     .on('exit', function(code){
       t.equal(code, 0, 'Loads via cli');
     })
@@ -946,7 +881,7 @@ test('Cli tests', function(t){
     });
 
 
-  spawn('./test/no-cb.js', ['-l', 'debug', '-h', options.host, '-p', options.port, '-a', options.alias, '-t', options.type, '-b', options.backupBucket, '--profile', options.profile, '-d', options.backupDirectory, '-f', maine])
+  spawn('./test/no-cb.js', ['-l', 'debug', '-h', options.host, '-p', options.port, '-a', options.alias, '-t', options.type, '-b', options.bucket, '--profile', options.profile, '-d', options.directory, '-f', maine])
     .on('exit', function(code){
       t.equal(code, 0, 'Works without a callback.');
     })
@@ -970,48 +905,6 @@ test('Cli tests', function(t){
       console.log(data.toString());
     });
 
-});
-
-
-
-
-test('Ensure output', function(t){
-  t.plan(10);
-  var count = 0;
-
- retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: options.profile, backupDirectory: options.backupDirectory, file: 'test/data/metadata/parcelsjson.json'}, function(output){
-    if(output.errors.length) console.log(output.errors);
-    t.equal(output.errors.length, 0, 'No error on converted parcels.')
-    t.equal(output.processed.length, 1, 'Loads data from parcels');
-    ensure(++count);
-  });
-
-  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, match: 'maine, arkansas', quiet: true, logger: logger, profile: options.profile, backupDirectory: options.backupDirectory, file: 'test/data/metadata/maineandarkanderr.json'}, function(output){
-    if(output.errors.length) console.log(output.errors);
-    t.equal(output.errors.length, 0, 'No error on filtered file.')
-    t.equal(output.processed.length, 2, 'Loads data after filter.');
-    ensure(++count);
-  });
-
-  function ensure(count){
-    if(count < 2) return;
-
-    var outfiles = [
-      {file: 'test/output/arkansas.csv.gz', hash: '0d080f15cbc88fab20725c12fd0bd9048880521de7f7529a61b3dd163d00c5a3'},
-      {file: 'test/output/maine.csv.gz', hash: '5997fe4f809ef7fc4c5300f334afe88ccf35b3ec6104c594847bd7ca4cf90503'},
-      {file: 'test/output/sacramento.csv.gz', hash: '8e1318548eb644653a0f0565d46c6956f17f8916fbacbfa3e1abcf4066c90d4c'}
-    ];
-
-    outfiles.forEach(function(obj){
-      var stream = fs.createReadStream(obj.file);
-
-      checkHash(stream, obj.hash, function(hashIsEqual, computedHash){
-        t.ok(hashIsEqual, 'Computes proper hash');
-        t.equal(computedHash, obj.hash, 'Precomputed hash equals computed hash');
-      });
-
-    });
-  }
 });
 
 
