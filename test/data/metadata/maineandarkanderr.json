@@ -63,7 +63,7 @@
     "fields": {
       "Number": {
         "type": "static",
-        "value": "ADDR_HN"
+        "value": "bad"
       },
       "Street": {
         "type": "multi",
@@ -71,7 +71,7 @@
       },
       "City": {
         "type": "static",
-        "value": "PO_NAME"
+        "value": "nope"
       },
       "State": {
         "type": "static",
