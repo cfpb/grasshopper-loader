@@ -11,6 +11,8 @@ branches:
 
 before_install:
   - docker build --rm --tag=hmda/loader .
-  - docker run -d -p 9200:9200 -p 9300:9300 elasticsearch:1.7.3
+  - ./build/start_elasticsearch.sh
   - sleep 10
-  - docker run --rm -e "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" -e "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" hmda/loader npm test
+
+script:
+  - docker run --rm -e "AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID" -e "AWS_SECRET_ACCESS_KEY=$AWS_SECRET_ACCESS_KEY" hmda/loader npm test -- -h "$ES_HOST"
