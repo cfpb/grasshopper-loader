@@ -49,7 +49,7 @@ State data is loaded by invoking `./index.js` with the following options:
 - **--monitor** Run the retriever in monitoring mode which only checks data source freshness and doesn't load or backup data.
 
 #### Census data
-To load TIGER data use the `tiger.js` CLI. The host, port, alias, type, log, profile, and quiet flags remain unchanged from the state data CLI. However, instead of a `--file` flag the `tiger.js` CLI takes the following option:
+To load TIGER data use the `tiger.js` CLI. The host, port, alias, type, log, profile, and quiet flags remain unchanged from the `./index.js` CLI. However, instead of a `--file` flag the `tiger.js` CLI takes the following option:
 
 - **-d, --directory** *Required* A directory where TIGER files live, which will be concurrently loaded into Elasticsearch.
 
