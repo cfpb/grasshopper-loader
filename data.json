@@ -308,5 +308,33 @@
         "value": "POSTAL_CODE"
       }
     }
+  },
+  {
+    "name": "maryland",
+    "url": "maryland.zip",
+    "file": "maryland.shp",
+    "count": 2507131,
+    "fields": {
+      "Number": {
+        "type": "dynamic",
+        "value": "return props.ADDNUMCPLT || props.SUBADDTYP.split(props.STTYPUSPS)[0]"
+      },
+      "Street": {
+        "type": "dynamic",
+        "value": "return props.NAMECPLT || props.STTYPUSPS"
+      },
+      "City": {
+        "type": "dynamic",
+        "value": "return parseFloat(props.CITY) ? props.ADDRESS : props.CITY"
+      },
+      "State": {
+        "type": "dynamic",
+        "value": "return 'MD'"
+      },
+      "Zip": {
+        "type": "dynamic",
+        "value": "return props.ZIPCODE || props.CITY"
+      }
+    }
   }
 ]
