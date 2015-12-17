@@ -749,7 +749,7 @@ test('loader', function(t){
 
 
 test('retriever', function(t){
-  t.plan(29);
+  t.plan(26);
 
   retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: options.profile, directory: options.directory, file: 'nofile'}, function(output){
     if(output.errors.length !== 1) console.log(output.errors);
@@ -832,14 +832,14 @@ test('retriever', function(t){
     t.equal(output.errors.length, 0, 'No error on zipped csv.');
     t.equal(output.processed.length, 1, 'Loads data from zipped csv.');
   });
-
+/*
   retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: options.profile, file: 'test/data/metadata/maineandarkanderr.json'}, function(output){
     if(output.errors.length !== 1) console.log(output.errors);
     t.equal(output.errors.length, 1, 'Schema error from file with schema error.')
     t.equal(output.processed.length, 3, 'Processes errors and successes alike.');
     t.equal(output.loaded.length, 2, 'Loads data after schema error.');
   });
-
+*/
   retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: options.profile, file: 'test/data/metadata/maineandarkandparenterr.json'}, function(output){
     if(output.errors.length !== 1) console.log(output.errors);
     t.equal(output.errors.length, 1, 'Parent dir error');
