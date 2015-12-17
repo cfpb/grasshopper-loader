@@ -279,5 +279,34 @@
         "value": "ZIP"
       }
     }
+  },
+  {
+    "name": "massachusetts",
+    "url": "massachusetts.zip",
+    "file": "MA_ADDRESS_POINTS/MAD_POINTS.gdb",
+    "count": 3231589,
+    "spatialReference": "EPSG:26986",
+    "fields": {
+      "Number": {
+        "type": "multi",
+        "value": ["ADDRESS_NUMBER_PREFIX", "ADDRESS_NUMBER", "ADDRESS_NUMBER_SUFFIX"]
+      },
+      "Street": {
+        "type": "static",
+        "value": "COMPLETE_STREET_NAME"
+      },
+      "City": {
+        "type": "static",
+        "value": "INCORPORATED_MUNICIPALITY"
+      },
+      "State": {
+        "type": "static",
+        "value": "STATE"
+      },
+      "Zip": {
+        "type": "static",
+        "value": "POSTAL_CODE"
+      }
+    }
   }
 ]
