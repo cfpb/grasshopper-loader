@@ -2,7 +2,6 @@
   {
     "name":"sacramento",
     "url":"https://cfpb.github.io/grasshopper-retriever/parcels.json",
-    "hash":"65637abd5a01a235467cfea2e1eb859cee5facf1b900604321d2b1e74d4f861b",
     "file":"parcels.json",
     "fields": {
       "Number": {

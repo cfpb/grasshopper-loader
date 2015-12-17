@@ -2,7 +2,6 @@
   {
     "name":"mainezipcsv",
     "url":"https://cfpb.github.io/grasshopper-retriever/maine.csv.zip",
-    "hash":"0023e2d253a83abdd7e2cb6426e73c37a6df029bab7108757e6b4d6b80d47b01",
     "spatialReference":"WGS84",
     "file":"maine.csv",
     "fields": {
