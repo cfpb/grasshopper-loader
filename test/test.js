@@ -900,13 +900,18 @@ test('Field tests', function(t){
   var data = fs.readJsonSync('data.json');
   var fieldFiles = {};
 
-  t.plan(data.length*2);
+  var count = 0;
 
   fs.readdirSync('test/data/fields')
     .filter(function(v){return v[0] !== '.' && v.indexOf('.') !== -1})
     .forEach(function(v){fieldFiles[path.basename(v, '.json')] = fs.readJsonSync(path.join('test/data/fields', v))});
 
   data.forEach(function(source){
+
+    //Non-public
+    if(!url.parse(source.url).hostname) return;
+    count+=2;
+
     var fieldStream = fieldFilter(source);
 
     var rawField = fieldFiles[source.name];
@@ -924,6 +929,8 @@ test('Field tests', function(t){
 
     fieldStream.end(fieldFiles[source.name]);
   });
+
+  t.end();
 });
 
 
