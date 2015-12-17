@@ -256,7 +256,7 @@
     "name": "montana",
     "url": "montana.zip",
     "file": "30_addresspoints_20150504.shp",
-    "count": 500996,
+    "count": 498525,
     "fields": {
       "Number": {
         "type": "static",
@@ -313,7 +313,7 @@
     "name": "maryland",
     "url": "maryland.zip",
     "file": "maryland.gdb",
-    "count": 2507131,
+    "count": 2469856,
     "fields": {
       "Number": {
         "type": "static",
