@@ -312,28 +312,28 @@
   {
     "name": "maryland",
     "url": "maryland.zip",
-    "file": "maryland.shp",
+    "file": "maryland.gdb",
     "count": 2507131,
     "fields": {
       "Number": {
-        "type": "dynamic",
-        "value": "return props.ADDNUMCPLT || props.SUBADDTYP.split(props.STTYPUSPS)[0]"
+        "type": "static",
+        "value": "ADDNUMCPLT"
       },
       "Street": {
-        "type": "dynamic",
-        "value": "return props.NAMECPLT || props.STTYPUSPS"
+        "type": "static",
+        "value": "NAMECPLT"
       },
       "City": {
-        "type": "dynamic",
-        "value": "return parseFloat(props.CITY) ? props.ADDRESS : props.CITY"
+        "type": "static",
+        "value": "CITY"
       },
       "State": {
-        "type": "dynamic",
-        "value": "return 'MD'"
+        "type": "static",
+        "value": "STATE"
       },
       "Zip": {
-        "type": "dynamic",
-        "value": "return props.ZIPCODE || props.CITY"
+        "type": "static",
+        "value": "ZIPCODE"
       }
     }
   }
