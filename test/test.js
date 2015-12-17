@@ -852,7 +852,7 @@ test('retriever', function(t){
 
 
 test('Cli tests', function(t){
-  t.plan(4);
+  t.plan(5);
 
   spawn('./index.js', ['-l', 'error', '-h', options.host, '-p', options.port, '-a', options.alias, '-t', options.type, '-b', options.bucket, '--profile', options.profile, '-d', options.directory, '-f', maine])
     .on('exit', function(code){
@@ -862,6 +862,10 @@ test('Cli tests', function(t){
       console.log(data.toString());
     });
 
+  spawn('./index.js', ['-l', 'error', '-h', options.host, '-p', options.port, '-a', options.alias, '-t', options.type, '-b', options.bucket, '--profile', options.profile, '-d', options.directory, '-f', 'test/data/metadata/maineandarkanderr.json'])
+    .on('exit', function(code){
+      t.equal(code, 0, 'Errors are captured in cli');
+    })
 
   spawn('./test/no-cb.js', ['-l', 'debug', '-h', options.host, '-p', options.port, '-a', options.alias, '-t', options.type, '-b', options.bucket, '--profile', options.profile, '-d', options.directory, '-f', maine])
     .on('exit', function(code){
