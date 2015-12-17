@@ -251,5 +251,33 @@
         "value": "Zip"
       }
     }
+  },
+  {
+    "name": "montana",
+    "url": "montana.zip",
+    "file": "30_addresspoints_20150504.shp",
+    "count": 500996,
+    "fields": {
+      "Number": {
+        "type": "static",
+        "value": "Number"
+      },
+      "Street": {
+        "type": "static",
+        "value": "Address"
+      },
+      "City": {
+        "type": "static",
+        "value": "City"
+      },
+      "State": {
+        "type": "static",
+        "value": "State"
+      },
+      "Zip": {
+        "type": "static",
+        "value": "ZIP"
+      }
+    }
   }
 ]
