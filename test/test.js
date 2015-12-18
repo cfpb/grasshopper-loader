@@ -900,8 +900,6 @@ test('Field tests', function(t){
   var data = fs.readJsonSync('data.json');
   var fieldFiles = {};
 
-  var count = 0;
-
   fs.readdirSync('test/data/fields')
     .filter(function(v){return v[0] !== '.' && v.indexOf('.') !== -1})
     .forEach(function(v){fieldFiles[path.basename(v, '.json')] = fs.readJsonSync(path.join('test/data/fields', v))});
@@ -910,7 +908,6 @@ test('Field tests', function(t){
 
     //Non-public
     if(!url.parse(source.url).hostname) return;
-    count+=2;
 
     var fieldStream = fieldFilter(source);
 
