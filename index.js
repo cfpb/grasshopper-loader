@@ -35,7 +35,6 @@ options
   .option('-b, --bucket <bucket>', 'An S3 bucket where the data resides.')
   .option('-d, --directory <directory>', 'A directory where data sources reside, either relative to the current folder or the passed S3 bucket.')
   .option('-P, --profile <profile>', 'The aws profile in ~/.aws/credentials. Only needed if loading data from a bucket. AWS environment variables will override this value.', 'default')
-  .option('-M, --monitor', 'Run the retriever in monitoring mode which only checks data source freshness and doesn\'t load data.')
   .parse(process.argv);
 
 
@@ -45,7 +44,6 @@ var logger = makeLogger(options);
 options.client = esLoader.connect(options.host, options.port, options.log);
 
 if(options.directory && options.directory[options.directory.length - 1] === '/') options.directory = options.directory.slice(0, -1);
-if(options.monitor) logger.info('Running in monitoring mode. Remote files will be checked for freshness but not loaded.');
 
 retriever(options, function(output){
   options.client.close();
@@ -60,11 +58,9 @@ retriever(options, function(output){
     output.errors[i] = v.toString();
   });
 
-  logger.info('%d source%s still fresh, %d source%s need updates, %d source%s overridden from known files.',
-    output.fresh.length,
-    output.fresh.length === 1 ? '' : 's',
-    output.stale.length,
-    output.stale.length === 1 ? '' : 's',
+  logger.info('%d source%s loaded, %d source%s overridden from known files.',
+    output.loaded.length,
+    output.loaded.length === 1 ? '' : 's',
     output.overridden.length,
     output.overridden.length === 1 ? '' : 's'
   );
