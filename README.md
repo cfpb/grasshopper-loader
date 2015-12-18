@@ -6,10 +6,10 @@ Data is gathered from state sources, verified, transformed into GeoJSON, loaded 
 
 ## Usage
   - **Local method**
-    - [Install node](https://nodejs.org/)
-    - [Install GDAL](http://trac.osgeo.org/gdal/wiki/DownloadingGdalBinaries)
+    - [Install node v0.10.40](https://nodejs.org/)
+    - [Install GDAL v1.11.2](http://trac.osgeo.org/gdal/wiki/DownloadingGdalBinaries)
       - On OSX, instead of using a binary or building from source, you can [download homebrew](http://brew.sh/) and `brew install gdal`.
-    - [Install elasticsearch](https://www.elastic.co/downloads/elasticsearch)
+    - [Install elasticsearch v1.7.3](https://www.elastic.co/downloads/elasticsearch)
       - You can also point the loader to elasticsearch running on another machine.
     - Run `npm install` from the project root
     - Test with `npm test -- <CLI Options>`
@@ -23,7 +23,7 @@ Data is gathered from state sources, verified, transformed into GeoJSON, loaded 
       `./docker-test  <image-name>:<tag-name> <CLI Options>`
     - Run the image:
       `./docker-run <image-name>:<tag-name> <CLI Options>`
-      - These scripts assume there is an aws credentials file at `~/.aws/credentials` if using S3 to backup data.
+      - These scripts assume there is an aws credentials file at `~/.aws/credentials` if using S3 to provide data overrides.
       - When using boot2docker, elasticsearch running on the host machine (eg, your Mac) can be accessed at 10.0.2.2 and elasticsearch running in a container with port 9200 shared can be accessed at the ip given by `boot2docker ip`.
 
 ## CLI Options
@@ -35,7 +35,7 @@ The loader is a command-line application, run by invoking either `./index.js` fo
 #### State data
 State data is loaded by invoking `./index.js` with the following options:
 
-- **-f, --file** *Required* A json data file that contains the collected data endpoints and field mappings of state data. `./data.json` should be used to load all known state data.
+- **-f, --file** *Required* A json metadata file that contains the collected data endpoints and field mappings of state data. `./data.json` should be used to load all known state data.
 - **-m, --match** A string or regular expression that the names from the <file> must contain or match. Can be used to load just a few items from a large metadata file.
 - **-h, --host** *Default: localhost* The elasticsearch host. If no argument is provided and a linked elasticsearch Docker container exists, will use its IP.
 - **-p, --port** *Default: 9200* The elasticsearch port. If no argument is provided and a linked elasticsearch Docker container exists, will use its lowest exposed port.
@@ -43,13 +43,12 @@ State data is loaded by invoking `./index.js` with the following options:
 - **-t, --type** *Default: point* The elasticsearch type (or mapping) within the alias
 - **-l, --log** *Default: error* The elasticsearch log level
 - **-q, --quiet**, Suppress application-level logging.
-- **-b, --backup-bucket** An AWS S3 bucket where data should be backed up.
-- **-d, --backup-directory** A directory where the data should be loaded, either relative to the current folder or the passed S3 bucket.
-- **--profile** *Default: default* The aws credentials profile in `~/.aws/credentials`. AWS keys as environment variables will override this setting.
-- **--monitor** Run the retriever in monitoring mode which only checks data source freshness and doesn't load or backup data.
+- **-b, --bucket** An AWS S3 bucket where data resides that will override the source url in the metadata file. Metadata entry names are matched against file basenames to determine overrides.
+- **-d, --directory** A directory where data sources reside, either relative to the current folder or the passed S3 bucket. Also used to override source urls in a similar fashion.
+- **-P, --profile** *Default: default* The aws credentials profile in `~/.aws/credentials`. Needed if using data overrides from a private bucket. AWS keys as environment variables will override this setting.
 
 #### Census data
-To load TIGER data use the `tiger.js` CLI. The host, port, alias, type, log, profile, and quiet flags remain unchanged from the `./index.js` CLI. However, instead of a `--file` flag the `tiger.js` CLI takes the following option:
+To load TIGER data use the `tiger.js` CLI. The host, port, alias, type, log, and quiet flags remain unchanged from the `./index.js` CLI. However, instead of a `--file` flag the `tiger.js` CLI takes the following option:
 
 - **-d, --directory** *Required* A directory where TIGER files live, which will be concurrently loaded into Elasticsearch.
 
@@ -57,8 +56,8 @@ To load TIGER data use the `tiger.js` CLI. The host, port, alias, type, log, pro
 
 ## Info
   - **Technology stack**: Due to a high volume of IO, the loader uses [node.js](http://nodejs.org/) for high throughput.
-  - **Dependencies**: node.js, GDAL 1.11.2
-  - **Status**: Alpha
+  - **Dependencies**: node.js v0.10.40, GDAL v1.11.2, ElasticSearch v1.7.3
+  - **Status**: Beta
   - **Notes on change**: Expect to see active, breaking changes in this repo until tagged otherwise via semver.
 
 ----
