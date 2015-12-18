@@ -251,5 +251,90 @@
         "value": "Zip"
       }
     }
+  },
+  {
+    "name": "montana",
+    "url": "montana.zip",
+    "file": "30_addresspoints_20150504.shp",
+    "count": 498525,
+    "fields": {
+      "Number": {
+        "type": "static",
+        "value": "Number"
+      },
+      "Street": {
+        "type": "static",
+        "value": "Address"
+      },
+      "City": {
+        "type": "static",
+        "value": "City"
+      },
+      "State": {
+        "type": "static",
+        "value": "State"
+      },
+      "Zip": {
+        "type": "static",
+        "value": "ZIP"
+      }
+    }
+  },
+  {
+    "name": "massachusetts",
+    "url": "massachusetts.zip",
+    "file": "MA_ADDRESS_POINTS/MAD_POINTS.gdb",
+    "count": 3231589,
+    "spatialReference": "EPSG:26986",
+    "fields": {
+      "Number": {
+        "type": "multi",
+        "value": ["ADDRESS_NUMBER_PREFIX", "ADDRESS_NUMBER", "ADDRESS_NUMBER_SUFFIX"]
+      },
+      "Street": {
+        "type": "static",
+        "value": "COMPLETE_STREET_NAME"
+      },
+      "City": {
+        "type": "static",
+        "value": "INCORPORATED_MUNICIPALITY"
+      },
+      "State": {
+        "type": "static",
+        "value": "STATE"
+      },
+      "Zip": {
+        "type": "static",
+        "value": "POSTAL_CODE"
+      }
+    }
+  },
+  {
+    "name": "maryland",
+    "url": "maryland.zip",
+    "file": "maryland.gdb",
+    "count": 2469856,
+    "fields": {
+      "Number": {
+        "type": "static",
+        "value": "ADDNUMCPLT"
+      },
+      "Street": {
+        "type": "static",
+        "value": "NAMECPLT"
+      },
+      "City": {
+        "type": "static",
+        "value": "CITY"
+      },
+      "State": {
+        "type": "static",
+        "value": "STATE"
+      },
+      "Zip": {
+        "type": "static",
+        "value": "ZIPCODE"
+      }
+    }
   }
 ]
