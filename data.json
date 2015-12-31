@@ -2,7 +2,6 @@
   {
     "name": "north_carolina",
     "url": "http://data.nconemap.gov/downloads/vector/mastadd14.zip",
-    "hash": "1b927688a387275c6b7767a94b46a3467731564c0265c6d3747ae7e80ea65257",
     "file": "AddressNC_2014.gdb",
     "spatialReference": "EPSG:2264",
     "count": 4916623,
@@ -32,7 +31,6 @@
   {
     "name": "utah",
     "url": "ftp://ftp.agrc.utah.gov/UtahSGID_Vector/UTM12_NAD83/LOCATION/UnpackagedData/AddressPoints/_Statewide/AddressPoints_gdb.zip",
-    "hash": "66e88a697adc7b5ddf5c409782694a9684e2c1c6eeab55834eec3fb68435fd96",
     "file": "AddressPoints.gdb",
     "count": 1084127,
     "fields": {
@@ -61,7 +59,6 @@
   {
     "name": "new_york",
     "url": "http://gis.ny.gov/gisdata/data/ds_921/SAM_Master_Statewide.gdb.zip",
-    "hash": "dda07a26bb25b5c900d0d1464ade072e3aa769372bf4d9bca75fa05ddae96122",
     "file": "SAM_Master_Statewide_Database.gdb",
     "count": 4766632,
     "fields": {
@@ -90,7 +87,6 @@
   {
     "name": "arkansas",
     "url": "http://geostor-vectors.geostor.org/Location/SHP/SITUS_ADDRESS_PT.zip",
-    "hash": "304fb038ede2da4a5e388e2f8c0bb54ca722dec9422ed173f044b79800810448",
     "file": "location_SITUS_ADDRESS_PT.shp",
     "count": 1407700,
     "fields": {
@@ -119,7 +115,6 @@
   {
     "name": "virginia",
     "url": "https://ftp.vgingis.com/Download/VA_SiteAddress.txt.zip",
-    "hash": "3612012b94b92c003f105aafef2ea01c736b7bd68e88365e1f42485a80b6921e",
     "file": "VA_SiteAddress.txt",
     "count": 3654477,
     "spatialReference": "NAD83",
@@ -149,7 +144,6 @@
   {
     "name": "maine",
     "url": "http://www.maine.gov/megis/catalog/shps/state/ng911pts.zip",
-    "hash": "81f0ca73065e0a6db87d510b15ff88bec512221b8499ebd8c77d7e1da1863eb8",
     "file": "NGAddresses.shp",
     "count": 474802,
     "fields": {
@@ -178,7 +172,6 @@
   {
     "name": "vermont",
     "url": "http://maps.vcgi.org/gisdata/vcgi/packaged_zips/EmergencyE911_ESITE.zip",
-    "hash": "87119dde146b994dd81275e84c96065118191e93deb9b78b203db62cd44cbc7c",
     "file": "Emergency_ESITE_point.shp",
     "count": 321692,
     "fields": {
@@ -207,7 +200,6 @@
   {
     "name": "district_of_columbia",
     "url": "http://opendata.dc.gov/agol/arcgis/aa514416aaf74fdc94748f1e56e7cc8a/0.zip",
-    "hash": "171ee9a1fba2876b9ead818fd54ad139e08aa3cb415c10bd8b74820c103ae051",
     "file": "Address_Points.shp",
     "fields": {
       "Number": {
@@ -235,7 +227,6 @@
   {
     "name": "rhode_island",
     "url": "http://www.edc.uri.edu/rigis/spfdata/structure/e911Sites15r1.zip",
-    "hash": "732c126ce35be2a585971c19d2c6eb1fbc5e4347c1147f508fe59759aa83ca53",
     "file": "e911Sites15r1.shp",
     "count": 405634,
     "fields": {
@@ -258,6 +249,91 @@
       "Zip": {
         "type": "static",
         "value": "Zip"
+      }
+    }
+  },
+  {
+    "name": "montana",
+    "url": "montana.zip",
+    "file": "30_addresspoints_20150504.shp",
+    "count": 498525,
+    "fields": {
+      "Number": {
+        "type": "static",
+        "value": "Number"
+      },
+      "Street": {
+        "type": "static",
+        "value": "Address"
+      },
+      "City": {
+        "type": "static",
+        "value": "City"
+      },
+      "State": {
+        "type": "static",
+        "value": "State"
+      },
+      "Zip": {
+        "type": "static",
+        "value": "ZIP"
+      }
+    }
+  },
+  {
+    "name": "massachusetts",
+    "url": "massachusetts.zip",
+    "file": "MA_ADDRESS_POINTS/MAD_POINTS.gdb",
+    "count": 3231589,
+    "spatialReference": "EPSG:26986",
+    "fields": {
+      "Number": {
+        "type": "multi",
+        "value": ["ADDRESS_NUMBER_PREFIX", "ADDRESS_NUMBER", "ADDRESS_NUMBER_SUFFIX"]
+      },
+      "Street": {
+        "type": "static",
+        "value": "COMPLETE_STREET_NAME"
+      },
+      "City": {
+        "type": "static",
+        "value": "INCORPORATED_MUNICIPALITY"
+      },
+      "State": {
+        "type": "static",
+        "value": "STATE"
+      },
+      "Zip": {
+        "type": "static",
+        "value": "POSTAL_CODE"
+      }
+    }
+  },
+  {
+    "name": "maryland",
+    "url": "maryland.zip",
+    "file": "maryland.gdb",
+    "count": 2469856,
+    "fields": {
+      "Number": {
+        "type": "static",
+        "value": "ADDNUMCPLT"
+      },
+      "Street": {
+        "type": "static",
+        "value": "NAMECPLT"
+      },
+      "City": {
+        "type": "static",
+        "value": "CITY"
+      },
+      "State": {
+        "type": "static",
+        "value": "STATE"
+      },
+      "Zip": {
+        "type": "static",
+        "value": "ZIPCODE"
       }
     }
   }

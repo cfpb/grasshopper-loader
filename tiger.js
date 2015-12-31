@@ -46,7 +46,6 @@ options
   .option('-a, --alias <alias>', 'Elasticsearch index alias. Defaults to census', 'census')
   .option('-t, --type <type>', 'Elasticsearch type within the provided or default index. Defaults to addrfeat', 'addrfeat')
   .option('-l, --log <log>', 'ElasticSearch log level. Defaults to error.', 'error')
-  .option('--profile', 'The aws credentials profile in ~/.aws/credentials. Will also respect AWS keys as environment variables.', 'default')
   .option('-q, --quiet', 'Suppress logging.', false)
   .parse(process.argv);
 
