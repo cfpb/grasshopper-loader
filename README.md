@@ -20,9 +20,9 @@ Data is gathered from state sources, verified, transformed into GeoJSON, loaded 
     - Build an image:
       `docker build --rm --tag=<image-name>:<tag-name> .`
     - Test the image:
-      `./docker-test  <image-name>:<tag-name> <CLI Options>`
+      `./docker-test.sh <image-name>:<tag-name> <CLI Options>`
     - Run the image:
-      `./docker-run <image-name>:<tag-name> <CLI Options>`
+      `./docker-run.sh <image-name>:<tag-name> <CLI file, index.js or tiger.js> <CLI Options>`
       - These scripts assume there is an aws credentials file at `~/.aws/credentials` if using S3 to backup data.
       - When using boot2docker, elasticsearch running on the host machine (eg, your Mac) can be accessed at 10.0.2.2 and elasticsearch running in a container with port 9200 shared can be accessed at the ip given by `boot2docker ip`.
 
