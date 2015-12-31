@@ -87,6 +87,7 @@
     "route,rte",
     "street,strt,st,str",
     "streets,sts",
+    "terrace,ter",
     "way,wy"
   ]
 }
