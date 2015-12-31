@@ -53,6 +53,7 @@ options
   .option('-p, --port <port>', 'ElasticSearch port. Defaults to 9200', Number, esPort)
   .option('-a, --alias <alias>', 'Elasticsearch index alias. Defaults to testindex', 'testindex')
   .option('-t, --type <type>', 'Elasticsearch type within the provided or default index. Defaults to testtype', 'testtype')
+  .option('-c, --concurrency', 'Concurrency of loader operations, defaults to 2', 2)
   .option('-b, --bucket <bucket>', 'An S3 bucket where the data overrides may be found.', 'wyatt-test')
   .option('-d, --directory <directory>', 'A directory where data overrides may be found, either relative to the current folder or the passed S3 bucket.', 'test/overrides')
   .option('-P, --profile <profile>', 'The aws credentials profile in ~/.aws/credentials. Will also respect AWS keys as environment variables.', 'default')
@@ -747,7 +748,7 @@ test('loader', function(t){
 
 
 test('retriever', function(t){
-  t.plan(26);
+  t.plan(31);
 
   retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: options.profile, directory: options.directory, file: 'nofile'}, function(output){
     if(output.errors.length !== 1) console.log(output.errors);
@@ -793,6 +794,23 @@ test('retriever', function(t){
     if(output.errors.length !== 0) console.log(output.errors);
     t.equal(output.errors.length, 0, 'No error on good file.');
     t.equal(output.processed.length, 1, 'Loads data from test data with local backups.');
+  });
+
+  retriever({concurrency: 1, client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: options.profile, file: maine}, function(output){
+    if(output.errors.length !== 0) console.log(output.errors);
+    t.equal(output.errors.length, 0, 'No error on limited concurrency.');
+    t.equal(output.processed.length, 1, 'Loads data with limited concurrency.');
+  });
+
+  retriever({concurrency: 20, client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: options.profile, file: maine}, function(output){
+    if(output.errors.length !== 0) console.log(output.errors);
+    t.equal(output.errors.length, 0, 'No error on large concurrency.');
+    t.equal(output.processed.length, 1, 'Loads data when concurrency is large.');
+  });
+
+  retriever({concurrency: 'qwe', client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: options.profile, file: maine}, function(output){
+    if(output.errors.length !== 1) console.log(output.errors);
+    t.equal(output.errors.length, 1, 'Error with bad concurrency.');
   });
 
   retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: options.profile, directory: options.directory, file: 'test/data/metadata/private_maine.json'}, function(output){
