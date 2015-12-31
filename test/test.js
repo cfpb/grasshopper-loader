@@ -261,44 +261,44 @@ test('handleCsv module', function(t){
   var csvRecord = {name: 'virginia', file: 'virginia.csv', spatialReference: 'NAD83'}
   var badTxtRecord = {name: 'virginia', file: 'virginia.txt'};
 
-  handleCsv(csvFile, csvRecord, scratchSpace, function(record, vrt){
+  handleCsv(csvFile, csvRecord, scratchSpace, function(vrt){
     t.ok(vrt, 'Creates a valid vrt file from a csv file and good record.');
   },
-  function(record, err){
+  function(stream, err){
    if(err) t.fail(err);
   });
 
-  handleCsv(csvStream, csvRecord, scratchSpace, function(record, vrt){
+  handleCsv(csvStream, csvRecord, scratchSpace, function(vrt){
     t.ok(vrt, 'Creates a valid vrt file from a csv stream and good record.');
   },
-  function(record, err){
+  function(stream, err){
    if(err) t.fail(err);
   });
 
-  handleCsv(txtFile, txtRecord, scratchSpace, function(record, vrt){
+  handleCsv(txtFile, txtRecord, scratchSpace, function(vrt){
     t.ok(vrt, 'Creates a valid vrt file from a text file and good record.');
     fs.copySync('test/data/virginia.csv', 'test/data/virginia.txt');
   },
-  function(record, err){
+  function(stream, err){
    if(err) t.fail(err);
   });
 
-  handleCsv(txtStream, txtRecord, scratchSpace, function(record, vrt){
+  handleCsv(txtStream, txtRecord, scratchSpace, function(vrt){
     t.ok(vrt, 'Creates a valid vrt file from a text stream and good record.');
   },
-  function(record, err){
+  function(stream, err){
    if(err) t.fail(err);
   });
 
   handleCsv(txtFile, badTxtRecord, scratchSpace, function(){
   },
-  function(record, err){
+  function(stream, err){
     t.ok(err, 'Errors without a spatial reference.');
   });
 
   handleCsv('fake', csvRecord, scratchSpace, function(){
   },
-  function(record, err){
+  function(stream, err){
     t.ok(err, 'Fails with bad filename.');
   });
 });
@@ -343,27 +343,25 @@ test('unzipFile module', function(t){
 
 
 test('handleZip module', function(t){
-  t.plan(5);
+  t.plan(3);
 
   var arkRecord = {name: 'arkansas', file: 'arkansas.zip'};
   var virgRecord = {name: 'virg', file: 'virg.csv', spatialReference: 'NAD83'};
 
   handleZip(fs.createReadStream('test/data/arkansas.zip'), arkRecord, scratchSpace,
-    function(record, file){
+    function(file){
       t.ok(file, 'handleZip works on zipped shapefile.');
-      t.equal(record, arkRecord, 'Passes through correct record.');
-    }, function(record, err){t.notOk(err)});
+    }, function(stream, err){t.notOk(err)});
 
   handleZip(fs.createReadStream('test/data/virg.zip'), virgRecord, scratchSpace,
-    function(record, file){
+    function(file){
       t.ok(file, 'handleZip works on zipped csv.');
-      t.equal(record, virgRecord, 'Passes through correct record.');
-    }, function(record, err){t.notOk(err)})
+    }, function(stream, err){t.notOk(err)})
 
   handleZip(fs.createReadStream('test/data/virginia.csv'), virgRecord, scratchSpace,
-    function(record, file){
+    function(file){
       t.notOk(file);
-    }, function(record, err){t.ok(err, 'Errors on bad file.')})
+    }, function(stream, err){t.ok(err, 'Errors on bad file.')})
 });
 
 
