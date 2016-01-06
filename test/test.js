@@ -933,6 +933,40 @@ test('Field tests', function(t){
 
 
 
+test('Synonyms check', function(t){
+  t.plan(4);
+
+  var expectedSettings = fs.readJsonSync('./synonyms.json');
+
+  client.indices.getSettings({index: options.index}, function(err, settings){
+    if(err) t.fail('Error retrieving index settings. Something is wrong.');
+    var settingsArr = Object.keys(settings);
+    var addrpointSettings;
+    var tigerSettings;
+
+    for(var i=0; i<settingsArr.length; i++){
+      var name = settingsArr[i];
+      var analysis = settings[name].settings.index.analysis
+
+      if(!analysis) continue;
+
+      if(name.match('tiger')){
+        tigerSettings = analysis.filter;
+      }else{
+        addrpointSettings = analysis.filter;
+      }
+    }
+
+    t.deepEqual(addrpointSettings.state_synonyms.synonyms, expectedSettings.state_synonyms, 'Addrpoint state synonyms applied correctly');
+    t.deepEqual(addrpointSettings.address_synonyms.synonyms, expectedSettings.address_synonyms, 'Addrpoint address synonyms applied correctly');
+    t.deepEqual(tigerSettings.state_synonyms.synonyms, expectedSettings.state_synonyms, 'Tiger state synonyms applied correctly');
+    t.deepEqual(tigerSettings.address_synonyms.synonyms, expectedSettings.address_synonyms, 'Tiger address synonyms applied correctly');
+  });
+});
+
+
+
+
 test('Cleanup', function(t){
   t.plan(3);
   client.close();
