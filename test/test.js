@@ -53,6 +53,7 @@ options
   .option('-p, --port <port>', 'ElasticSearch port. Defaults to 9200', Number, esPort)
   .option('-a, --alias <alias>', 'Elasticsearch index alias. Defaults to testindex', 'testindex')
   .option('-t, --type <type>', 'Elasticsearch type within the provided or default index. Defaults to testtype', 'testtype')
+  .option('-c, --concurrency', 'Concurrency of loader operations, defaults to 2', 2)
   .option('-b, --bucket <bucket>', 'An S3 bucket where the data overrides may be found.', 'wyatt-test')
   .option('-d, --directory <directory>', 'A directory where data overrides may be found, either relative to the current folder or the passed S3 bucket.', 'test/overrides')
   .option('-P, --profile <profile>', 'The aws credentials profile in ~/.aws/credentials. Will also respect AWS keys as environment variables.', 'default')
@@ -261,44 +262,44 @@ test('handleCsv module', function(t){
   var csvRecord = {name: 'virginia', file: 'virginia.csv', spatialReference: 'NAD83'}
   var badTxtRecord = {name: 'virginia', file: 'virginia.txt'};
 
-  handleCsv(csvFile, csvRecord, scratchSpace, function(record, vrt){
+  handleCsv(csvFile, csvRecord, scratchSpace, function(vrt){
     t.ok(vrt, 'Creates a valid vrt file from a csv file and good record.');
   },
-  function(record, err){
+  function(stream, err){
    if(err) t.fail(err);
   });
 
-  handleCsv(csvStream, csvRecord, scratchSpace, function(record, vrt){
+  handleCsv(csvStream, csvRecord, scratchSpace, function(vrt){
     t.ok(vrt, 'Creates a valid vrt file from a csv stream and good record.');
   },
-  function(record, err){
+  function(stream, err){
    if(err) t.fail(err);
   });
 
-  handleCsv(txtFile, txtRecord, scratchSpace, function(record, vrt){
+  handleCsv(txtFile, txtRecord, scratchSpace, function(vrt){
     t.ok(vrt, 'Creates a valid vrt file from a text file and good record.');
     fs.copySync('test/data/virginia.csv', 'test/data/virginia.txt');
   },
-  function(record, err){
+  function(stream, err){
    if(err) t.fail(err);
   });
 
-  handleCsv(txtStream, txtRecord, scratchSpace, function(record, vrt){
+  handleCsv(txtStream, txtRecord, scratchSpace, function(vrt){
     t.ok(vrt, 'Creates a valid vrt file from a text stream and good record.');
   },
-  function(record, err){
+  function(stream, err){
    if(err) t.fail(err);
   });
 
   handleCsv(txtFile, badTxtRecord, scratchSpace, function(){
   },
-  function(record, err){
+  function(stream, err){
     t.ok(err, 'Errors without a spatial reference.');
   });
 
   handleCsv('fake', csvRecord, scratchSpace, function(){
   },
-  function(record, err){
+  function(stream, err){
     t.ok(err, 'Fails with bad filename.');
   });
 });
@@ -343,27 +344,25 @@ test('unzipFile module', function(t){
 
 
 test('handleZip module', function(t){
-  t.plan(5);
+  t.plan(3);
 
   var arkRecord = {name: 'arkansas', file: 'arkansas.zip'};
   var virgRecord = {name: 'virg', file: 'virg.csv', spatialReference: 'NAD83'};
 
   handleZip(fs.createReadStream('test/data/arkansas.zip'), arkRecord, scratchSpace,
-    function(record, file){
+    function(file){
       t.ok(file, 'handleZip works on zipped shapefile.');
-      t.equal(record, arkRecord, 'Passes through correct record.');
-    }, function(record, err){t.notOk(err)});
+    }, function(stream, err){t.notOk(err)});
 
   handleZip(fs.createReadStream('test/data/virg.zip'), virgRecord, scratchSpace,
-    function(record, file){
+    function(file){
       t.ok(file, 'handleZip works on zipped csv.');
-      t.equal(record, virgRecord, 'Passes through correct record.');
-    }, function(record, err){t.notOk(err)})
+    }, function(stream, err){t.notOk(err)})
 
   handleZip(fs.createReadStream('test/data/virginia.csv'), virgRecord, scratchSpace,
-    function(record, file){
+    function(file){
       t.notOk(file);
-    }, function(record, err){t.ok(err, 'Errors on bad file.')})
+    }, function(stream, err){t.ok(err, 'Errors on bad file.')})
 });
 
 
@@ -749,98 +748,115 @@ test('loader', function(t){
 
 
 test('retriever', function(t){
-  t.plan(26);
+  t.plan(31);
 
-  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: options.profile, directory: options.directory, file: 'nofile'}, function(output){
+  retriever({concurrency: 2, client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: options.profile, directory: options.directory, file: 'nofile'}, function(output){
     if(output.errors.length !== 1) console.log(output.errors);
     t.equal(output.errors.length, 1, 'Errors on bad file and no bucket.');
   });
 
-  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: 'noprofilepresentfakeprofile', bucket: options.bucket, file: maine}, function(output){
+  retriever({concurrency: 2, client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: 'noprofilepresentfakeprofile', bucket: options.bucket, file: maine}, function(output){
     t.equal(output.errors.length, 0, 'No hard errors on bad profile.');
   });
 
-  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: options.profile, directory: options.directory, file: ''}, function(output){
+  retriever({concurrency: 2, client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: options.profile, directory: options.directory, file: ''}, function(output){
     if(output.errors.length !== 1) console.log(output.errors);
     t.equal(output.errors.length, 1, 'Errors with no file passed.');
   });
 
-  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, bucket: options.bucket, profile: options.profile, directory: options.directory, file: 'nofile'}, function(output){
+  retriever({concurrency: 2, client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, bucket: options.bucket, profile: options.profile, directory: options.directory, file: 'nofile'}, function(output){
     if(output.errors.length !== 1) console.log(output.errors);
     t.equal(output.errors.length, 1, 'Errors on bad file and good bucket.');
   });
 
-  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, bucket: options.bucket, profile: options.profile, directory: options.directory, file: 'test/data/metadata/parent_dir.json'}, function(output){
+  retriever({concurrency: 2, client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, bucket: options.bucket, profile: options.profile, directory: options.directory, file: 'test/data/metadata/parent_dir.json'}, function(output){
     if(output.errors.length !== 1) console.log(output.errors);
     t.equal(output.errors.length, 1, 'Errors on parent dir in record name.');
   });
 
-  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, bucket: options.bucket, profile: options.profile, directory: options.directory, file: 'test/data/metadata/slash.json'}, function(output){
+  retriever({concurrency: 2, client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, bucket: options.bucket, profile: options.profile, directory: options.directory, file: 'test/data/metadata/slash.json'}, function(output){
     if(output.errors.length !== 1) console.log(output.errors);
     t.equal(output.errors.length, 1, 'Errors on forward slash in record name.');
   });
 
-  retriever({client: client, host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, bucket: 'fakebucketskjhqblwjdqwobdjabmznmbxbcbcnnbmcioqwOws', profile: options.profile, directory: options.directory, file: maine}, function(output){
+  retriever({concurrency: 2, client: client, host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, bucket: 'fakebucketskjhqblwjdqwobdjabmznmbxbcbcnnbmcioqwOws', profile: options.profile, directory: options.directory, file: maine}, function(output){
     if(output.errors.length) console.log(output.errors);
     t.equal(output.errors.length, 0, 'No hard error on bad bucket.');
   });
 
-  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, bucket: options.bucket, profile: options.profile, directory: options.directory, file: maine}, function(output){
+  retriever({concurrency: 2, client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, bucket: options.bucket, profile: options.profile, directory: options.directory, file: maine}, function(output){
     if(output.errors.length !== 0) console.log(output.errors);
     t.equal(output.errors.length, 0, 'No error on good file and bucket.');
-    t.equal(output.processed.length, 1, 'Loads data with backups.');
+    t.equal(output.loaded.length, 1, 'Loads data with backups.');
   });
 
-  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: options.profile, directory: options.directory, file: maine}, function(output){
+  retriever({concurrency: 2, client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: options.profile, directory: options.directory, file: maine}, function(output){
     if(output.errors.length !== 0) console.log(output.errors);
     t.equal(output.errors.length, 0, 'No error on good file.');
-    t.equal(output.processed.length, 1, 'Loads data from test data with local backups.');
+    t.equal(output.loaded.length, 1, 'Loads data from test data with local backups.');
   });
 
-  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: options.profile, directory: options.directory, file: 'test/data/metadata/private_maine.json'}, function(output){
+  retriever({concurrency: 1, client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: options.profile, file: maine}, function(output){
+    if(output.errors.length !== 0) console.log(output.errors);
+    t.equal(output.errors.length, 0, 'No error on limited concurrency.');
+    t.equal(output.loaded.length, 1, 'Loads data with limited concurrency.');
+  });
+
+  retriever({concurrency: 20, client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: options.profile, file: maine}, function(output){
+    if(output.errors.length !== 0) console.log(output.errors);
+    t.equal(output.errors.length, 0, 'No error on large concurrency.');
+    t.equal(output.loaded.length, 1, 'Loads data when concurrency is large.');
+  });
+
+  retriever({concurrency: 'qwe', client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: options.profile, file: maine}, function(output){
+    if(output.errors.length !== 1) console.log(output.errors);
+    t.equal(output.errors.length, 1, 'Error with bad concurrency.');
+  });
+
+  retriever({concurrency: 2, client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: options.profile, directory: options.directory, file: 'test/data/metadata/private_maine.json'}, function(output){
     if(output.errors.length !== 0) console.log(output.errors);
     t.equal(output.errors.length, 0, 'No error when no source is provided with a proper override.');
     t.equal(output.processed.length, 1, 'Data correctly processed.');
   });
 
-  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, bucket: options.bucket, profile: options.profile, directory: options.directory, file: maine, match: 'maine'}, function(output){
+  retriever({concurrency: 2, client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, bucket: options.bucket, profile: options.profile, directory: options.directory, file: maine, match: 'maine'}, function(output){
     if(output.errors.length !== 0) console.log(output.errors);
     t.equal(output.errors.length, 0, 'No error with match.');
-    t.equal(output.processed.length, 1, 'Loads matched data.');
+    t.equal(output.loaded.length, 1, 'Loads matched data.');
   });
 
-  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, bucket: options.bucket, profile: options.profile, directory: options.directory, file: maine, match: 'nomatch'}, function(output){
+  retriever({concurrency: 2, client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, bucket: options.bucket, profile: options.profile, directory: options.directory, file: maine, match: 'nomatch'}, function(output){
     if(output.errors.length !== 0) console.log(output.errors);
     t.equal(output.errors.length, 0, 'No error with no match.');
-    t.equal(output.processed.length, 0, 'Loads nothing when no data matched.');
+    t.equal(output.loaded.length, 0, 'Loads nothing when no data matched.');
   });
 
-  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: options.profile, directory: options.directory, file: 'test/data/metadata/mainejson.json'}, function(output){
+  retriever({concurrency: 2, client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: options.profile, directory: options.directory, file: 'test/data/metadata/mainejson.json'}, function(output){
     if(output.errors.length !== 0) console.log(output.errors);
     t.equal(output.errors.length, 0, 'No error on good json file.');
-    t.equal(output.processed.length, 1, 'Loads data from json file.');
+    t.equal(output.loaded.length, 1, 'Loads data from json file.');
   });
 
-  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: options.profile, file: 'test/data/metadata/mainecsv.json'}, function(output){
+  retriever({concurrency: 2, client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: options.profile, file: 'test/data/metadata/mainecsv.json'}, function(output){
     if(output.errors.length !== 0) console.log(output.errors);
     t.equal(output.errors.length, 0, 'No error on csv.');
-    t.equal(output.processed.length, 1, 'Loads data from csv.');
+    t.equal(output.loaded.length, 1, 'Loads data from csv.');
   });
 
-  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: options.profile, file: 'test/data/metadata/mainezipcsv.json'}, function(output){
+  retriever({concurrency: 2, client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: options.profile, file: 'test/data/metadata/mainezipcsv.json'}, function(output){
     if(output.errors.length !== 0) console.log(output.errors);
     t.equal(output.errors.length, 0, 'No error on zipped csv.');
-    t.equal(output.processed.length, 1, 'Loads data from zipped csv.');
+    t.equal(output.loaded.length, 1, 'Loads data from zipped csv.');
   });
 /*Travis isn't playing nicely
-  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: options.profile, file: 'test/data/metadata/maineandarkanderr.json'}, function(output){
+  retriever({concurrency: 2, client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: options.profile, file: 'test/data/metadata/maineandarkanderr.json'}, function(output){
     if(output.errors.length !== 1) console.log(output.errors);
     t.equal(output.errors.length, 1, 'Schema error from file with schema error.')
     t.equal(output.processed.length, 3, 'Processes errors and successes alike.');
     t.equal(output.loaded.length, 2, 'Loads data after schema error.');
   });
 */
-  retriever({client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: options.profile, file: 'test/data/metadata/maineandarkandparenterr.json'}, function(output){
+  retriever({concurrency: 2, client: client, log: 'error', host: options.host, port: options.port, alias: options.alias, type: options.type, quiet: true, logger: logger, profile: options.profile, file: 'test/data/metadata/maineandarkandparenterr.json'}, function(output){
     if(output.errors.length !== 1) console.log(output.errors);
     t.equal(output.errors.length, 1, 'Parent dir error');
     t.equal(output.processed.length, 3, 'Processes errors and successes alike.');
