@@ -144,8 +144,8 @@
   {
     "name": "maine",
     "url": "http://www.maine.gov/megis/catalog/shps/state/ng911pts.zip",
-    "file": "NGAddresses.shp",
-    "count": 474802,
+    "file": "ng911pts.shp",
+    "count": 482043,
     "fields": {
       "Number": {
         "type": "static",
