@@ -32,7 +32,7 @@
     "name": "utah",
     "url": "ftp://ftp.agrc.utah.gov/UtahSGID_Vector/UTM12_NAD83/LOCATION/UnpackagedData/AddressPoints/_Statewide/AddressPoints_gdb.zip",
     "file": "AddressPoints.gdb",
-    "count": 1084127,
+    "count": 1107890,
     "fields": {
       "Number": {
         "type": "static",
@@ -60,7 +60,7 @@
     "name": "new_york",
     "url": "http://gis.ny.gov/gisdata/data/ds_921/SAM_Master_Statewide.gdb.zip",
     "file": "SAM_Master_Statewide_Database.gdb",
-    "count": 4766632,
+    "count": 4795667,
     "fields": {
       "Number": {
         "type": "multi",
