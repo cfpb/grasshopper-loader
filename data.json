@@ -87,28 +87,28 @@
   {
     "name": "arkansas",
     "url": "http://geostor-vectors.geostor.org/Location/SHP/SITUS_ADDRESS_PT.zip",
-    "file": "location_SITUS_ADDRESS_PT.shp",
-    "count": 1407700,
+    "file": "SITUS_ADDRESS_PT.shp",
+    "count": 1420822,
     "fields": {
       "Number": {
         "type": "multi",
-        "value": ["adr_num", "adr_numsuf"]
+        "value": ["ADR_NUM", "ADR_NUM_SU"]
       },
       "Street": {
         "type": "static",
-        "value": "pstrfulnam"
+        "value": "PSTR_FULNA"
       },
       "City": {
         "type": "static",
-        "value": "adr_city"
+        "value": "ADR_CITY"
       },
       "State": {
         "type": "static",
-        "value": "adr_state"
+        "value": "ADR_STATE"
       },
       "Zip": {
         "type": "static",
-        "value": "adr_zip5"
+        "value": "ADR_ZIP5"
       }
     }
   },
@@ -180,8 +180,8 @@
         "value": "HOUSENUMBE"
       },
       "Street": {
-        "type": "static",
-        "value": "PRIMARYNAM"
+        "type": "dynamic",
+        "value": "return props.PRIMARYNAM || props.SN + ' ' + props.ST"
       },
       "City": {
         "type": "static",
