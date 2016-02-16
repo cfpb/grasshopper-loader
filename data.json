@@ -116,7 +116,7 @@
     "name": "virginia",
     "url": "https://ftp.vgingis.com/Download/VA_SiteAddress.txt.zip",
     "file": "VA_SiteAddress.txt",
-    "count": 3654477,
+    "count": 3600890,
     "spatialReference": "NAD83",
     "fields": {
       "Number": {
@@ -226,9 +226,9 @@
   },
   {
     "name": "rhode_island",
-    "url": "http://www.edc.uri.edu/rigis/spfdata/structure/e911Sites15r1.zip",
-    "file": "e911Sites15r1.shp",
-    "count": 405634,
+    "url": "http://www.edc.uri.edu/rigis/spfdata/structure/e911Sites16r1.zip",
+    "file": "e911Sites16r1.shp",
+    "count": 406210,
     "fields": {
       "Number": {
         "type": "static",
