@@ -32,7 +32,7 @@
     "name": "utah",
     "url": "ftp://ftp.agrc.utah.gov/UtahSGID_Vector/UTM12_NAD83/LOCATION/UnpackagedData/AddressPoints/_Statewide/AddressPoints_gdb.zip",
     "file": "AddressPoints.gdb",
-    "count": 1084127,
+    "count": 1107890,
     "fields": {
       "Number": {
         "type": "static",
@@ -60,7 +60,7 @@
     "name": "new_york",
     "url": "http://gis.ny.gov/gisdata/data/ds_921/SAM_Master_Statewide.gdb.zip",
     "file": "SAM_Master_Statewide_Database.gdb",
-    "count": 4766632,
+    "count": 4795667,
     "fields": {
       "Number": {
         "type": "multi",
@@ -87,28 +87,28 @@
   {
     "name": "arkansas",
     "url": "http://geostor-vectors.geostor.org/Location/SHP/SITUS_ADDRESS_PT.zip",
-    "file": "location_SITUS_ADDRESS_PT.shp",
-    "count": 1407700,
+    "file": "SITUS_ADDRESS_PT.shp",
+    "count": 1420822,
     "fields": {
       "Number": {
         "type": "multi",
-        "value": ["adr_num", "adr_numsuf"]
+        "value": ["ADR_NUM", "ADR_NUM_SU"]
       },
       "Street": {
         "type": "static",
-        "value": "pstrfulnam"
+        "value": "PSTR_FULNA"
       },
       "City": {
         "type": "static",
-        "value": "adr_city"
+        "value": "ADR_CITY"
       },
       "State": {
         "type": "static",
-        "value": "adr_state"
+        "value": "ADR_STATE"
       },
       "Zip": {
         "type": "static",
-        "value": "adr_zip5"
+        "value": "ADR_ZIP5"
       }
     }
   },
@@ -116,7 +116,7 @@
     "name": "virginia",
     "url": "https://ftp.vgingis.com/Download/VA_SiteAddress.txt.zip",
     "file": "VA_SiteAddress.txt",
-    "count": 3654477,
+    "count": 3600890,
     "spatialReference": "NAD83",
     "fields": {
       "Number": {
@@ -144,8 +144,8 @@
   {
     "name": "maine",
     "url": "http://www.maine.gov/megis/catalog/shps/state/ng911pts.zip",
-    "file": "NGAddresses.shp",
-    "count": 474802,
+    "file": "ng911pts.shp",
+    "count": 482043,
     "fields": {
       "Number": {
         "type": "static",
@@ -180,8 +180,8 @@
         "value": "HOUSENUMBE"
       },
       "Street": {
-        "type": "static",
-        "value": "PRIMARYNAM"
+        "type": "dynamic",
+        "value": "return props.PRIMARYNAM || props.SN + ' ' + props.ST"
       },
       "City": {
         "type": "static",
@@ -226,9 +226,9 @@
   },
   {
     "name": "rhode_island",
-    "url": "http://www.edc.uri.edu/rigis/spfdata/structure/e911Sites15r1.zip",
-    "file": "e911Sites15r1.shp",
-    "count": 405634,
+    "url": "http://www.edc.uri.edu/rigis/spfdata/structure/e911Sites16r1.zip",
+    "file": "e911Sites16r1.shp",
+    "count": 406210,
     "fields": {
       "Number": {
         "type": "static",
