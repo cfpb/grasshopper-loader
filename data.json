@@ -336,5 +336,63 @@
         "value": "ZIPCODE"
       }
     }
+  },
+  {
+    "name": "ohio_north",
+    "url": "ohio_north.zip",
+    "file": "Ohio_north.shp",
+    "spatialReference": "EPSG:102722",
+    "count": 1372698,
+    "fields": {
+      "Number": {
+        "type": "static",
+        "value": "Number"
+      },
+      "Street": {
+        "type": "static",
+        "value": "Street"
+      },
+      "City": {
+        "type": "static",
+        "value": "City"
+      },
+      "State": {
+        "type": "static",
+        "value": "State"
+      },
+      "Zip": {
+        "type": "static",
+        "value": "Zipcode"
+      }
+    }
+  },
+  {
+    "name": "ohio_south",
+    "url": "ohio_south.zip",
+    "file": "Ohio_south.shp",
+    "count": 2731355,
+    "spatialReference": "EPSG:102723",
+    "fields": {
+      "Number": {
+        "type": "static",
+        "value": "Number"
+      },
+      "Street": {
+        "type": "static",
+        "value": "Street"
+      },
+      "City": {
+        "type": "static",
+        "value": "City"
+      },
+      "State": {
+        "type": "static",
+        "value": "State"
+      },
+      "Zip": {
+        "type": "static",
+        "value": "Zipcode"
+      }
+    }
   }
 ]
