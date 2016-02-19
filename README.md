@@ -62,6 +62,23 @@ To load TIGER data use the `tiger.js` CLI with the following options:
 
 
 
+## The Metadata file
+The metadata file that the state data loader uses tracks data sources and information about each source. The fields are defined as follows:
+ - **name** *Required, must be lowercase* The name of the state in lowercase, with underscores replacing spaces (*eg* north_carolina). Lowercase is required because this name is passed transparently to elasticsearch which uses it to create an index.
+ - **url** *Required if not providing an override directory* The URL where the data can be accessed.
+ - **file** If **url** is a zip archive, a reference to the data file relative to the archive, *eg* `folder/file.shp` if a containing folder is zipped or simply `file.shp`. 
+ - **spatialReference** *Required if value isn't WGS84 and dataset lacks projection information* Spatial reference information that will be input to ogr2ogr as the -s_srs parameter. 
+ - **count** Expected feature count. Useful to suppress errors caused by "incomplete" loading if some rows are known to be missing required data.
+ - **fields** Mappings for dataset columns to values we're interested in, namely . The format is as follows:
+   - An object with `Number`, `Street`, `City`, `State`, and `Zip` as keys.
+   - The value of each key is another object with two keys:
+     - `type` which has a value of either `static`, `multi`, or `dynamic` as strings
+     - `value` which provides the mapping to the top level key we're interested in based on the type as follows:
+       - `static` means a column maps 1:1 to our top level key, just provide the column name as a string
+       - `multi` expects an array of strings that refer to column names that, when concatenated with spaces, form the full mapping
+       - `dynamic` the body of a javascript function as a string that is passed the variable "props" which is a reference to the complete row of original data, which can be arbitrarily transformed as needed (usually to correct bad formatting)
+   - For each row of data, these mappings are used to filter and transform the original data format to the schema expected by Elasticsearch.
+
 ## Info
   - **Technology stack**: Due to a high volume of IO, the loader uses [node.js](http://nodejs.org/) for high throughput.
   - **Dependencies**: node.js v0.10.40, GDAL v1.11.2, ElasticSearch v1.7.3
