@@ -37,20 +37,28 @@ State data is loaded by invoking `./index.js` with the following options:
 
 - **-f, --file** *Required* A json metadata file that contains the collected data endpoints and field mappings of state data. `./data.json` should be used to load all known state data.
 - **-m, --match** A string or regular expression that the names from the <file> must contain or match. Can be used to load just a few items from a large metadata file.
+- **-c, --concurrency** *Default: 2* The number of loading tasks that will run at once.
 - **-h, --host** *Default: localhost* The elasticsearch host. If no argument is provided and a linked elasticsearch Docker container exists, will use its IP.
 - **-p, --port** *Default: 9200* The elasticsearch port. If no argument is provided and a linked elasticsearch Docker container exists, will use its lowest exposed port.
 - **-a, --alias** *Default: address* The elasticsearch alias to an internally created index. This what queries should be run against once data is loaded.
-- **-t, --type** *Default: point* The elasticsearch type (or mapping) within the alias
-- **-l, --log** *Default: error* The elasticsearch log level
-- **-q, --quiet**, Suppress application-level logging.
+- **-t, --type** *Default: point* The elasticsearch type (or mapping) within the alias.
+- **-l, --log** *Default: error* The elasticsearch log level.
+- **-q, --quiet** Suppress application-level logging.
 - **-b, --bucket** An AWS S3 bucket where data resides that will override the source url in the metadata file. Metadata entry names are matched against file basenames to determine overrides.
 - **-d, --directory** A directory where data sources reside, either relative to the current folder or the passed S3 bucket. Also used to override source urls in a similar fashion.
 - **-P, --profile** *Default: default* The aws credentials profile in `~/.aws/credentials`. Needed if using data overrides from a private bucket. AWS keys as environment variables will override this setting.
 
 #### Census data
-To load TIGER data use the `tiger.js` CLI. The host, port, alias, type, log, and quiet flags remain unchanged from the `./index.js` CLI. However, instead of a `--file` flag the `tiger.js` CLI takes the following option:
+To load TIGER data use the `tiger.js` CLI with the following options:
 
 - **-d, --directory** *Required* A directory where TIGER files live, which will be concurrently loaded into Elasticsearch.
+- **-c, --concurrency** *Default: 4* The number of loading tasks that will run at once.
+- **-h, --host** *Default: localhost* The elasticsearch host. If no argument is provided and a linked elasticsearch Docker container exists, will use its IP.
+- **-p, --port** *Default: 9200* The elasticsearch port. If no argument is provided and a linked elasticsearch Docker container exists, will use its lowest exposed port.
+- **-a, --alias** *Default: address* The elasticsearch alias to an internally created index. This what queries should be run against once data is loaded.
+- **-t, --type** *Default: point* The elasticsearch type (or mapping) within the alias.
+- **-l, --log** *Default: error* The elasticsearch log level.
+- **-q, --quiet**, Suppress application-level logging.
 
 
 
