@@ -55,8 +55,8 @@ To load TIGER data use the `tiger.js` CLI with the following options:
 - **-c, --concurrency** *Default: 4* The number of loading tasks that will run at once.
 - **-h, --host** *Default: localhost* The elasticsearch host. If no argument is provided and a linked elasticsearch Docker container exists, will use its IP.
 - **-p, --port** *Default: 9200* The elasticsearch port. If no argument is provided and a linked elasticsearch Docker container exists, will use its lowest exposed port.
-- **-a, --alias** *Default: address* The elasticsearch alias to an internally created index. This what queries should be run against once data is loaded.
-- **-t, --type** *Default: point* The elasticsearch type (or mapping) within the alias.
+- **-a, --alias** *Default: census* The elasticsearch alias to an internally created index. This what queries should be run against once data is loaded.
+- **-t, --type** *Default: addrfeat* The elasticsearch type (or mapping) within the alias.
 - **-l, --log** *Default: error* The elasticsearch log level.
 - **-q, --quiet**, Suppress application-level logging.
 
