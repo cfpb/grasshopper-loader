@@ -37,22 +37,47 @@ State data is loaded by invoking `./index.js` with the following options:
 
 - **-f, --file** *Required* A json metadata file that contains the collected data endpoints and field mappings of state data. `./data.json` should be used to load all known state data.
 - **-m, --match** A string or regular expression that the names from the <file> must contain or match. Can be used to load just a few items from a large metadata file.
+- **-c, --concurrency** *Default: 2* The number of loading tasks that will run at once.
 - **-h, --host** *Default: localhost* The elasticsearch host. If no argument is provided and a linked elasticsearch Docker container exists, will use its IP.
 - **-p, --port** *Default: 9200* The elasticsearch port. If no argument is provided and a linked elasticsearch Docker container exists, will use its lowest exposed port.
 - **-a, --alias** *Default: address* The elasticsearch alias to an internally created index. This what queries should be run against once data is loaded.
-- **-t, --type** *Default: point* The elasticsearch type (or mapping) within the alias
-- **-l, --log** *Default: error* The elasticsearch log level
-- **-q, --quiet**, Suppress application-level logging.
+- **-t, --type** *Default: point* The elasticsearch type (or mapping) within the alias.
+- **-l, --log** *Default: error* The elasticsearch log level.
+- **-q, --quiet** Suppress application-level logging.
 - **-b, --bucket** An AWS S3 bucket where data resides that will override the source url in the metadata file. Metadata entry names are matched against file basenames to determine overrides.
 - **-d, --directory** A directory where data sources reside, either relative to the current folder or the passed S3 bucket. Also used to override source urls in a similar fashion.
 - **-P, --profile** *Default: default* The aws credentials profile in `~/.aws/credentials`. Needed if using data overrides from a private bucket. AWS keys as environment variables will override this setting.
 
 #### Census data
-To load TIGER data use the `tiger.js` CLI. The host, port, alias, type, log, and quiet flags remain unchanged from the `./index.js` CLI. However, instead of a `--file` flag the `tiger.js` CLI takes the following option:
+To load TIGER data use the `tiger.js` CLI with the following options:
 
 - **-d, --directory** *Required* A directory where TIGER files live, which will be concurrently loaded into Elasticsearch.
+- **-c, --concurrency** *Default: 4* The number of loading tasks that will run at once.
+- **-h, --host** *Default: localhost* The elasticsearch host. If no argument is provided and a linked elasticsearch Docker container exists, will use its IP.
+- **-p, --port** *Default: 9200* The elasticsearch port. If no argument is provided and a linked elasticsearch Docker container exists, will use its lowest exposed port.
+- **-a, --alias** *Default: census* The elasticsearch alias to an internally created index. This what queries should be run against once data is loaded.
+- **-t, --type** *Default: addrfeat* The elasticsearch type (or mapping) within the alias.
+- **-l, --log** *Default: error* The elasticsearch log level.
+- **-q, --quiet**, Suppress application-level logging.
 
 
+
+## The Metadata file
+The metadata file that the state data loader uses tracks data sources and information about each source. The fields are defined as follows:
+ - **name** *Required, must be lowercase* The name of the state in lowercase, with underscores replacing spaces (*eg* north_carolina). Lowercase is required because this name is passed transparently to elasticsearch which uses it to create an index.
+ - **url** *Required if not providing an override directory* The URL where the data can be accessed.
+ - **file** If **url** is a zip archive, a reference to the data file relative to the archive, *eg* `folder/file.shp` if a containing folder is zipped or simply `file.shp`. 
+ - **spatialReference** *Required if value isn't WGS84 and dataset lacks projection information* Spatial reference information that will be input to ogr2ogr as the -s_srs parameter. 
+ - **count** Expected feature count. Useful to suppress errors caused by "incomplete" loading if some rows are known to be missing required data.
+ - **fields** Mappings for dataset columns to values we're interested in, namely . The format is as follows:
+   - An object with `Number`, `Street`, `City`, `State`, and `Zip` as keys.
+   - The value of each key is another object with two keys:
+     - `type` which has a value of either `static`, `multi`, or `dynamic` as strings
+     - `value` which provides the mapping to the top level key we're interested in based on the type as follows:
+       - `static` means a column maps 1:1 to our top level key, just provide the column name as a string
+       - `multi` expects an array of strings that refer to column names that, when concatenated with spaces, form the full mapping
+       - `dynamic` the body of a javascript function as a string that is passed the variable "props" which is a reference to the complete row of original data, which can be arbitrarily transformed as needed (usually to correct bad formatting)
+   - For each row of data, these mappings are used to filter and transform the original data format to the schema expected by Elasticsearch.
 
 ## Info
   - **Technology stack**: Due to a high volume of IO, the loader uses [node.js](http://nodejs.org/) for high throughput.
