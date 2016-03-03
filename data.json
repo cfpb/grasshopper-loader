@@ -338,11 +338,10 @@
     }
   },
   {
-    "name": "ohio_north",
-    "url": "ohio_north.zip",
-    "file": "Ohio_north.shp",
-    "spatialReference": "EPSG:102722",
-    "count": 1372698,
+    "name": "ohio",
+    "url": "ohio.zip",
+    "file": "merge.shp",
+    "count": 4104053,
     "fields": {
       "Number": {
         "type": "static",
@@ -367,31 +366,31 @@
     }
   },
   {
-    "name": "ohio_south",
-    "url": "ohio_south.zip",
+    "name": "tennesse",
+    "url": "tennesse.zip",
     "file": "Ohio_south.shp",
     "count": 2731355,
     "spatialReference": "EPSG:102723",
     "fields": {
       "Number": {
         "type": "static",
-        "value": "Number"
+        "value": "comp_stnum"
       },
       "Street": {
-        "type": "static",
-        "value": "Street"
+        "type": "multi",
+        "value": ["premod", "predir", "pretype", "name", "type", "sufdir", "postmod"]
       },
       "City": {
         "type": "static",
-        "value": "City"
+        "value": ""
       },
       "State": {
         "type": "static",
-        "value": "State"
+        "value": "state"
       },
       "Zip": {
         "type": "static",
-        "value": "Zipcode"
+        "value": "zip"
       }
     }
   }
