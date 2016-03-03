@@ -366,11 +366,9 @@
     }
   },
   {
-    "name": "tennesse",
-    "url": "tennesse.zip",
-    "file": "Ohio_south.shp",
-    "count": 2731355,
-    "spatialReference": "EPSG:102723",
+    "name": "tennessee",
+    "url": "TN_Statewide_20151106.zip",
+    "file": "TN_Statewide_20151106.gdb",
     "fields": {
       "Number": {
         "type": "static",
