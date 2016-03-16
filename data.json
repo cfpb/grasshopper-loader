@@ -336,5 +336,60 @@
         "value": "ZIPCODE"
       }
     }
+  },
+  {
+    "name": "ohio",
+    "url": "ohio.zip",
+    "file": "merge.shp",
+    "count": 4104053,
+    "fields": {
+      "Number": {
+        "type": "static",
+        "value": "Number"
+      },
+      "Street": {
+        "type": "static",
+        "value": "Street"
+      },
+      "City": {
+        "type": "static",
+        "value": "City"
+      },
+      "State": {
+        "type": "static",
+        "value": "State"
+      },
+      "Zip": {
+        "type": "static",
+        "value": "Zipcode"
+      }
+    }
+  },
+  {
+    "name": "tennessee",
+    "url": "TN_Statewide_20151106.zip",
+    "file": "TN_Statewide_20151106.gdb",
+    "fields": {
+      "Number": {
+        "type": "static",
+        "value": "comp_stnum"
+      },
+      "Street": {
+        "type": "multi",
+        "value": ["premod", "predir", "pretype", "name", "type", "sufdir", "postmod"]
+      },
+      "City": {
+        "type": "static",
+        "value": ""
+      },
+      "State": {
+        "type": "static",
+        "value": "state"
+      },
+      "Zip": {
+        "type": "static",
+        "value": "zip"
+      }
+    }
   }
 ]
