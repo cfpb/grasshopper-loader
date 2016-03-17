@@ -8,7 +8,7 @@ MAINTAINER Wyatt Pearsall <wyatt.pearsall@cfpb.gov>
 USER root
 
 RUN apt-get update && apt-get install -y curl git && \
-    curl -sL https://deb.nodesource.com/setup_0.10 | sudo bash - && \
+    curl -sL https://deb.nodesource.com/setup_5.x | sudo bash - && \
     apt-get install -y nodejs &&\
     npm update -g npm &&\
     mkdir -p /usr/src/app
