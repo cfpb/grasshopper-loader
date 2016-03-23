@@ -367,8 +367,11 @@
   },
   {
     "name": "tennessee",
-    "url": "TN_Statewide_20151106.zip",
-    "file": "TN_Statewide_20151106.gdb",
+    "url": "tennessee.zip",
+    "file": "TN_Statewide_20151106/TN_Statewide_20151106.gdb",
+    "layerName": "SiteAddress",
+    "spatialReference": "NAD83",
+    "count": 3264341,
     "fields": {
       "Number": {
         "type": "static",
@@ -380,7 +383,7 @@
       },
       "City": {
         "type": "static",
-        "value": ""
+        "value": "city"
       },
       "State": {
         "type": "static",
@@ -389,6 +392,36 @@
       "Zip": {
         "type": "static",
         "value": "zip"
+      }
+    }
+  },
+  {
+    "name": "connecticut",
+    "url": "ftp://ftp.ct.gov/pub/gis/Clearinghousedata/Addressing/CT_Address_pt.zip",
+    "file": "CT_Address_Work_2013/CT_Address_Work_2013.gdb",
+    "count": 1014190,
+    "layerName": "Address_Points", 
+    "spatialReference": "EPSG:2234",
+    "fields": {
+      "Number": {
+        "type": "multi",
+        "value": ["AddressNumberPrefix", "AddressNumber", "AddressNumberSuffix"]
+      },
+      "Street": {
+        "type": "multi",
+        "value": ["StreetNamePreModifier", "StreetNamePreDirectional", "StreetNamePreType", "StreetName", "StreetNamePostType", "StreetNamePostDirectional", "StreetNamePostModifier", "StreetNamePostIdentifier"]
+      },
+      "City": {
+        "type": "static",
+        "value": "USPS_PlaceName"
+      },
+      "State": {
+        "type": "static",
+        "value": "StateName"
+      },
+      "Zip": {
+        "type": "static",
+        "value": "ZipCode"
       }
     }
   }
