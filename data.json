@@ -371,7 +371,7 @@
     "file": "TN_Statewide_20151106/TN_Statewide_20151106.gdb",
     "layerName": "SiteAddress",
     "spatialReference": "NAD83",
-    "count": 0,
+    "count": 3264341,
     "fields": {
       "Number": {
         "type": "static",
