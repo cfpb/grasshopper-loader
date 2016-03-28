@@ -35,7 +35,7 @@
     "ftp": "^0.3.10",
     "inherits": "^2.0.1",
     "lump-stream": "0.x",
-    "ogr-json-stream": "^0.2.0",
+    "ogr-json-stream": "^0.3.0",
     "pump": "^1.0.0",
     "readable-stream": "2.0.x",
     "request": "^2.60.0",
