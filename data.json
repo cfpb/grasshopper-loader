@@ -454,5 +454,34 @@
         "value": "ZipCode"
       }
     }
+  },
+  {
+    "name": "washington",
+    "url": "washington.zip",
+    "file": "washington/merge/merge.shp",
+    "count": 1307342,
+    "spatialReference": "EPSG: 102749",
+    "fields": {
+      "Number": {
+        "type": "static",
+        "value": "Number"
+      },
+      "Street": {
+        "type": "static",
+        "value": "StreetName"
+      },
+      "City": {
+        "type": "static",
+        "value": "City"
+      },
+      "State": {
+        "type": "dynamic",
+        "value": "return props.State || 'WA'"
+      },
+      "Zip": {
+        "type": "static",
+        "value": "Zip_parsed"
+      }
+    }
   }
 ]
