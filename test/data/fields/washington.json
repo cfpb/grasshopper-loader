@@ -1,0 +1,21 @@
+{ 
+	"type": "Feature", 
+	"id": "1", 
+	"properties": {
+		"City": null, 
+		"Full": null, 
+		"Number": null, 
+		"StreetName": null, 
+		"Zip_parsed": null
+	},
+	
+	"geometry": {
+		"type": "Polygon", 
+		"coordinates": [
+			[2057287.9175454974, 534184.9491365701], 
+			[2057287.9136084914, 534185.0547793955], 
+			[2059935.151424244, 534242.2029590607], 
+			[2057287.9175454974, 534184.9491365701]
+		]
+	}
+}
