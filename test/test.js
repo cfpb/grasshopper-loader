@@ -54,7 +54,7 @@ options
   .option('-a, --alias <alias>', 'Elasticsearch index alias. Defaults to testindex', 'testindex')
   .option('-t, --type <type>', 'Elasticsearch type within the provided or default index. Defaults to testtype', 'testtype')
   .option('-c, --concurrency', 'Concurrency of loader operations, defaults to 2', 2)
-  .option('-b, --bucket <bucket>', 'An S3 bucket where the data overrides may be found.', 'wyatt-test')
+  .option('-b, --bucket <bucket>', 'An S3 bucket where the data overrides may be found.', 'grasshopper-loader-test')
   .option('-d, --directory <directory>', 'A directory where data overrides may be found, either relative to the current folder or the passed S3 bucket.', 'test/overrides')
   .option('-P, --profile <profile>', 'The aws credentials profile in ~/.aws/credentials. Will also respect AWS keys as environment variables.', 'default')
   .parse(process.argv);
