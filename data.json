@@ -453,5 +453,34 @@
         "value": "Zip_parsed"
       }
     }
+  },
+  {
+    "name": "wisconsin",
+    "url": "https://gisdata.wisc.edu/public/WI_Addresses_2014.zip",
+    "file": "Wisconsin_Addresses_2014.gdb",
+    "count": 2734415,
+    "spatialReference": "NAD83",
+    "fields": {
+      "Number": {
+        "type": "multi",
+        "value": ["AddNumPrefix", "AddNum", "AddNumSuffix"]
+      },
+      "Street": {
+        "type": "multi",
+        "value": ["Prefix", "StreetName", "StreetType", "Suffix"]
+      },
+      "City": {
+        "type": "static",
+        "value": "CensusPlaceName"
+      },
+      "State": {
+        "type": "static",
+        "value": "State"
+      },
+      "Zip": {
+        "type": "static",
+        "value": "ZipCode"
+      }
+    }
   }
 ]
