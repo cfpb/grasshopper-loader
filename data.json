@@ -426,36 +426,6 @@
     }
   },
   {
-    "name": "connecticut",
-    "url": "ftp://ftp.ct.gov/pub/gis/Clearinghousedata/Addressing/CT_Address_pt.zip",
-    "file": "StatewideParcels_v2012n_e9.2_r1.3.gdb",
-    "count": 1014190,
-    "layerName": "Address_Points", 
-    "spatialReference": "EPSG:2234",
-    "fields": {
-      "Number": {
-        "type": "multi",
-        "value": ["AddressNumberPrefix", "AddressNumber", "AddressNumberSuffix"]
-      },
-      "Street": {
-        "type": "multi",
-        "value": ["StreetNamePreModifier", "StreetNamePreDirectional", "StreetNamePreType", "StreetName", "StreetNamePostType", "StreetNamePostDirectional", "StreetNamePostModifier", "StreetNamePostIdentifier"]
-      },
-      "City": {
-        "type": "static",
-        "value": "USPS_PlaceName"
-      },
-      "State": {
-        "type": "static",
-        "value": "StateName"
-      },
-      "Zip": {
-        "type": "static",
-        "value": "ZipCode"
-      }
-    }
-  },
-  {
     "name": "washington",
     "url": "washington.zip",
     "file": "washington/merge/merge.shp",
@@ -481,6 +451,35 @@
       "Zip": {
         "type": "static",
         "value": "Zip_parsed"
+      }
+    }
+  },
+  {
+    "name": "wisconsin",
+    "url": "https://gisdata.wisc.edu/public/WI_Addresses_2014.zip",
+    "file": "Wisconsin_Addresses_2014.gdb",
+    "count": 2734415,
+    "spatialReference": "NAD83",
+    "fields": {
+      "Number": {
+        "type": "multi",
+        "value": ["AddNumPrefix", "AddNum", "AddNumSuffix"]
+      },
+      "Street": {
+        "type": "multi",
+        "value": ["Prefix", "StreetName", "StreetType", "Suffix"]
+      },
+      "City": {
+        "type": "static",
+        "value": "CensusPlaceName"
+      },
+      "State": {
+        "type": "static",
+        "value": "State"
+      },
+      "Zip": {
+        "type": "static",
+        "value": "ZipCode"
       }
     }
   }

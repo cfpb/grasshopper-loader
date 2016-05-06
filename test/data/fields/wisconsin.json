@@ -1,0 +1,50 @@
+{
+  "type": "Feature",
+  "properties": {
+    "RelateID" : 1374011379,
+    "ParcelID" : null,
+    "CountyID" : 137,
+    "FullMailAdd" : "724 E EAST RD PLAINFIELD WI 54966",
+    "FullAdd" : "409 W MILL STREET",
+    "AddNumPrefix" : null,
+    "AddNum" : 409,
+    "AddNumSuffix" : null,
+    "Prefix" : "W",
+    "StreetName" : "MILL",
+    "StreetAlias1" : null,
+    "StreetAlias2" : null,
+    "StreetAlias3" : null,
+    "StreetType" : "STREET",
+    "Suffix" : null,
+    "LandmarkName" : null,
+    "UnitType" : null,
+    "UnitID" : null,
+    "PlaceName" : null,
+    "PlaceNameAlternate" : null,
+    "CensusPlaceName" : "VILLAGE OF PLAINFIELD",
+    "ZipCode" : null,
+    "Zip4" : null,
+    "State" : "WI",
+    "PtType" : null,
+    "AddSource" : "WAUSHARA COUNTY",
+    "LoadDate" : "06/12/2014",
+    "EntryDate" : null,
+    "CAI" : null,
+    "Township" : 20,
+    "Section" : 12,
+    "Range" : 8,
+    "GEOID" : 551379603003020,
+    "SourceType" : "PARCEL CENTROID",
+    "AddLifeStaus" : null,
+    "AddressCompleteness" : 3,
+    "AddressLongitude" : -89.4970690499999,
+    "AddressLatitude" : 44.215458901
+  },
+  "geometry": {
+    "type": "Point",
+    "coordinates": [
+      -560176.351300000213087,
+      415925.905600000172853
+    ]
+  }
+}
