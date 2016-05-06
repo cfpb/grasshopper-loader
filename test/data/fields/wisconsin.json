@@ -38,7 +38,7 @@
     "AddLifeStaus" : null,
     "AddressCompleteness" : 3,
     "AddressLongitude" : -89.4970690499999,
-    "AddressLatitude" : 44.215458901,
+    "AddressLatitude" : 44.215458901
   },
   "geometry": {
     "type": "Point",
