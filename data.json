@@ -482,5 +482,64 @@
         "value": "ZipCode"
       }
     }
+  },
+  {
+    "name": "new_jersey",
+    "url": "https://njgin.state.nj.us/download2/Address/ADDR_POINT_NJ_fgdb.zip",
+    "file": "NJ_Statewide_AddressPoints.gdb",
+    "count": 2947990,
+    "spatialReference": "EPSG:3424",
+    "layerName": "ADDR_POINT",
+    "fields": {
+      "Number": {
+        "type": "multi",
+        "value": ["PRE_NUM", "ADDR_NUM", "SUF_NUM"]
+      },
+      "Street": {
+        "type": "multi",
+        "value": ["PRE_DIR", "PRE_TYPE", "PRE_MOD", "NAME", "SUF_TYPE", "SUF_DIR", "SUF_MOD"]
+      },
+      "City": {
+        "type": "dynamic",
+        "value": "return props.City || ''"
+      },
+      "State": {
+        "type": "dynamic",
+        "value": "return props.State || 'WA'"
+      },
+      "Zip": {
+        "type": "static",
+        "value": "ZIP_CODE"
+      }
+    }
+  },
+  {
+    "name": "indiana",
+    "url": "indiana.zip",
+    "file": "indiana/address/indiana.shp",
+    "count": 3000716,
+    "spatialReference": "EPSG:26916",
+    "fields": {
+      "Number": {
+        "type": "static",
+        "value": "number"
+      },
+      "Street": {
+        "type": "static",
+        "value": "street"
+      },
+      "City": {
+        "type": "static",
+        "value": "city"
+      },
+      "State": {
+        "type": "static",
+        "value": "state"
+      },
+      "Zip": {
+        "type": "static",
+        "value": "zip"
+      }
+    }
   }
 ]
