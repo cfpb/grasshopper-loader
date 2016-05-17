@@ -1,0 +1,18 @@
+{
+    "geometry": {
+        "coordinates": [
+            4285672.137878418,
+            505641.171875
+        ],
+        "type": "Point"
+    },
+    "id": "8",
+    "properties": {
+        "city": "LOOGOOTEE",
+        "number": "12588",
+        "state": "IN",
+        "street": "UPPER SOUTH POINT Circle",
+        "zip": "47553"
+    },
+    "type": "Feature"
+}
