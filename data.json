@@ -543,6 +543,36 @@
     }
   },
   {
+    "name": "kansas",
+    "url": "kansas.zip",
+    "file": "CFPB.gdb",
+    "count": 1239446,
+    "spatialReference": "EPSG: 4269",
+    "layerName": "KS_AddressPoints_20160517",
+    "fields": {
+      "Number": {
+        "type": "multi",
+        "value": ["HNO", "HNS"]
+      },
+      "Street": {
+        "type": "multi",
+        "value": ["PRD", "STP", "RD", "STS", "POD", "POM"]
+      },
+      "City": {
+        "type": "static",
+        "value": "MUNI"
+      },
+      "State": {
+        "type": "static",
+        "value": "STATE"
+      },
+      "Zip": {
+        "type": "static",
+        "value": "ZIP"
+      }
+    }
+  },
+  {
     "name": "colorado",
     "url": "https://data.colorado.gov/download/sgcm-yvhh/application/zip",
     "file": "CSAD2014PA.gdb",

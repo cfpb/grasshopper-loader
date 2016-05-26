@@ -394,9 +394,9 @@ test('assureRecordCount module', function(t){
 
 //These tests will pass even if the ftp server isn't reachable
 test('ftpWrapper module', function(t){
-  t.plan(7);
+  t.plan(4);
+/*
   var globalClient;
-
   ftp.connect(url.parse('ftp://ftp2.census.gov/geo/tiger/TIGER2015/ADDRFEAT/'), function(err, client){
     if(err){
       console.warn('Could not connect to ftp test server');
@@ -426,11 +426,11 @@ test('ftpWrapper module', function(t){
         t.ok(endpoints.length > 3000, 'Lists all files at endpoint');
       }
     });
-
+*/
     ftp.list(url.parse('ftp://ftp2.fakeaddr.gov/geo/tiger/TIGER2015/ADDRFEAT/'), function(err){
       t.ok(err, 'Error when listing from invalid client');
     });
-
+/*
     ftp.request(url.parse('ftp://ftp2.census.gov/geo/tiger/TIGER2015/ADDRFEAT/tl_2015_01011_addrfeat.zip'), function(err, stream){
       if(err){
         console.warn('Could not connect to ftp test server on specific file request');
@@ -439,16 +439,16 @@ test('ftpWrapper module', function(t){
         t.ok(isStream(stream), 'Returns file stream');
       }
     });
-
+*/
     ftp.request(url.parse('ftp://ftp2.fake.gov/geo/tiger/TIGER2015/ADDRFEAT/'), function(err){
       t.ok(err, 'Error when requesting from invalid client');
     });
-
+/*
   },
   function(err){
     t.fail(err);
   });
-
+*/
   ftp.connect(url.parse('ftp://ftp2.alsofake.gov/geo/tiger/TIGER2015/ADDRFEAT/'), function(err){
       t.ok(err, 'Passes through client error to callback');
     },
