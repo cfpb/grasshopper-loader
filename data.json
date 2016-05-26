@@ -571,5 +571,35 @@
         "value": "ZIP"
       }
     }
+  },
+  {
+    "name": "colorado",
+    "url": "https://data.colorado.gov/download/sgcm-yvhh/application/zip",
+    "file": "CSAD2014PA.gdb",
+    "count": 1453631,
+    "spatialReference": "NAD83",
+    "layerName": "CSAD2014PA",
+    "fields": {
+      "Number": {
+        "type": "multi",
+        "value": ["NumberPrefix1", "AddressNumber1", "NumberSuffix1"]
+      },
+      "Street": {
+        "type": "multi",
+        "value": ["StreetPreModifier1", "StreetPreDirectional1", "StreetPreJurisGrade1", "StreetPreType1", "StreetSeparator1", "StreetName1", "StreetPostType1", "StreetPostDirectional1", "StreetPostModifier1"]
+      },
+      "City": {
+        "type": "static",
+        "value": "PlaceName1"
+      },
+      "State": {
+        "type": "static",
+        "value": "StateName"
+      },
+      "Zip": {
+        "type": "static",
+        "value": "ZIPCode"
+      }
+    }
   }
 ]
