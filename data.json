@@ -32,7 +32,7 @@
     "name": "utah",
     "url": "ftp://ftp.agrc.utah.gov/UtahSGID_Vector/UTM12_NAD83/LOCATION/UnpackagedData/AddressPoints/_Statewide/AddressPoints_gdb.zip",
     "file": "AddressPoints.gdb",
-    "count": 1107890,
+    "count": 1116698,
     "fields": {
       "Number": {
         "type": "static",
@@ -60,7 +60,7 @@
     "name": "new_york",
     "url": "http://gis.ny.gov/gisdata/data/ds_921/SAM_Master_Statewide.gdb.zip",
     "file": "SAM_Master_Statewide_Database.gdb",
-    "count": 4795667,
+    "count": 4841261,
     "fields": {
       "Number": {
         "type": "multi",
@@ -116,7 +116,7 @@
     "name": "virginia",
     "url": "https://ftp.vgingis.com/Download/VA_SiteAddress.txt.zip",
     "file": "VA_SiteAddress.txt",
-    "count": 3600890,
+    "count": 3605429,
     "spatialReference": "NAD83",
     "fields": {
       "Number": {
@@ -145,7 +145,7 @@
     "name": "maine",
     "url": "http://www.maine.gov/megis/catalog/shps/state/ng911pts.zip",
     "file": "ng911pts.shp",
-    "count": 482043,
+    "count": 553794,
     "fields": {
       "Number": {
         "type": "static",
@@ -173,7 +173,7 @@
     "name": "vermont",
     "url": "http://maps.vcgi.org/gisdata/vcgi/packaged_zips/EmergencyE911_ESITE.zip",
     "file": "Emergency_ESITE_point.shp",
-    "count": 321692,
+    "count": 323327,
     "fields": {
       "Number": {
         "type": "static",
@@ -201,6 +201,7 @@
     "name": "district_of_columbia",
     "url": "http://opendata.dc.gov/agol/arcgis/aa514416aaf74fdc94748f1e56e7cc8a/0.zip",
     "file": "Address_Points.shp",
+    "count": 146118,
     "fields": {
       "Number": {
         "type": "multi",
@@ -599,6 +600,34 @@
       "Zip": {
         "type": "static",
         "value": "ZIPCode"
+      }
+    }
+  },
+  {
+    "name": "arizona",
+    "url": "arizona.zip",
+    "file": "arizona_points_8-15-16.gdb",
+    "count": 2909595,
+    "fields": {
+      "Number": {
+        "type": "multi",
+        "value": ["AddNum_Pre", "Add_Number", "AddNum_Suf"]
+      },
+      "Street": {
+        "type": "multi",
+        "value": ["StN_PreMod", "StN_PreDir", "StN_PreTyp", "StN_PreSep", "StreetName", "StN_PosSep", "StN_PosTyp", "StN_PosDir", "StN_PosMod"]
+      },
+      "City": {
+        "type": "static",
+        "value": "Az_Placename"
+      },
+      "State": {
+        "type": "static",
+        "value": "State"
+      },
+      "Zip": {
+        "type": "static",
+        "value": "Post_Code"
       }
     }
   }
