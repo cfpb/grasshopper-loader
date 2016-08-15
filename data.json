@@ -487,10 +487,10 @@
   {
     "name": "new_jersey",
     "url": "https://njgin.state.nj.us/download2/Address/ADDR_POINT_NJ_fgdb.zip",
-    "file": "NJ_Statewide_AddressPoints.gdb",
+    "file": "NJAddressPub_20160621.gdb",
     "count": 2947990,
     "spatialReference": "EPSG:3424",
-    "layerName": "ADDR_POINT",
+    "layerName": "AddressPoints_NJ",
     "fields": {
       "Number": {
         "type": "multi",
@@ -506,7 +506,7 @@
       },
       "State": {
         "type": "dynamic",
-        "value": "return props.State || 'WA'"
+        "value": "return props.State || 'NJ'"
       },
       "Zip": {
         "type": "static",
