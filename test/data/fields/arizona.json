@@ -1,0 +1,51 @@
+{
+    "geometry": {
+        "coordinates": [
+            487705.60153549537,
+            218464.46323107183
+        ],
+        "type": "Point"
+    },
+    "id": "9",
+    "properties": {
+        "ADDR_NUM": 931,
+        "ADDR_SRC": "NJ Office of GIS",
+        "AP_GUID": "{F8836CC9-149D-483B-8448-79B3D7BA1CC7}",
+        "BLDG": null,
+        "CMT_TEXT": null,
+        "FLOOR": null,
+        "GNIS": "885134",
+        "LNDMRK_NAME1": null,
+        "LNDMRK_NAME2": null,
+        "LNDMRK_NAME3": null,
+        "LOCTN": null,
+        "LOC_TYPE": 4,
+        "NAME": "Navajo",
+        "NAME_FULL": "Navajo Avenue",
+        "PRE_DIR": "",
+        "PRE_MOD": "",
+        "PRE_NUM": null,
+        "PRE_TYPE": "",
+        "PRMRY_PT": "Y",
+        "ROOM": null,
+        "SEG_GUID": null,
+        "SOURCE_KEY": null,
+        "STREET_ADDR": "931 Navajo Avenue",
+        "SUB_ADDR": null,
+        "SUF_DIR": "",
+        "SUF_MOD": "",
+        "SUF_NUM": null,
+        "SUF_TYPE": "Avenue",
+        "UNIT_ID": null,
+        "UNIT_TYPE": null,
+        "UPDATE_DATE": "2016-04-15T00:00:00",
+        "UPDATE_USER": "njogis",
+        "USE_CLASS": null,
+        "USPS_VAL": "Y",
+        "ZIP_CODE": "08201",
+        "ZIP_NAME": "ABSECON",
+        "ZIP_PLUS4": "2305",
+        "ZIP_SRC": "CASS"
+    },
+    "type": "Feature"
+}
