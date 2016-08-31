@@ -229,7 +229,7 @@
     "name": "rhode_island",
     "url": "http://www.rigis.org/geodata/facility/e911Sites16r2b.zip",
     "file": "e911Sites16r2b.shp",
-    "count": 406210,
+    "count": 406876,
     "fields": {
       "Number": {
         "type": "static",
