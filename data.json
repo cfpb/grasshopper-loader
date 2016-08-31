@@ -227,8 +227,8 @@
   },
   {
     "name": "rhode_island",
-    "url": "http://www.edc.uri.edu/rigis/spfdata/structure/e911Sites16r1.zip",
-    "file": "e911Sites16r1.shp",
+    "url": "http://www.rigis.org/geodata/facility/e911Sites16r2b.zip",
+    "file": "e911Sites16r2b.shp",
     "count": 406210,
     "fields": {
       "Number": {
