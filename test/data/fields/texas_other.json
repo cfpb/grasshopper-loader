@@ -1,0 +1,20 @@
+{
+  "type": "Feature",
+  "properties": {
+    "NUMBER" : 3111,
+    "STREET" : "Clearfield Drive",
+    "UNIT" : "",
+    "CITY" : "SAN ANTONIO",
+    "DISTRICT" : 409,
+    "REGION" : "",
+    "POSTCODE" : 78230,
+    "ID" : ""
+  },
+  "geometry": {
+    "type": "Point",
+    "coordinates": [
+      -98.5514152,
+      29.4760845
+    ]
+  }
+}
