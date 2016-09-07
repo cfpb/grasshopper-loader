@@ -227,9 +227,9 @@
   },
   {
     "name": "rhode_island",
-    "url": "http://www.edc.uri.edu/rigis/spfdata/structure/e911Sites16r1.zip",
-    "file": "e911Sites16r1.shp",
-    "count": 406210,
+    "url": "http://www.rigis.org/geodata/facility/e911Sites16r2b.zip",
+    "file": "e911Sites16r2b.shp",
+    "count": 406876,
     "fields": {
       "Number": {
         "type": "static",
@@ -686,6 +686,34 @@
       "Zip": {
         "type": "static",
         "value": "PostalCode"
+      }
+    }
+  },
+  {
+    "name": "florida",
+    "url": "florida.zip",
+    "file": "aggregate/aggregate.shp",
+    "count": 8423679,
+    "fields": {
+      "Number": {
+        "type": "static",
+        "value": "number"
+      },
+      "Street": {
+        "type": "static",
+        "value": "streetName"
+      },
+      "City": {
+        "type": "static",
+        "value": "city"
+      },
+      "State": {
+        "type": "static",
+        "value": "state"
+      },
+      "Zip": {
+        "type": "static",
+        "value": "zipCode"
       }
     }
   }
