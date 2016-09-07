@@ -1,0 +1,18 @@
+{
+    "geometry": {
+        "coordinates": [
+            2704035.351757501,
+            294956.4261243246
+        ],
+        "type": "Point"
+    },
+    "id": "8",
+    "properties": {
+        "city": null,
+        "number": "13313",
+        "state": "FL",
+        "streetName": "NE 148TH",
+        "zipCode": null
+    },
+    "type": "Feature"
+}
