@@ -630,5 +630,33 @@
         "value": "Post_Code"
       }
     }
+  },
+  {
+    "name": "florida",
+    "url": "florida.zip",
+    "file": "aggregate/aggregate.shp",
+    "count": 8423679,
+    "fields": {
+      "Number": {
+        "type": "static",
+        "value": "number"
+      },
+      "Street": {
+        "type": "static",
+        "value": "streetName"
+      },
+      "City": {
+        "type": "static",
+        "value": "city"
+      },
+      "State": {
+        "type": "static",
+        "value": "state"
+      },
+      "Zip": {
+        "type": "static",
+        "value": "zipCode"
+      }
+    }
   }
 ]
