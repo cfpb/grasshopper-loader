@@ -1,0 +1,29 @@
+{
+    "name": "north_carolina",
+    "url": "http://data.nconemap.gov/downloads/vector/mastadd14.zip",
+    "file": "AddressNC_2014.gdb",
+    "spatialReference": "EPSG:2264",
+    "fields": {
+      "Number": {
+        "type": "static",
+        "value": "ADDR_HN"
+      },
+      "Street": {
+        "type": "multi",
+        "value": ["ADDR_SN", "ADDR_ST"],
+        "separators": {"1":"SEPARATOR"}
+      },
+      "City": {
+        "type": "static",
+        "value": "PO_NAME"
+      },
+      "State": {
+        "type": "static",
+        "value": "STATE"
+      },
+      "Zip": {
+        "type": "static",
+        "value": "ZIPCODE"
+      }
+    }
+  }

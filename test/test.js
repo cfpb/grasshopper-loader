@@ -475,15 +475,20 @@ test('ftpWrapper addendum', function(t){
 
 
 test('resolveFields module', function(t){
-  t.plan(4);
+  t.plan(6);
 
   var ncmeta = fs.readJsonSync('test/data/metadata/ncmeta.json');
+  var ncsep = fs.readJsonSync('test/data/metadata/ncmetaSep.json');
   var nc = fs.readJsonSync('test/data/fields/north_carolina.json');
 
   var resolved = resolveFields(nc.properties, ncmeta.fields);
+  var resolvedWithSep = resolveFields(nc.properties, ncsep.fields);
 
+  t.equal(resolved.Street, 'CENTER STAGE COURT', 'Resolves and joins street');
   t.equal(resolved.State, 'NC', 'Resolves state');
   t.equal(resolved.Zip, '27127', 'Resolves zip');
+
+  t.equal(resolvedWithSep.Street, 'CENTER STAGESEPARATORCOURT', 'Resolves street with separator');
 
   try{
     resolveFields(nc.properties, {});
