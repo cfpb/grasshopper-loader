@@ -65,7 +65,7 @@
       "Number": {
         "type": "multi",
         "value": ["PrefixAddressNumber", "AddressNumber", "SuffixAddressNumber"],
-        "seperators": {"1": "", "2": ""}
+        "separators": {"1": "", "2": ""}
       },
       "Street": {
         "type": "multi",
@@ -94,7 +94,7 @@
       "Number": {
         "type": "multi",
         "value": ["ADR_NUM", "ADR_NUM_SU"],
-        "seperators": {"1": ""}
+        "separators": {"1": ""}
       },
       "Street": {
         "type": "static",
@@ -124,7 +124,7 @@
       "Number": {
         "type": "multi",
         "value": ["PREADDRNUM", "ADDRNUM", "ADDRNUMSUF"],
-        "seperators": {"1": "", "2": ""}
+        "separators": {"1": "", "2": ""}
       },
       "Street": {
         "type": "static",
@@ -209,7 +209,7 @@
       "Number": {
         "type": "multi",
         "value": ["ADDRNUM", "ADDRNUMSUF"],
-        "seperators": {"1": ""}
+        "separators": {"1": ""}
       },
       "Street": {
         "type": "multi",
@@ -295,7 +295,7 @@
       "Number": {
         "type": "multi",
         "value": ["ADDRESS_NUMBER_PREFIX", "ADDRESS_NUMBER", "ADDRESS_NUMBER_SUFFIX"],
-        "seperators": {"1": "", "2": ""}
+        "separators": {"1": "", "2": ""}
       },
       "Street": {
         "type": "static",
@@ -412,7 +412,7 @@
       "Number": {
         "type": "multi",
         "value": ["AddressNumberPrefix", "AddressNumber", "AddressNumberSuffix"],
-        "seperators": {"1": "", "2": ""}
+        "separators": {"1": "", "2": ""}
       },
       "Street": {
         "type": "multi",
@@ -471,7 +471,7 @@
       "Number": {
         "type": "multi",
         "value": ["AddNumPrefix", "AddNum", "AddNumSuffix"],
-        "seperators": {"1": "", "2": ""}
+        "separators": {"1": "", "2": ""}
       },
       "Street": {
         "type": "multi",
@@ -502,7 +502,7 @@
       "Number": {
         "type": "multi",
         "value": ["PRE_NUM", "ADDR_NUM", "SUF_NUM"],
-        "seperators": {"1": "", "2": ""}
+        "separators": {"1": "", "2": ""}
       },
       "Street": {
         "type": "multi",
@@ -562,7 +562,7 @@
       "Number": {
         "type": "multi",
         "value": ["HNO", "HNS"],
-        "seperators": {"1": ""}
+        "separators": {"1": ""}
       },
       "Street": {
         "type": "multi",
@@ -593,7 +593,7 @@
       "Number": {
         "type": "multi",
         "value": ["NumberPrefix1", "AddressNumber1", "NumberSuffix1"],
-        "seperators": {"1": "", "2": ""}
+        "separators": {"1": "", "2": ""}
       },
       "Street": {
         "type": "multi",
@@ -622,7 +622,7 @@
       "Number": {
         "type": "multi",
         "value": ["AddNum_Pre", "Add_Number", "AddNum_Suf"],
-        "seperators": {"1": "", "2": ""}
+        "separators": {"1": "", "2": ""}
       },
       "Street": {
         "type": "multi",
@@ -681,7 +681,7 @@
       "Number": {
         "type": "multi",
         "value": ["AddressNumberPrefix", "AddressNumber", "AddressNumberSuffix"],
-        "seperators": {"1": "", "2": ""}
+        "separators": {"1": "", "2": ""}
       },
       "Street": {
         "type": "multi",
