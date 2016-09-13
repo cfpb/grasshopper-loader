@@ -64,7 +64,8 @@
     "fields": {
       "Number": {
         "type": "multi",
-        "value": ["PrefixAddressNumber", "AddressNumber", "SuffixAddressNumber"]
+        "value": ["PrefixAddressNumber", "AddressNumber", "SuffixAddressNumber"],
+        "separators": {"1": "", "2": ""}
       },
       "Street": {
         "type": "multi",
@@ -92,7 +93,8 @@
     "fields": {
       "Number": {
         "type": "multi",
-        "value": ["ADR_NUM", "ADR_NUM_SU"]
+        "value": ["ADR_NUM", "ADR_NUM_SU"],
+        "separators": {"1": ""}
       },
       "Street": {
         "type": "static",
@@ -121,7 +123,8 @@
     "fields": {
       "Number": {
         "type": "multi",
-        "value": ["PREADDRNUM", "ADDRNUM", "ADDRNUMSUF"]
+        "value": ["PREADDRNUM", "ADDRNUM", "ADDRNUMSUF"],
+        "separators": {"1": "", "2": ""}
       },
       "Street": {
         "type": "static",
@@ -205,7 +208,8 @@
     "fields": {
       "Number": {
         "type": "multi",
-        "value": ["ADDRNUM", "ADDRNUMSUF"]
+        "value": ["ADDRNUM", "ADDRNUMSUF"],
+        "separators": {"1": ""}
       },
       "Street": {
         "type": "multi",
@@ -290,7 +294,8 @@
     "fields": {
       "Number": {
         "type": "multi",
-        "value": ["ADDRESS_NUMBER_PREFIX", "ADDRESS_NUMBER", "ADDRESS_NUMBER_SUFFIX"]
+        "value": ["ADDRESS_NUMBER_PREFIX", "ADDRESS_NUMBER", "ADDRESS_NUMBER_SUFFIX"],
+        "separators": {"1": "", "2": ""}
       },
       "Street": {
         "type": "static",
@@ -406,7 +411,8 @@
     "fields": {
       "Number": {
         "type": "multi",
-        "value": ["AddressNumberPrefix", "AddressNumber", "AddressNumberSuffix"]
+        "value": ["AddressNumberPrefix", "AddressNumber", "AddressNumberSuffix"],
+        "separators": {"1": "", "2": ""}
       },
       "Street": {
         "type": "multi",
@@ -464,7 +470,8 @@
     "fields": {
       "Number": {
         "type": "multi",
-        "value": ["AddNumPrefix", "AddNum", "AddNumSuffix"]
+        "value": ["AddNumPrefix", "AddNum", "AddNumSuffix"],
+        "separators": {"1": "", "2": ""}
       },
       "Street": {
         "type": "multi",
@@ -494,7 +501,8 @@
     "fields": {
       "Number": {
         "type": "multi",
-        "value": ["PRE_NUM", "ADDR_NUM", "SUF_NUM"]
+        "value": ["PRE_NUM", "ADDR_NUM", "SUF_NUM"],
+        "separators": {"1": "", "2": ""}
       },
       "Street": {
         "type": "multi",
@@ -553,7 +561,8 @@
     "fields": {
       "Number": {
         "type": "multi",
-        "value": ["HNO", "HNS"]
+        "value": ["HNO", "HNS"],
+        "separators": {"1": ""}
       },
       "Street": {
         "type": "multi",
@@ -583,7 +592,8 @@
     "fields": {
       "Number": {
         "type": "multi",
-        "value": ["NumberPrefix1", "AddressNumber1", "NumberSuffix1"]
+        "value": ["NumberPrefix1", "AddressNumber1", "NumberSuffix1"],
+        "separators": {"1": "", "2": ""}
       },
       "Street": {
         "type": "multi",
@@ -611,7 +621,8 @@
     "fields": {
       "Number": {
         "type": "multi",
-        "value": ["AddNum_Pre", "Add_Number", "AddNum_Suf"]
+        "value": ["AddNum_Pre", "Add_Number", "AddNum_Suf"],
+        "separators": {"1": "", "2": ""}
       },
       "Street": {
         "type": "multi",
@@ -669,7 +680,8 @@
     "fields": {
       "Number": {
         "type": "multi",
-        "value": ["AddressNumberPrefix", "AddressNumber", "AddressNumberSuffix"]
+        "value": ["AddressNumberPrefix", "AddressNumber", "AddressNumberSuffix"],
+        "separators": {"1": "", "2": ""}
       },
       "Street": {
         "type": "multi",
