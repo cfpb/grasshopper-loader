@@ -586,7 +586,8 @@
     "name": "colorado",
     "url": "https://data.colorado.gov/api/geospatial/n7je-akky?method=export&format=Original",
     "file": "csadPublic/csadPublic.shp",
-    "count": 1453631,
+    "count": 1688120,
+    "isZipped": true,
     "spatialReference": "NAD83",
     "fields": {
       "Number": {
