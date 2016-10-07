@@ -463,8 +463,9 @@
   },
   {
     "name": "wisconsin",
-    "url": "https://gisdata.wisc.edu/public/WI_Addresses_2014.zip",
-    "file": "Wisconsin_Addresses_2014.gdb",
+    "url": "http://psc.wi.gov/utilityInfo/tele/broadband/documents/LinkWISCONSIN_EBM_ParcelAddress_Data.zip",
+    "file": "LinkWISCONSIN_EBM_ParcelAddress_Data/LinkWISCONSIN_EBM_Final_Share.gdb",
+    "layerName": "AddressPoints_FinalV2",
     "count": 2734415,
     "spatialReference": "NAD83",
     "fields": {
