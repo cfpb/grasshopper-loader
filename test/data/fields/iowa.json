@@ -1,0 +1,21 @@
+{
+    "geometry": {
+        "coordinates": [
+            -92.287919,
+            42.290809
+        ],
+        "type": "Point"
+    },
+    "properties": {
+        "NUMBER": 1051,
+        "STREET": "50th Street Drive",
+        "UNIT": "1051 50th Street Dr",
+        "CITY": "La Porte City",
+        "DISTRICT": "Benton",
+        "REGION": "IA",
+        "POSTCODE": "50651-8804",
+        "ID": "US",
+        "HASH": "8d0d1c2115cb1861"
+    },
+    "type": "Feature"
+}

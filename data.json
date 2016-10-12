@@ -728,5 +728,34 @@
         "value": "zipCode"
       }
     }
+  },
+  {
+    "name": "iowa",
+    "url": "iowa.zip",
+    "file": "iowa/iowa_aggregate.csv",
+    "count": 404042,
+    "spatialReference": "NAD83",
+    "fields": {
+      "Number": {
+        "type": "static",
+        "value": "NUMBER"
+      },
+      "Street": {
+        "type": "static",
+        "value": "STREET"
+      },
+      "City": {
+        "type": "static",
+        "value": "CITY"
+      },
+      "State": {
+        "type": "dynamic",
+        "value": "return props.State || 'IA'"
+      },
+      "Zip": {
+        "type": "static",
+        "value": "POSTCODE"
+      }
+    }
   }
 ]
